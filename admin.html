@@ -181,6 +181,18 @@
   .scores-table tr:last-child td { border-bottom:none; }
   .score-num { font-family:'Space Mono',monospace; font-weight:700; color:var(--accent3); }
 
+  .participant-search-wrap { position:relative; margin-bottom:8px; }
+  .participant-search-wrap .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; pointer-events:none; }
+  .participant-search {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:13px 16px 13px 40px; font-size:16px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text);
+    outline:none; transition:border-color 0.2s;
+  }
+  .participant-search:focus { border-color:var(--accent); }
+  .participant-search::placeholder { color:var(--text2); }
+  .search-result-count { font-size:12px; color:var(--text2); text-align:right; margin-bottom:6px; min-height:16px; }
+
   .loading-dots { display:flex; gap:6px; justify-content:center; padding:20px; }
   .loading-dots span { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:dot-bounce 1.2s infinite; }
   .loading-dots span:nth-child(2){animation-delay:0.2s;} .loading-dots span:nth-child(3){animation-delay:0.4s;}
@@ -254,6 +266,11 @@
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">👤</span><span class="sh-title">개인 점수 조정</span></div>
         <div class="section-body">
+          <div class="participant-search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="participant-search" id="participantSearch" placeholder="이름 검색 (예: 도연, 보람)" autocomplete="off" oninput="filterParticipants(this.value)">
+          </div>
+          <div class="search-result-count" id="searchResultCount"></div>
           <select class="admin-select" id="selectParticipant"><option value="">참가자 선택...</option></select>
           <div class="score-btn-grid">
             <button class="score-btn plus"  onclick="applyPersonalScore(+1)">+1</button>
@@ -382,14 +399,28 @@
   }
 
   function populateParticipantSelect() {
+    const q = (document.getElementById('participantSearch')?.value || '').trim();
+    filterParticipants(q);
+  }
+
+  window.filterParticipants = function(q) {
     const sel = document.getElementById('selectParticipant'), cur = sel.value;
+    const filtered = Object.entries(allParticipants)
+      .filter(([k,v]) => !q || v.name.includes(q))
+      .sort((a,b) => (a[1].team||'').localeCompare(b[1].team||''));
     sel.innerHTML = '<option value="">참가자 선택...</option>';
-    Object.entries(allParticipants).sort((a,b)=>(a[1].team||'').localeCompare(b[1].team||'')).forEach(([k,v]) => {
+    filtered.forEach(([k,v]) => {
       const o = document.createElement('option');
       o.value = k; o.textContent = `${v.team||''} - ${v.name} (${v.score||0}점)`; sel.appendChild(o);
     });
-    sel.value = cur;
-  }
+    if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
+    const countEl = document.getElementById('searchResultCount');
+    if (q) {
+      countEl.textContent = filtered.length > 0 ? `${filtered.length}명 검색됨` : '검색 결과 없음';
+    } else {
+      countEl.textContent = '';
+    }
+  };
 
   window.applyTeamScore   = async d => { const k=document.getElementById('selectTeam').value; if(!k){showToast('팀을 선택하세요','error');return;} await changeTeamScore(k,d); };
   window.applyTeamCustom  = async () => { const k=document.getElementById('selectTeam').value, v=parseInt(document.getElementById('teamCustomVal').value); if(!k){showToast('팀을 선택하세요','error');return;} if(isNaN(v)){showToast('점수를 입력하세요','error');return;} await changeTeamScore(k,v); document.getElementById('teamCustomVal').value=''; };
