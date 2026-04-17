@@ -3,25 +3,25 @@
     "user_001": {
       "name": "김주희",
       "code": "3507",
-      "team": "A팀",
+      "team": "1조",
       "score": 0
     },
     "user_002": {
       "name": "조준수",
       "code": "6282",
-      "team": "B팀",
+      "team": "2조",
       "score": 0
     },
     "user_003": {
       "name": "홍길동",
       "code": "1234",
-      "team": "A팀",
+      "team": "1조",
       "score": 0
     },
     "user_004": {
       "name": "이지연",
       "code": "5678",
-      "team": "B팀",
+      "team": "2조",
       "score": 0
     },
     "user_005": {
@@ -44,14 +44,6 @@
     }
   },
   "teams": {
-    "A팀": {
-      "teamName": "A팀",
-      "score": 0
-    },
-    "B팀": {
-      "teamName": "B팀",
-      "score": 0
-    },
     "1조": {
       "teamName": "1조",
       "score": 0
