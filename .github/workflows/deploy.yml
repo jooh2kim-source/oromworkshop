@@ -10,19 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: index.html만 배포
+        run: mkdir dist-participant && cp index.html dist-participant/index.html
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy . --project-name=oromworkshop2026
+          command: pages deploy dist-participant --project-name=oromworkshop2026
 
   deploy-admin:
     name: 관리자 페이지 배포 (oromtf)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: admin.html을 index.html로 배포
+        run: mkdir dist-admin && cp admin.html dist-admin/index.html
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy . --project-name=oromtf
+          command: pages deploy dist-admin --project-name=oromtf
