@@ -1,0 +1,28 @@
+name: Cloudflare Pages 자동 배포
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-participant:
+    name: 참가자 페이지 배포 (oromworkshop2026)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=oromworkshop2026 --commit-dirty=true
+
+  deploy-admin:
+    name: 관리자 페이지 배포 (oromtf)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=oromtf --commit-dirty=true
