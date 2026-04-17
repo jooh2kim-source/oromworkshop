@@ -325,8 +325,8 @@
       <div class="section-card" style="border-color:rgba(224,32,64,0.3)">
         <div class="section-header"><span class="sh-icon">⚠️</span><span class="sh-title" style="color:var(--danger)">점수 초기화</span></div>
         <div class="section-body">
-          <p class="danger-desc">모든 팀 점수와 개인 점수를 0으로 초기화합니다.<br>이 작업은 되돌릴 수 없습니다.</p>
-          <button class="btn-danger" onclick="resetAllScores()">🔄 전체 점수 초기화</button>
+          <p class="danger-desc">모든 팀 점수, 개인 점수, 게임 참여 기록을 초기화합니다.<br>뽑기 게임과 첫 참여 이벤트도 다시 참여 가능해집니다.<br>이 작업은 되돌릴 수 없습니다.</p>
+          <button class="btn-danger" onclick="resetAllScores()">🔄 전체 점수 및 기록 초기화</button>
         </div>
       </div>
     </div>
@@ -481,13 +481,20 @@
   }
 
   window.resetAllScores = async function() {
-    if (!confirm('정말로 모든 점수를 초기화하시겠습니까?\n팀 점수와 개인 점수가 전부 0이 됩니다.\n\n이 작업은 되돌릴 수 없습니다.')) return;
+    if (!confirm('정말로 모든 점수와 게임 기록을 초기화하시겠습니까?\n\n• 모든 팀 점수 → 0\n• 모든 개인 점수 → 0\n• 뽑기 게임 참여 횟수 → 초기화\n• 첫 참여 이벤트 완료 여부 → 초기화\n\n이 작업은 되돌릴 수 없습니다.')) return;
     const updates = {};
-    Object.keys(allTeams).forEach(k => { updates[`teams/${k}/score`] = 0; });
-    Object.keys(allParticipants).forEach(k => { updates[`participants/${k}/score`] = 0; });
+    Object.keys(allTeams).forEach(k => {
+      updates[`teams/${k}/score`] = 0;
+    });
+    Object.keys(allParticipants).forEach(k => {
+      updates[`participants/${k}/score`]                = 0;
+      updates[`participants/${k}/drawGameCount`]        = null;
+      updates[`participants/${k}/reviewEventCompleted`] = null;
+      updates[`participants/${k}/reviewEvent`]          = null;
+    });
     await update(ref(db), updates);
-    await logScore('전체 점수 초기화', 0);
-    showToast('전체 점수가 초기화됐습니다', 'success');
+    await logScore('전체 점수 및 게임 기록 초기화', 0);
+    showToast('점수와 게임 기록이 모두 초기화됐습니다', 'success');
   };
 
   function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
