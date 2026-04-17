@@ -17,6 +17,7 @@
     --accent3:   #16b864;
     --text:      #1a1a2e;
     --text2:     #7a7a9a;
+    --danger:    #e02040;
     --team-a:    #5b50f0;
     --team-b:    #f05070;
     --team-c:    #16b864;
@@ -29,6 +30,7 @@
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; overflow-x:hidden; }
 
+  /* ── 로그인 ── */
   #loginScreen {
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     min-height:100vh; padding:24px; gap:28px;
@@ -42,7 +44,6 @@
     -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   }
   .login-logo p { color:var(--text2); font-size:14px; margin-top:6px; }
-
   .login-card {
     background:var(--surface); border:1px solid var(--border); border-radius:20px;
     padding:28px 24px; width:100%; max-width:360px;
@@ -57,7 +58,6 @@
   }
   .login-card input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(91,80,240,0.1); }
   .login-card input::placeholder { color:var(--text2); }
-
   .btn-login {
     width:100%; background:linear-gradient(135deg,var(--accent),#3d32cc);
     color:#fff; border:none; border-radius:14px; padding:16px;
@@ -65,12 +65,12 @@
     cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 16px rgba(91,80,240,0.3);
   }
   .btn-login:active { opacity:0.85; }
-
   #loginError {
     display:none; background:#fff0f3; border:1px solid #ffc0cc;
     border-radius:10px; padding:12px 14px; font-size:14px; color:#c0003c; text-align:center;
   }
 
+  /* ── 앱 공통 ── */
   #appScreen { display:none; }
   .app-header {
     position:sticky; top:0; z-index:100;
@@ -94,12 +94,14 @@
   .section-header .sh-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text2); }
   .section-header .sh-badge { margin-left:auto; font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; padding:3px 9px; border-radius:20px; }
 
+  /* ── 공지 ── */
   .notice-body  { padding:16px 18px; }
   .notice-empty { color:var(--text2); font-size:14px; text-align:center; padding:8px 0; }
   .notice-text  { font-size:16px; font-weight:600; line-height:1.65; }
   .notice-time  { font-size:12px; color:var(--text2); margin-top:8px; }
   .notice-new   { display:inline-block; width:8px; height:8px; background:var(--accent2); border-radius:50%; margin-right:6px; animation:pulse 1.5s infinite; vertical-align:middle; }
 
+  /* ── 순위 ── */
   .ranking-list { padding:4px 0; }
   .rank-item { display:flex; align-items:center; padding:13px 18px; gap:14px; border-bottom:1px solid var(--border); }
   .rank-item:last-child { border-bottom:none; }
@@ -114,7 +116,6 @@
   .rank-score { font-size:22px; font-weight:900; font-family:'Space Mono',monospace; color:var(--accent3); flex-shrink:0; }
   .rank-score span { font-size:12px; font-weight:400; color:var(--text2); font-family:'Noto Sans KR',sans-serif; }
   .me-tag { font-size:10px; font-weight:700; background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
-
   .team-rank-list { padding:4px 0; }
   .team-rank-item { display:flex; align-items:center; padding:14px 18px; gap:14px; border-bottom:1px solid var(--border); }
   .team-rank-item:last-child { border-bottom:none; }
@@ -122,8 +123,10 @@
   .team-rank-name  { flex:1; font-size:17px; font-weight:700; }
   .team-rank-score { font-size:24px; font-weight:900; font-family:'Space Mono',monospace; }
 
+  /* ── 로그아웃 ── */
   .logout-btn { background:none; border:1.5px solid var(--border); color:var(--text2); border-radius:10px; padding:10px 16px; font-size:14px; font-family:'Noto Sans KR',sans-serif; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto; }
 
+  /* ── 공통 유틸 ── */
   .loading-dots { display:flex; gap:6px; justify-content:center; padding:20px; }
   .loading-dots span { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:dot-bounce 1.2s infinite; }
   .loading-dots span:nth-child(2){animation-delay:0.2s;} .loading-dots span:nth-child(3){animation-delay:0.4s;}
@@ -131,18 +134,75 @@
   @keyframes pulse      { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
   @keyframes scoreFlash { 0%{opacity:1;} 50%{opacity:0.2;} 100%{opacity:1;} }
   .score-flash { animation:scoreFlash 0.5s ease; }
-
   .tc-A{color:var(--team-a);background:rgba(91,80,240,0.1);}  .tc-B{color:var(--team-b);background:rgba(240,80,112,0.1);}
   .tc-C{color:var(--team-c);background:rgba(22,184,100,0.1);} .tc-D{color:var(--team-d);background:rgba(224,139,0,0.1);}
-  .tc-E{color:var(--team-e);background:rgba(0,153,204,0.1);}
+  .tc-E{color:var(--team-e);background:rgba(0,153,204,0.1);}  .tc-F{color:#9b59b6;background:rgba(155,89,182,0.1);}
   .dot-A{background:var(--team-a);} .dot-B{background:var(--team-b);}
   .dot-C{background:var(--team-c);} .dot-D{background:var(--team-d);} .dot-E{background:var(--team-e);}
   .score-A{color:var(--team-a);} .score-B{color:var(--team-b);}
   .score-C{color:var(--team-c);} .score-D{color:var(--team-d);} .score-E{color:var(--team-e);}
+
+  /* ── 뽑기 게임 ── */
+  .game-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
+
+  .game-count-row { display:flex; align-items:center; gap:8px; }
+  .game-count-dots { display:flex; gap:6px; }
+  .game-count-dot { width:11px; height:11px; border-radius:50%; background:var(--border); transition:background 0.3s; }
+  .game-count-dot.used { background:var(--accent); }
+  .game-count-label { font-size:13px; color:var(--text2); font-weight:600; margin-left:4px; }
+
+  .game-section-label { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
+
+  .bet-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .bet-btn {
+    background:var(--surface2); border:1.5px solid var(--border);
+    color:var(--text); border-radius:12px; padding:14px 0;
+    font-size:16px; font-weight:700; font-family:'Space Mono',monospace;
+    cursor:pointer; text-align:center; transition:all 0.15s;
+  }
+  .bet-btn.selected { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.3); }
+  .bet-btn:disabled { opacity:0.3; cursor:not-allowed; }
+  .bet-btn:not(:disabled):not(.selected):active { border-color:var(--accent); color:var(--accent); }
+
+  .slip-hint { font-size:13px; color:var(--text2); text-align:center; padding:6px 0; }
+  .slip-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .slip-btn {
+    aspect-ratio:2/3; border:none; border-radius:12px; font-size:24px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--accent),#3d32cc);
+    box-shadow:0 4px 12px rgba(91,80,240,0.25); transition:transform 0.12s, opacity 0.15s;
+  }
+  .slip-btn:active:not(:disabled) { transform:scale(0.88); }
+  .slip-btn:disabled { opacity:0.3; cursor:not-allowed; box-shadow:none; background:var(--surface2); }
+
+  .game-result-box { text-align:center; padding:8px 0 6px; }
+  .game-result-emoji { font-size:54px; display:block; margin-bottom:10px; animation:bounceIn 0.45s; }
+  .game-result-title { font-size:24px; font-weight:900; margin-bottom:5px; }
+  .game-result-title.fail { color:var(--danger); }
+  .game-result-title.keep { color:var(--text2); }
+  .game-result-title.win  { color:var(--accent3); }
+  .game-result-delta { font-size:17px; font-weight:700; font-family:'Space Mono',monospace; margin-bottom:20px; }
+  .game-result-delta.minus { color:var(--danger); }
+  .game-result-delta.plus  { color:var(--accent3); }
+  .game-result-delta.zero  { color:var(--text2); }
+
+  .btn-game-action {
+    width:100%; border:none; border-radius:14px; padding:15px;
+    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s;
+  }
+  .btn-game-action.active { background:linear-gradient(135deg,var(--accent),#3d32cc); color:#fff; box-shadow:0 4px 14px rgba(91,80,240,0.3); }
+  .btn-game-action.active:active { opacity:0.85; }
+  .btn-game-action.done  { background:var(--surface2); color:var(--text2); cursor:default; }
+
+  .game-done-msg { text-align:center; padding:24px 18px; color:var(--text2); font-size:15px; line-height:1.7; }
+
+  @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0;} 60%{transform:scale(1.18);} 100%{transform:scale(1);opacity:1;} }
 </style>
 </head>
 <body>
 
+<!-- ───────────── 로그인 화면 ───────────── -->
 <div id="loginScreen">
   <div class="login-logo">
     <span class="logo-icon">🏆</span>
@@ -163,10 +223,11 @@
   </div>
 </div>
 
+<!-- ───────────── 앱 화면 ───────────── -->
 <div id="appScreen">
   <div class="app-header">
     <div class="header-identity">
-      <span id="headerTeamBadge" class="team-badge">A팀</span>
+      <span id="headerTeamBadge" class="team-badge">팀</span>
       <span id="headerName">이름</span>
     </div>
     <div class="scores-row">
@@ -180,7 +241,10 @@
       </div>
     </div>
   </div>
+
   <div class="app-content">
+
+    <!-- 공지사항 -->
     <div class="section-card">
       <div class="section-header">
         <span class="sh-icon">📢</span><span class="sh-title">공지사항</span>
@@ -190,26 +254,45 @@
         <div class="loading-dots"><span></span><span></span><span></span></div>
       </div>
     </div>
+
+    <!-- 팀 순위 -->
     <div class="section-card">
       <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 순위</span></div>
       <div class="team-rank-list" id="teamRankList">
         <div class="loading-dots"><span></span><span></span><span></span></div>
       </div>
     </div>
+
+    <!-- 개인 TOP 5 -->
     <div class="section-card">
       <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">개인 TOP 5</span></div>
       <div class="ranking-list" id="rankingList">
         <div class="loading-dots"><span></span><span></span><span></span></div>
       </div>
     </div>
+
+    <!-- 뽑기 게임 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="sh-icon">🎮</span>
+        <span class="sh-title">뽑기 게임</span>
+        <span class="sh-badge" id="gameCountBadge">0/3</span>
+      </div>
+      <div id="gameContent">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
     <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, onValue, update, push }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
+  // ── Firebase 설정 ──────────────────────────────────────
   const firebaseConfig = {
     apiKey:            "AIzaSyC7S-HzpRjOPqtbyfJAYO1y3ir0msbV4SA",
     authDomain:        "oromworkshop-56b21.firebaseapp.com",
@@ -220,6 +303,13 @@
     appId:             "1:769454280422:web:7ec2295e6f58e157d67527"
   };
 
+  // ── 뽑기 게임 설정 ─────────────────────────────────────
+  // 베팅 금액 배열: 여기만 수정하면 버튼 자동 반영
+  const BET_OPTIONS  = [10, 30, 50, 100];
+  const MAX_PLAYS    = 3;
+  const PRIZE_POOL   = ['fail', 'keep', 'keep', 'x1.5', 'x2'];
+  // ───────────────────────────────────────────────────────
+
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
 
@@ -228,12 +318,20 @@
   let allParticipants = {};
   let allTeams        = {};
 
-  const TEAM_COLORS = ['A','B','C','D','E'];
+  // 뽑기 게임 상태
+  let gamePhase      = 'idle'; // 'idle' | 'picking' | 'result'
+  let selectedBet    = null;
+  let lastResult     = null;
+  let gameProcessing = false;
+
+  // ── 팀 색상 ───────────────────────────────────────────
+  const TEAM_COLORS = ['A','B','C','D','E','F'];
   function getTeamClass(teamName) {
     const idx = Object.keys(allTeams).indexOf(teamName);
     return TEAM_COLORS[idx % TEAM_COLORS.length];
   }
 
+  // ── 로그인 ────────────────────────────────────────────
   window.doLogin = function() {
     const name = document.getElementById('inputName').value.trim();
     const code = document.getElementById('inputCode').value.trim();
@@ -268,37 +366,55 @@
     catch(e) { localStorage.removeItem('ws_user'); }
   }
 
+  // ── 앱 시작 ───────────────────────────────────────────
   function startApp() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display   = 'block';
-    document.getElementById('headerName').textContent = currentUser.name;
-    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; renderRanking(); updateMyScores(); });
-    onValue(ref(db,'teams'),        snap => { allTeams = snap.val()||{};        renderTeamRanking(); updateMyTeamScore(); });
-    onValue(ref(db,'notices'),      snap => { renderNotice(snap.val()); });
+    document.getElementById('headerName').textContent    = currentUser.name;
+    onValue(ref(db,'participants'), snap => {
+      allParticipants = snap.val() || {};
+      renderRanking();
+      updateMyScores();
+    });
+    onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
+    onValue(ref(db,'notices'), snap => { renderNotice(snap.val()); });
   }
 
+  // ── 내 점수 업데이트 ──────────────────────────────────
   function updateMyScores() {
     const me = allParticipants[currentUser.uid]; if (!me) return;
+
     const ps = document.getElementById('personalScoreDisplay');
-    if (ps.textContent !== String(me.score||0)) {
-      ps.textContent = me.score||0;
+    if (ps.textContent !== String(me.score || 0)) {
+      ps.textContent = me.score || 0;
       ps.classList.remove('score-flash'); void ps.offsetWidth; ps.classList.add('score-flash');
     }
-    const tc = getTeamClass(me.team);
+
+    const tc    = getTeamClass(me.team);
     const badge = document.getElementById('headerTeamBadge');
-    badge.textContent = me.team||''; badge.className = `team-badge tc-${tc}`;
+    badge.textContent = me.team || ''; badge.className = `team-badge tc-${tc}`;
+
+    // 게임 카운트 동기화 (결과 화면 중엔 재렌더 안 함)
+    const serverCount = me.drawGameCount || 0;
+    if (gamePhase !== 'result') {
+      renderGame(serverCount);
+    } else {
+      // 뱃지만 갱신
+      document.getElementById('gameCountBadge').textContent = `${serverCount}/${MAX_PLAYS}`;
+    }
   }
 
   function updateMyTeamScore() {
     const me = allParticipants[currentUser.uid]; if (!me) return;
     const td = allTeams[me.team]; if (!td) return;
     const ts = document.getElementById('teamScoreDisplay');
-    if (ts.textContent !== String(td.score||0)) {
-      ts.textContent = td.score||0;
+    if (ts.textContent !== String(td.score || 0)) {
+      ts.textContent = td.score || 0;
       ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
     }
   }
 
+  // ── 공지 ─────────────────────────────────────────────
   function renderNotice(data) {
     const el = document.getElementById('noticeBody');
     if (!data) { el.innerHTML='<p class="notice-empty">공지사항이 없습니다.</p>'; return; }
@@ -306,18 +422,21 @@
     if (!list.length) { el.innerHTML='<p class="notice-empty">공지사항이 없습니다.</p>'; return; }
     const latest = list[0];
     const t = new Date(latest.timestamp).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-    el.innerHTML=`<p class="notice-text"><span class="notice-new"></span>${escHtml(latest.text)}</p><p class="notice-time">📅 ${t} 업데이트</p>`;
+    el.innerHTML = `<p class="notice-text"><span class="notice-new"></span>${escHtml(latest.text)}</p><p class="notice-time">📅 ${t} 업데이트</p>`;
   }
 
+  // ── 개인 TOP 5 ────────────────────────────────────────
   function renderRanking() {
     const el = document.getElementById('rankingList');
-    const sorted = Object.entries(allParticipants).map(([uid,p])=>({uid,...p}))
-      .sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,TOP_N);
+    const sorted = Object.entries(allParticipants)
+      .map(([uid,p]) => ({uid,...p}))
+      .sort((a,b) => (b.score||0)-(a.score||0))
+      .slice(0, TOP_N);
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
-    const icons=['🥇','🥈','🥉'];
+    const icons = ['🥇','🥈','🥉'];
     el.innerHTML = sorted.map((p,i) => {
-      const isMe = p.uid===currentUser.uid;
-      const numHtml = i<3?`<span class="rank-num top${i+1}">${icons[i]}</span>`:`<span class="rank-num">${i+1}</span>`;
+      const isMe    = p.uid === currentUser.uid;
+      const numHtml = i<3 ? `<span class="rank-num top${i+1}">${icons[i]}</span>` : `<span class="rank-num">${i+1}</span>`;
       return `<div class="rank-item${isMe?' me':''}">
         ${numHtml}
         <div class="rank-info">
@@ -329,14 +448,17 @@
     }).join('');
   }
 
+  // ── 팀 순위 ───────────────────────────────────────────
   function renderTeamRanking() {
     const el = document.getElementById('teamRankList');
     const me = allParticipants[currentUser.uid];
-    const sorted = Object.entries(allTeams).map(([k,v])=>({key:k,...v})).sort((a,b)=>(b.score||0)-(a.score||0));
+    const sorted = Object.entries(allTeams)
+      .map(([k,v]) => ({key:k,...v}))
+      .sort((a,b) => (b.score||0)-(a.score||0));
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
     el.innerHTML = sorted.map(t => {
-      const tc = getTeamClass(t.key);
-      const isMyTeam = me && me.team===t.key;
+      const tc      = getTeamClass(t.key);
+      const isMyTeam = me && me.team === t.key;
       return `<div class="team-rank-item" style="${isMyTeam?'background:#f5f3ff':''}">
         <div class="team-color-dot dot-${tc}"></div>
         <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
@@ -345,7 +467,178 @@
     }).join('');
   }
 
-  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  // ── 뽑기 게임 렌더 ────────────────────────────────────
+  function renderGame(count) {
+    const el    = document.getElementById('gameContent');
+    const me    = allParticipants[currentUser.uid];
+    const score = me?.score ?? 0;
+    count = count ?? (me?.drawGameCount ?? 0);
+
+    document.getElementById('gameCountBadge').textContent = `${count}/${MAX_PLAYS}`;
+
+    // 3회 완료
+    if (count >= MAX_PLAYS) {
+      el.innerHTML = `<div class="game-done-msg">🎉 3회 모두 참여했어요!<br><span style="font-size:13px">수고하셨습니다 😊</span></div>`;
+      return;
+    }
+
+    // 점수 도트
+    const dotsHtml = Array.from({length: MAX_PLAYS}, (_,i) =>
+      `<div class="game-count-dot${i < count ? ' used' : ''}"></div>`
+    ).join('');
+
+    // 베팅 버튼
+    const betHtml = BET_OPTIONS.map(b => {
+      const disabled = b > score;
+      const selected = selectedBet === b;
+      return `<button class="bet-btn${selected?' selected':''}"
+        ${disabled ? 'disabled' : ''}
+        onclick="window.selectBet(${b})">${b}</button>`;
+    }).join('');
+
+    // 쪽지 버튼
+    const slipsActive = (gamePhase === 'picking');
+    const slipHtml = Array.from({length: 5}, (_,i) =>
+      `<button class="slip-btn"
+        ${slipsActive ? '' : 'disabled'}
+        onclick="window.pickSlip(${i})">📝</button>`
+    ).join('');
+
+    const hintText = slipsActive
+      ? `베팅: <strong>${selectedBet}점</strong> — 쪽지 하나를 뽑으세요!`
+      : '베팅 금액을 선택하면 쪽지를 뽑을 수 있어요.';
+
+    el.innerHTML = `
+      <div class="game-body">
+        <div class="game-count-row">
+          <div class="game-count-dots">${dotsHtml}</div>
+          <span class="game-count-label">참여 ${count}/${MAX_PLAYS}</span>
+        </div>
+        <div>
+          <div class="game-section-label">💰 베팅 금액</div>
+          <div class="bet-grid">${betHtml}</div>
+        </div>
+        <div>
+          <div class="slip-hint">${hintText}</div>
+          <div class="slip-grid">${slipHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  // ── 베팅 선택 ─────────────────────────────────────────
+  window.selectBet = function(amount) {
+    const me = allParticipants[currentUser.uid];
+    if ((me?.score ?? 0) < amount) return;
+    selectedBet = amount;
+    gamePhase   = 'picking';
+    const count = me?.drawGameCount ?? 0;
+    renderGame(count);
+  };
+
+  // ── 쪽지 뽑기 ─────────────────────────────────────────
+  window.pickSlip = async function(idx) {
+    if (gameProcessing || gamePhase !== 'picking' || selectedBet === null) return;
+    gameProcessing = true;
+
+    // 버튼 즉시 비활성화 (중복 클릭 방지)
+    document.querySelectorAll('.slip-btn').forEach(b => b.disabled = true);
+
+    // 상품 셔플 후 결과 결정
+    const prizes = [...PRIZE_POOL].sort(() => Math.random() - 0.5);
+    const result = prizes[idx];
+
+    const me           = allParticipants[currentUser.uid];
+    const currentScore = me?.score ?? 0;
+    const B            = selectedBet;
+    const currentCount = me?.drawGameCount ?? 0;
+
+    let delta = 0;
+    if      (result === 'fail') delta = -B;
+    else if (result === 'keep') delta =  0;
+    else if (result === 'x1.5') delta =  Math.floor(B * 0.5);
+    else if (result === 'x2')   delta =  B;
+
+    const newScore = currentScore + delta;
+    const newCount = currentCount + 1;
+
+    try {
+      // Firebase 업데이트
+      await update(ref(db, `participants/${currentUser.uid}`), {
+        score:         newScore,
+        drawGameCount: newCount
+      });
+
+      // 게임 로그
+      await push(ref(db, 'gameLogs'), {
+        user:      currentUser.name,
+        uid:       currentUser.uid,
+        bet:       B,
+        result,
+        delta,
+        timestamp: Date.now()
+      });
+    } catch(e) {
+      console.error('Firebase 업데이트 실패', e);
+    }
+
+    lastResult  = { result, delta, B, newCount };
+    gamePhase   = 'result';
+    showGameResult();
+    gameProcessing = false;
+  };
+
+  // ── 결과 표시 ─────────────────────────────────────────
+  function showGameResult() {
+    const el = document.getElementById('gameContent');
+    const { result, delta, B, newCount } = lastResult;
+
+    let emoji, title, titleClass, deltaText, deltaClass;
+    if (result === 'fail') {
+      emoji = '💀'; title = '꽝!'; titleClass = 'fail';
+      deltaText = `-${B}점`; deltaClass = 'minus';
+    } else if (result === 'keep') {
+      emoji = '😐'; title = '그대로!'; titleClass = 'keep';
+      deltaText = '변동 없음'; deltaClass = 'zero';
+    } else if (result === 'x1.5') {
+      emoji = '🎉'; title = '1.5배 당첨!'; titleClass = 'win';
+      deltaText = `+${Math.floor(B*0.5)}점`; deltaClass = 'plus';
+    } else {
+      emoji = '🏆'; title = '2배 당첨!'; titleClass = 'win';
+      deltaText = `+${B}점`; deltaClass = 'plus';
+    }
+
+    document.getElementById('gameCountBadge').textContent = `${newCount}/${MAX_PLAYS}`;
+    const remaining = MAX_PLAYS - newCount;
+
+    const btnLabel  = remaining > 0 ? `다시 뽑기 (${remaining}회 남음)` : '완료! 수고하셨습니다 🎊';
+    const btnClass  = remaining > 0 ? 'active' : 'done';
+
+    el.innerHTML = `
+      <div class="game-body">
+        <div class="game-result-box">
+          <span class="game-result-emoji">${emoji}</span>
+          <div class="game-result-title ${titleClass}">${title}</div>
+          <div class="game-result-delta ${deltaClass}">${deltaText}</div>
+          <button class="btn-game-action ${btnClass}"
+            ${remaining === 0 ? 'disabled' : ''}
+            onclick="window.resetGame()">${btnLabel}</button>
+        </div>
+      </div>`;
+  }
+
+  // ── 게임 리셋 (다음 판) ───────────────────────────────
+  window.resetGame = function() {
+    selectedBet = null;
+    gamePhase   = 'idle';
+    lastResult  = null;
+    const me    = allParticipants[currentUser.uid];
+    renderGame(me?.drawGameCount ?? 0);
+  };
+
+  // ── 유틸 ─────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 </script>
 </body>
 </html>
