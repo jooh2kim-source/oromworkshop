@@ -18,6 +18,7 @@
     --text:      #1a1a2e;
     --text2:     #7a7a9a;
     --danger:    #e02040;
+    --gold:      #e08b00;
     --team-a:    #5b50f0;
     --team-b:    #f05070;
     --team-c:    #16b864;
@@ -93,6 +94,7 @@
   .section-header .sh-icon  { font-size:18px; }
   .section-header .sh-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text2); }
   .section-header .sh-badge { margin-left:auto; font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; padding:3px 9px; border-radius:20px; }
+  .section-header .sh-badge-gold { margin-left:auto; font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--gold),#b86a00); color:#fff; padding:3px 9px; border-radius:20px; }
 
   /* ── 공지 ── */
   .notice-body  { padding:16px 18px; }
@@ -142,17 +144,57 @@
   .score-A{color:var(--team-a);} .score-B{color:var(--team-b);}
   .score-C{color:var(--team-c);} .score-D{color:var(--team-d);} .score-E{color:var(--team-e);}
 
+  /* ── 별점 이벤트 ── */
+  .review-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
+  .review-desc { font-size:14px; color:var(--text2); line-height:1.6; }
+  .review-desc strong { color:var(--text); }
+
+  .star-row { display:flex; justify-content:center; gap:6px; padding:4px 0; }
+  .star-btn {
+    background:none; border:none; font-size:38px; cursor:pointer;
+    line-height:1; padding:4px; transition:transform 0.1s;
+    filter:grayscale(1) opacity(0.35);
+  }
+  .star-btn.active { filter:none; }
+  .star-btn:active { transform:scale(0.82); }
+
+  .review-input {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:14px 16px; font-size:15px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none;
+    transition:border-color 0.2s; resize:none;
+  }
+  .review-input:focus { border-color:var(--gold); }
+  .review-input::placeholder { color:var(--text2); }
+  .review-input:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .review-error {
+    display:none; background:#fff0f3; border:1px solid #ffc0cc;
+    border-radius:10px; padding:11px 14px; font-size:14px; color:#c0003c; text-align:center;
+  }
+
+  .btn-review-submit {
+    width:100%; background:linear-gradient(135deg,var(--gold),#b86a00);
+    color:#fff; border:none; border-radius:14px; padding:15px;
+    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 14px rgba(224,139,0,0.3);
+  }
+  .btn-review-submit:active { opacity:0.85; }
+  .btn-review-submit:disabled { background:var(--surface2); color:var(--text2); box-shadow:none; cursor:not-allowed; }
+
+  .review-complete-box { padding:24px 18px; text-align:center; }
+  .review-complete-emoji { font-size:52px; display:block; margin-bottom:12px; animation:bounceIn 0.45s; }
+  .review-complete-title { font-size:22px; font-weight:900; color:var(--accent3); margin-bottom:6px; }
+  .review-complete-desc  { font-size:14px; color:var(--text2); line-height:1.6; }
+
   /* ── 뽑기 게임 ── */
   .game-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
-
   .game-count-row { display:flex; align-items:center; gap:8px; }
   .game-count-dots { display:flex; gap:6px; }
   .game-count-dot { width:11px; height:11px; border-radius:50%; background:var(--border); transition:background 0.3s; }
   .game-count-dot.used { background:var(--accent); }
   .game-count-label { font-size:13px; color:var(--text2); font-weight:600; margin-left:4px; }
-
   .game-section-label { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
-
   .bet-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
   .bet-btn {
     background:var(--surface2); border:1.5px solid var(--border);
@@ -163,7 +205,6 @@
   .bet-btn.selected { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.3); }
   .bet-btn:disabled { opacity:0.3; cursor:not-allowed; }
   .bet-btn:not(:disabled):not(.selected):active { border-color:var(--accent); color:var(--accent); }
-
   .slip-hint { font-size:13px; color:var(--text2); text-align:center; padding:6px 0; }
   .slip-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
   .slip-btn {
@@ -174,7 +215,6 @@
   }
   .slip-btn:active:not(:disabled) { transform:scale(0.88); }
   .slip-btn:disabled { opacity:0.3; cursor:not-allowed; box-shadow:none; background:var(--surface2); }
-
   .game-result-box { text-align:center; padding:8px 0 6px; }
   .game-result-emoji { font-size:54px; display:block; margin-bottom:10px; animation:bounceIn 0.45s; }
   .game-result-title { font-size:24px; font-weight:900; margin-bottom:5px; }
@@ -185,16 +225,13 @@
   .game-result-delta.minus { color:var(--danger); }
   .game-result-delta.plus  { color:var(--accent3); }
   .game-result-delta.zero  { color:var(--text2); }
-
   .btn-game-action {
     width:100%; border:none; border-radius:14px; padding:15px;
-    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
-    cursor:pointer; transition:opacity 0.15s;
+    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s;
   }
   .btn-game-action.active { background:linear-gradient(135deg,var(--accent),#3d32cc); color:#fff; box-shadow:0 4px 14px rgba(91,80,240,0.3); }
   .btn-game-action.active:active { opacity:0.85; }
   .btn-game-action.done  { background:var(--surface2); color:var(--text2); cursor:default; }
-
   .game-done-msg { text-align:center; padding:24px 18px; color:var(--text2); font-size:15px; line-height:1.7; }
 
   @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0;} 60%{transform:scale(1.18);} 100%{transform:scale(1);opacity:1;} }
@@ -271,6 +308,18 @@
       </div>
     </div>
 
+    <!-- 첫 참여 이벤트 -->
+    <div class="section-card">
+      <div class="section-header">
+        <span class="sh-icon">🌟</span>
+        <span class="sh-title">첫 참여 이벤트</span>
+        <span class="sh-badge-gold" id="reviewEventBadge">+100점</span>
+      </div>
+      <div id="reviewContent">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
     <!-- 뽑기 게임 -->
     <div class="section-card">
       <div class="section-header">
@@ -303,12 +352,15 @@
     appId:             "1:769454280422:web:7ec2295e6f58e157d67527"
   };
 
-  // ── 뽑기 게임 설정 ─────────────────────────────────────
-  // 베팅 금액 배열: 여기만 수정하면 버튼 자동 반영
-  const BET_OPTIONS  = [10, 30, 50, 100];
-  const MAX_PLAYS    = 3;
-  const PRIZE_POOL   = ['fail', 'keep', 'keep', 'x1.5', 'x2'];
-  // ───────────────────────────────────────────────────────
+  // ── 뽑기 게임 설정 (이 배열만 수정하면 버튼 자동 반영) ──
+  const BET_OPTIONS = [10, 30, 50, 100];
+  const MAX_PLAYS   = 3;
+  const PRIZE_POOL  = ['fail', 'keep', 'keep', 'x1.5', 'x2'];
+
+  // ── 별점 이벤트 설정 ───────────────────────────────────
+  const REVIEW_REQUIRED_TEXT  = '오롬 워크샵 너무 재미있어요!';
+  const REVIEW_REQUIRED_STARS = 5;
+  const REVIEW_REWARD         = 100;
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
@@ -323,6 +375,12 @@
   let selectedBet    = null;
   let lastResult     = null;
   let gameProcessing = false;
+
+  // 별점 이벤트 상태
+  let selectedStars      = 0;
+  let reviewProcessing   = false;
+  let reviewInitialized  = false;
+  let reviewCompletedCache = false;
 
   // ── 팀 색상 ───────────────────────────────────────────
   const TEAM_COLORS = ['A','B','C','D','E','F'];
@@ -384,22 +442,32 @@
   function updateMyScores() {
     const me = allParticipants[currentUser.uid]; if (!me) return;
 
+    // 개인 점수 표시
     const ps = document.getElementById('personalScoreDisplay');
     if (ps.textContent !== String(me.score || 0)) {
       ps.textContent = me.score || 0;
       ps.classList.remove('score-flash'); void ps.offsetWidth; ps.classList.add('score-flash');
     }
 
+    // 팀 뱃지
     const tc    = getTeamClass(me.team);
     const badge = document.getElementById('headerTeamBadge');
     badge.textContent = me.team || ''; badge.className = `team-badge tc-${tc}`;
 
-    // 게임 카운트 동기화 (결과 화면 중엔 재렌더 안 함)
+    // 별점 이벤트 동기화
+    // - 최초 렌더이거나, 다른 기기에서 완료되어 상태가 바뀐 경우에만 재렌더
+    const serverCompleted = !!me.reviewEventCompleted;
+    if (!reviewInitialized || (serverCompleted && !reviewCompletedCache)) {
+      reviewInitialized    = true;
+      reviewCompletedCache = serverCompleted;
+      renderReviewEvent(serverCompleted);
+    }
+
+    // 뽑기 게임 동기화 (결과 화면 중엔 뱃지만 갱신)
     const serverCount = me.drawGameCount || 0;
     if (gamePhase !== 'result') {
       renderGame(serverCount);
     } else {
-      // 뱃지만 갱신
       document.getElementById('gameCountBadge').textContent = `${serverCount}/${MAX_PLAYS}`;
     }
   }
@@ -457,7 +525,7 @@
       .sort((a,b) => (b.score||0)-(a.score||0));
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
     el.innerHTML = sorted.map(t => {
-      const tc      = getTeamClass(t.key);
+      const tc       = getTeamClass(t.key);
       const isMyTeam = me && me.team === t.key;
       return `<div class="team-rank-item" style="${isMyTeam?'background:#f5f3ff':''}">
         <div class="team-color-dot dot-${tc}"></div>
@@ -467,7 +535,112 @@
     }).join('');
   }
 
-  // ── 뽑기 게임 렌더 ────────────────────────────────────
+  // ══════════════════════════════════════════════════════
+  // ── 별점 이벤트 ──────────────────────────────────────
+  // ══════════════════════════════════════════════════════
+
+  function renderReviewEvent(completed) {
+    const el = document.getElementById('reviewContent');
+
+    if (completed) {
+      document.getElementById('reviewEventBadge').textContent = '참여완료 ✓';
+      el.innerHTML = `
+        <div class="review-complete-box">
+          <span class="review-complete-emoji">🎉</span>
+          <div class="review-complete-title">참여 완료! +${REVIEW_REWARD}점</div>
+          <div class="review-complete-desc">리뷰 이벤트에 참여해주셔서 감사합니다 😊</div>
+        </div>`;
+      return;
+    }
+
+    // 별 HTML
+    const starsHtml = Array.from({length: REVIEW_REQUIRED_STARS}, (_,i) =>
+      `<button class="star-btn${i < selectedStars ? ' active' : ''}"
+        onclick="window.selectStar(${i+1})">⭐</button>`
+    ).join('');
+
+    el.innerHTML = `
+      <div class="review-body">
+        <div class="review-desc">
+          별 <strong>5개</strong>와 아래 문구를 그대로 입력하면 <strong>+${REVIEW_REWARD}점</strong>을 드려요!
+        </div>
+        <div class="star-row">${starsHtml}</div>
+        <textarea class="review-input" id="reviewInput" rows="2"
+          placeholder="${escHtml(REVIEW_REQUIRED_TEXT)}"></textarea>
+        <div class="review-error" id="reviewError"></div>
+        <button class="btn-review-submit" onclick="window.submitReview()">✍️ 제출하기</button>
+      </div>`;
+  }
+
+  // 별 선택
+  window.selectStar = function(n) {
+    selectedStars = n;
+    // 별만 업데이트 (textarea 내용 유지)
+    document.querySelectorAll('.star-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i < n);
+    });
+  };
+
+  // 리뷰 제출
+  window.submitReview = async function() {
+    if (reviewProcessing) return;
+
+    const me = allParticipants[currentUser.uid];
+    // 이중 안전장치: Firebase 기준으로도 체크
+    if (me?.reviewEventCompleted) {
+      renderReviewEvent(true);
+      return;
+    }
+
+    const inputEl  = document.getElementById('reviewInput');
+    const errorEl  = document.getElementById('reviewError');
+    const inputText = (inputEl?.value || '').trim();
+
+    // 유효성 검사
+    if (selectedStars < REVIEW_REQUIRED_STARS) {
+      showReviewError('별 5개를 모두 선택해주세요 ⭐');
+      return;
+    }
+    if (inputText !== REVIEW_REQUIRED_TEXT) {
+      showReviewError('문구를 정확히 입력해주세요');
+      return;
+    }
+
+    reviewProcessing = true;
+
+    // 버튼 비활성화
+    const btn = document.querySelector('.btn-review-submit');
+    if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+
+    try {
+      const currentScore = me?.score ?? 0;
+      await update(ref(db, `participants/${currentUser.uid}`), {
+        score:                currentScore + REVIEW_REWARD,
+        reviewEventCompleted: true
+      });
+      // 로컬 캐시 즉시 반영 → 재렌더
+      reviewCompletedCache = true;
+      renderReviewEvent(true);
+    } catch(e) {
+      console.error('별점 이벤트 저장 실패', e);
+      showReviewError('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+
+    reviewProcessing = false;
+  };
+
+  function showReviewError(msg) {
+    const el = document.getElementById('reviewError');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+  }
+
+  // ══════════════════════════════════════════════════════
+  // ── 뽑기 게임 ────────────────────────────────────────
+  // ══════════════════════════════════════════════════════
+
   function renderGame(count) {
     const el    = document.getElementById('gameContent');
     const me    = allParticipants[currentUser.uid];
@@ -476,18 +649,15 @@
 
     document.getElementById('gameCountBadge').textContent = `${count}/${MAX_PLAYS}`;
 
-    // 3회 완료
     if (count >= MAX_PLAYS) {
       el.innerHTML = `<div class="game-done-msg">🎉 3회 모두 참여했어요!<br><span style="font-size:13px">수고하셨습니다 😊</span></div>`;
       return;
     }
 
-    // 점수 도트
     const dotsHtml = Array.from({length: MAX_PLAYS}, (_,i) =>
       `<div class="game-count-dot${i < count ? ' used' : ''}"></div>`
     ).join('');
 
-    // 베팅 버튼
     const betHtml = BET_OPTIONS.map(b => {
       const disabled = b > score;
       const selected = selectedBet === b;
@@ -496,7 +666,6 @@
         onclick="window.selectBet(${b})">${b}</button>`;
     }).join('');
 
-    // 쪽지 버튼
     const slipsActive = (gamePhase === 'picking');
     const slipHtml = Array.from({length: 5}, (_,i) =>
       `<button class="slip-btn"
@@ -525,25 +694,20 @@
       </div>`;
   }
 
-  // ── 베팅 선택 ─────────────────────────────────────────
   window.selectBet = function(amount) {
     const me = allParticipants[currentUser.uid];
     if ((me?.score ?? 0) < amount) return;
     selectedBet = amount;
     gamePhase   = 'picking';
-    const count = me?.drawGameCount ?? 0;
-    renderGame(count);
+    renderGame(me?.drawGameCount ?? 0);
   };
 
-  // ── 쪽지 뽑기 ─────────────────────────────────────────
   window.pickSlip = async function(idx) {
     if (gameProcessing || gamePhase !== 'picking' || selectedBet === null) return;
     gameProcessing = true;
 
-    // 버튼 즉시 비활성화 (중복 클릭 방지)
     document.querySelectorAll('.slip-btn').forEach(b => b.disabled = true);
 
-    // 상품 셔플 후 결과 결정
     const prizes = [...PRIZE_POOL].sort(() => Math.random() - 0.5);
     const result = prizes[idx];
 
@@ -558,36 +722,25 @@
     else if (result === 'x1.5') delta =  Math.floor(B * 0.5);
     else if (result === 'x2')   delta =  B;
 
-    const newScore = currentScore + delta;
-    const newCount = currentCount + 1;
-
     try {
-      // Firebase 업데이트
       await update(ref(db, `participants/${currentUser.uid}`), {
-        score:         newScore,
-        drawGameCount: newCount
+        score:         currentScore + delta,
+        drawGameCount: currentCount + 1
       });
-
-      // 게임 로그
       await push(ref(db, 'gameLogs'), {
-        user:      currentUser.name,
-        uid:       currentUser.uid,
-        bet:       B,
-        result,
-        delta,
-        timestamp: Date.now()
+        user: currentUser.name, uid: currentUser.uid,
+        bet: B, result, delta, timestamp: Date.now()
       });
     } catch(e) {
       console.error('Firebase 업데이트 실패', e);
     }
 
-    lastResult  = { result, delta, B, newCount };
+    lastResult  = { result, delta, B, newCount: currentCount + 1 };
     gamePhase   = 'result';
     showGameResult();
     gameProcessing = false;
   };
 
-  // ── 결과 표시 ─────────────────────────────────────────
   function showGameResult() {
     const el = document.getElementById('gameContent');
     const { result, delta, B, newCount } = lastResult;
@@ -610,23 +763,21 @@
     document.getElementById('gameCountBadge').textContent = `${newCount}/${MAX_PLAYS}`;
     const remaining = MAX_PLAYS - newCount;
 
-    const btnLabel  = remaining > 0 ? `다시 뽑기 (${remaining}회 남음)` : '완료! 수고하셨습니다 🎊';
-    const btnClass  = remaining > 0 ? 'active' : 'done';
-
     el.innerHTML = `
       <div class="game-body">
         <div class="game-result-box">
           <span class="game-result-emoji">${emoji}</span>
           <div class="game-result-title ${titleClass}">${title}</div>
           <div class="game-result-delta ${deltaClass}">${deltaText}</div>
-          <button class="btn-game-action ${btnClass}"
+          <button class="btn-game-action ${remaining > 0 ? 'active' : 'done'}"
             ${remaining === 0 ? 'disabled' : ''}
-            onclick="window.resetGame()">${btnLabel}</button>
+            onclick="window.resetGame()">
+            ${remaining > 0 ? `다시 뽑기 (${remaining}회 남음)` : '완료! 수고하셨습니다 🎊'}
+          </button>
         </div>
       </div>`;
   }
 
-  // ── 게임 리셋 (다음 판) ───────────────────────────────
   window.resetGame = function() {
     selectedBet = null;
     gamePhase   = 'idle';
