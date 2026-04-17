@@ -1,39 +1,61 @@
 {
   "participants": {
-    "user_001": {
-      "name": "김주희",
-      "code": "3507",
-      "team": "1조",
-      "score": 0
-    },
-    "user_005": {
-      "name": "조필상",
-      "code": "9458",
-      "team": "1조",
-      "score": 0
-    },
-    "user_006": {
-      "name": "연규용",
-      "code": "8957",
-      "team": "2조",
-      "score": 0
-    },
-    "user_007": {
-      "name": "한경철",
-      "code": "0550",
-      "team": "1조",
-      "score": 0
-    }
+    "user_001": { "name": "강현준", "code": "1234", "team": "1조", "score": 0 },
+    "user_002": { "name": "지인근", "code": "1234", "team": "1조", "score": 0 },
+    "user_003": { "name": "김남열", "code": "1234", "team": "1조", "score": 0 },
+    "user_004": { "name": "연규용", "code": "1234", "team": "1조", "score": 0 },
+    "user_005": { "name": "강지영", "code": "1234", "team": "1조", "score": 0 },
+    "user_006": { "name": "김진욱", "code": "1234", "team": "1조", "score": 0 },
+    "user_007": { "name": "박주연", "code": "1234", "team": "1조", "score": 0 },
+    "user_008": { "name": "강민석", "code": "1234", "team": "2조", "score": 0 },
+    "user_009": { "name": "이호열", "code": "1234", "team": "2조", "score": 0 },
+    "user_010": { "name": "이미경", "code": "1234", "team": "2조", "score": 0 },
+    "user_011": { "name": "김득주", "code": "1234", "team": "2조", "score": 0 },
+    "user_012": { "name": "백홍화", "code": "1234", "team": "2조", "score": 0 },
+    "user_013": { "name": "이연지", "code": "1234", "team": "2조", "score": 0 },
+    "user_014": { "name": "김주희", "code": "1234", "team": "2조", "score": 0 },
+    "user_015": { "name": "최유진", "code": "1234", "team": "2조", "score": 0 },
+    "user_016": { "name": "김현중", "code": "1234", "team": "3조", "score": 0 },
+    "user_017": { "name": "한민재", "code": "1234", "team": "3조", "score": 0 },
+    "user_018": { "name": "정유진", "code": "1234", "team": "3조", "score": 0 },
+    "user_019": { "name": "변재양", "code": "1234", "team": "3조", "score": 0 },
+    "user_020": { "name": "박수연", "code": "1234", "team": "3조", "score": 0 },
+    "user_021": { "name": "이정세", "code": "1234", "team": "3조", "score": 0 },
+    "user_022": { "name": "김도연", "code": "1234", "team": "3조", "score": 0 },
+    "user_023": { "name": "김규형", "code": "1234", "team": "4조", "score": 0 },
+    "user_024": { "name": "정문강", "code": "1234", "team": "4조", "score": 0 },
+    "user_025": { "name": "최연희", "code": "1234", "team": "4조", "score": 0 },
+    "user_026": { "name": "최부관", "code": "1234", "team": "4조", "score": 0 },
+    "user_027": { "name": "윤채민", "code": "1234", "team": "4조", "score": 0 },
+    "user_028": { "name": "이태영", "code": "1234", "team": "4조", "score": 0 },
+    "user_029": { "name": "모채연", "code": "1234", "team": "4조", "score": 0 },
+    "user_030": { "name": "정유빈", "code": "1234", "team": "4조", "score": 0 },
+    "user_031": { "name": "한경훈", "code": "1234", "team": "5조", "score": 0 },
+    "user_032": { "name": "이상원", "code": "1234", "team": "5조", "score": 0 },
+    "user_033": { "name": "김현효", "code": "1234", "team": "5조", "score": 0 },
+    "user_034": { "name": "조용민", "code": "1234", "team": "5조", "score": 0 },
+    "user_035": { "name": "임수진", "code": "1234", "team": "5조", "score": 0 },
+    "user_036": { "name": "조재윤", "code": "1234", "team": "5조", "score": 0 },
+    "user_037": { "name": "고명지", "code": "1234", "team": "5조", "score": 0 },
+    "user_038": { "name": "최보람", "code": "1234", "team": "5조", "score": 0 },
+    "user_039": { "name": "이종우", "code": "1234", "team": "6조", "score": 0 },
+    "user_040": { "name": "이연재", "code": "1234", "team": "6조", "score": 0 },
+    "user_041": { "name": "박희정", "code": "1234", "team": "6조", "score": 0 },
+    "user_042": { "name": "조필상", "code": "1234", "team": "6조", "score": 0 },
+    "user_043": { "name": "이은주", "code": "1234", "team": "6조", "score": 0 },
+    "user_044": { "name": "김정연", "code": "1234", "team": "6조", "score": 0 },
+    "user_045": { "name": "조은아", "code": "1234", "team": "6조", "score": 0 },
+    "user_046": { "name": "한경철", "code": "1234", "team": "MC", "score": 0 },
+    "user_047": { "name": "김구옥", "code": "1234", "team": "MC", "score": 0 }
   },
   "teams": {
-    "1조": {
-      "teamName": "1조",
-      "score": 0
-    },
-    "2조": {
-      "teamName": "2조",
-      "score": 0
-    }
+    "1조": { "teamName": "1조", "score": 0 },
+    "2조": { "teamName": "2조", "score": 0 },
+    "3조": { "teamName": "3조", "score": 0 },
+    "4조": { "teamName": "4조", "score": 0 },
+    "5조": { "teamName": "5조", "score": 0 },
+    "6조": { "teamName": "6조", "score": 0 },
+    "MC": { "teamName": "MC", "score": 0 }
   },
   "notices": {
     "notice_001": {
