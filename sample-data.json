@@ -1,0 +1,45 @@
+{
+  "participants": {
+    "user_001": {
+      "name": "김주희",
+      "code": "3507",
+      "team": "A팀",
+      "score": 0
+    },
+    "user_002": {
+      "name": "조준수",
+      "code": "6282",
+      "team": "B팀",
+      "score": 0
+    },
+    "user_003": {
+      "name": "홍길동",
+      "code": "1234",
+      "team": "A팀",
+      "score": 0
+    },
+    "user_004": {
+      "name": "이지연",
+      "code": "5678",
+      "team": "B팀",
+      "score": 0
+    }
+  },
+  "teams": {
+    "A팀": {
+      "teamName": "A팀",
+      "score": 0
+    },
+    "B팀": {
+      "teamName": "B팀",
+      "score": 0
+    }
+  },
+  "notices": {
+    "notice_001": {
+      "text": "워크샵에 오신 것을 환영합니다! 🎉 지금부터 점수 경쟁이 시작됩니다.",
+      "timestamp": 1700000000000
+    }
+  },
+  "scoreLogs": {}
+}

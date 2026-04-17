@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>워크샵 스코어보드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg:        #f4f6fb;
+    --surface:   #ffffff;
+    --surface2:  #f0f2f8;
+    --border:    #e2e6f0;
+    --accent:    #5b50f0;
+    --accent2:   #f05070;
+    --accent3:   #16b864;
+    --text:      #1a1a2e;
+    --text2:     #7a7a9a;
+    --team-a:    #5b50f0;
+    --team-b:    #f05070;
+    --team-c:    #16b864;
+    --team-d:    #e08b00;
+    --team-e:    #0099cc;
+    --shadow:    0 2px 12px rgba(80,80,160,0.08);
+    --shadow-lg: 0 4px 24px rgba(80,80,160,0.13);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+  #loginScreen {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; padding:24px; gap:28px;
+    background:linear-gradient(160deg,#eef1fb 0%,#fafaff 100%);
+  }
+  .login-logo { text-align:center; }
+  .login-logo .logo-icon { font-size:56px; line-height:1; margin-bottom:12px; display:block; }
+  .login-logo h1 {
+    font-size:28px; font-weight:900; letter-spacing:-0.5px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .login-logo p { color:var(--text2); font-size:14px; margin-top:6px; }
+
+  .login-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:20px;
+    padding:28px 24px; width:100%; max-width:360px;
+    display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow-lg);
+  }
+  .login-card label { display:block; font-size:12px; font-weight:700; color:var(--text2); margin-bottom:6px; letter-spacing:0.8px; text-transform:uppercase; }
+  .login-card input {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:14px 16px; font-size:17px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .login-card input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(91,80,240,0.1); }
+  .login-card input::placeholder { color:var(--text2); }
+
+  .btn-login {
+    width:100%; background:linear-gradient(135deg,var(--accent),#3d32cc);
+    color:#fff; border:none; border-radius:14px; padding:16px;
+    font-size:17px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 16px rgba(91,80,240,0.3);
+  }
+  .btn-login:active { opacity:0.85; }
+
+  #loginError {
+    display:none; background:#fff0f3; border:1px solid #ffc0cc;
+    border-radius:10px; padding:12px 14px; font-size:14px; color:#c0003c; text-align:center;
+  }
+
+  #appScreen { display:none; }
+  .app-header {
+    position:sticky; top:0; z-index:100;
+    background:rgba(255,255,255,0.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border); padding:14px 18px 16px;
+    box-shadow:0 2px 12px rgba(80,80,160,0.06);
+  }
+  .header-identity { font-size:20px; font-weight:900; letter-spacing:-0.3px; }
+  .team-badge { display:inline-block; padding:3px 11px; border-radius:20px; font-size:13px; font-weight:700; margin-right:6px; vertical-align:middle; }
+  .scores-row { display:flex; gap:12px; margin-top:12px; }
+  .score-pill { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:10px 14px; text-align:center; }
+  .score-pill .sp-label { font-size:11px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+  .score-pill .sp-value { font-size:28px; font-weight:900; font-family:'Space Mono',monospace; line-height:1.2; margin-top:2px; }
+  .score-pill.team     .sp-value { color:var(--accent); }
+  .score-pill.personal .sp-value { color:var(--accent3); }
+
+  .app-content { padding:16px; display:flex; flex-direction:column; gap:16px; padding-bottom:36px; }
+  .section-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
+  .section-header { display:flex; align-items:center; gap:8px; padding:14px 18px 12px; border-bottom:1px solid var(--border); }
+  .section-header .sh-icon  { font-size:18px; }
+  .section-header .sh-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text2); }
+  .section-header .sh-badge { margin-left:auto; font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; padding:3px 9px; border-radius:20px; }
+
+  .notice-body  { padding:16px 18px; }
+  .notice-empty { color:var(--text2); font-size:14px; text-align:center; padding:8px 0; }
+  .notice-text  { font-size:16px; font-weight:600; line-height:1.65; }
+  .notice-time  { font-size:12px; color:var(--text2); margin-top:8px; }
+  .notice-new   { display:inline-block; width:8px; height:8px; background:var(--accent2); border-radius:50%; margin-right:6px; animation:pulse 1.5s infinite; vertical-align:middle; }
+
+  .ranking-list { padding:4px 0; }
+  .rank-item { display:flex; align-items:center; padding:13px 18px; gap:14px; border-bottom:1px solid var(--border); }
+  .rank-item:last-child { border-bottom:none; }
+  .rank-item.me { background:#f5f3ff; }
+  .rank-num { font-size:11px; font-weight:700; font-family:'Space Mono',monospace; color:var(--text2); width:28px; text-align:center; flex-shrink:0; }
+  .rank-num.top1 { color:#c8900a; font-size:18px; }
+  .rank-num.top2 { color:#7a8a9a; font-size:16px; }
+  .rank-num.top3 { color:#a06030; font-size:16px; }
+  .rank-info  { flex:1; min-width:0; }
+  .rank-name  { font-size:16px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rank-team  { font-size:12px; color:var(--text2); margin-top:1px; }
+  .rank-score { font-size:22px; font-weight:900; font-family:'Space Mono',monospace; color:var(--accent3); flex-shrink:0; }
+  .rank-score span { font-size:12px; font-weight:400; color:var(--text2); font-family:'Noto Sans KR',sans-serif; }
+  .me-tag { font-size:10px; font-weight:700; background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+
+  .team-rank-list { padding:4px 0; }
+  .team-rank-item { display:flex; align-items:center; padding:14px 18px; gap:14px; border-bottom:1px solid var(--border); }
+  .team-rank-item:last-child { border-bottom:none; }
+  .team-color-dot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .team-rank-name  { flex:1; font-size:17px; font-weight:700; }
+  .team-rank-score { font-size:24px; font-weight:900; font-family:'Space Mono',monospace; }
+
+  .logout-btn { background:none; border:1.5px solid var(--border); color:var(--text2); border-radius:10px; padding:10px 16px; font-size:14px; font-family:'Noto Sans KR',sans-serif; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto; }
+
+  .loading-dots { display:flex; gap:6px; justify-content:center; padding:20px; }
+  .loading-dots span { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:dot-bounce 1.2s infinite; }
+  .loading-dots span:nth-child(2){animation-delay:0.2s;} .loading-dots span:nth-child(3){animation-delay:0.4s;}
+  @keyframes dot-bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.3;} 40%{transform:scale(1);opacity:1;} }
+  @keyframes pulse      { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  @keyframes scoreFlash { 0%{opacity:1;} 50%{opacity:0.2;} 100%{opacity:1;} }
+  .score-flash { animation:scoreFlash 0.5s ease; }
+
+  .tc-A{color:var(--team-a);background:rgba(91,80,240,0.1);}  .tc-B{color:var(--team-b);background:rgba(240,80,112,0.1);}
+  .tc-C{color:var(--team-c);background:rgba(22,184,100,0.1);} .tc-D{color:var(--team-d);background:rgba(224,139,0,0.1);}
+  .tc-E{color:var(--team-e);background:rgba(0,153,204,0.1);}
+  .dot-A{background:var(--team-a);} .dot-B{background:var(--team-b);}
+  .dot-C{background:var(--team-c);} .dot-D{background:var(--team-d);} .dot-E{background:var(--team-e);}
+  .score-A{color:var(--team-a);} .score-B{color:var(--team-b);}
+  .score-C{color:var(--team-c);} .score-D{color:var(--team-d);} .score-E{color:var(--team-e);}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-logo">
+    <span class="logo-icon">🏆</span>
+    <h1>워크샵 스코어</h1>
+    <p>실시간 점수 현황판</p>
+  </div>
+  <div class="login-card">
+    <div>
+      <label>이름</label>
+      <input type="text" id="inputName" placeholder="홍길동" autocomplete="off" inputmode="text">
+    </div>
+    <div>
+      <label>전화번호 뒤 4자리</label>
+      <input type="tel" id="inputCode" placeholder="1234" maxlength="4" inputmode="numeric">
+    </div>
+    <div id="loginError">이름 또는 번호가 일치하지 않습니다.</div>
+    <button class="btn-login" onclick="doLogin()">입장하기</button>
+  </div>
+</div>
+
+<div id="appScreen">
+  <div class="app-header">
+    <div class="header-identity">
+      <span id="headerTeamBadge" class="team-badge">A팀</span>
+      <span id="headerName">이름</span>
+    </div>
+    <div class="scores-row">
+      <div class="score-pill team">
+        <div class="sp-label">팀 점수</div>
+        <div class="sp-value" id="teamScoreDisplay">0</div>
+      </div>
+      <div class="score-pill personal">
+        <div class="sp-label">개인 점수</div>
+        <div class="sp-value" id="personalScoreDisplay">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="app-content">
+    <div class="section-card">
+      <div class="section-header">
+        <span class="sh-icon">📢</span><span class="sh-title">공지사항</span>
+        <span class="sh-badge">LIVE</span>
+      </div>
+      <div class="notice-body" id="noticeBody">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 순위</span></div>
+      <div class="team-rank-list" id="teamRankList">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">개인 TOP 5</span></div>
+      <div class="ranking-list" id="rankingList">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyC7S-HzpRjOPqtbyfJAYO1y3ir0msbV4SA",
+    authDomain:        "oromworkshop-56b21.firebaseapp.com",
+    databaseURL:       "https://oromworkshop-56b21-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "oromworkshop-56b21",
+    storageBucket:     "oromworkshop-56b21.firebasestorage.app",
+    messagingSenderId: "769454280422",
+    appId:             "1:769454280422:web:7ec2295e6f58e157d67527"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  const TOP_N = 5;
+  let currentUser     = null;
+  let allParticipants = {};
+  let allTeams        = {};
+
+  const TEAM_COLORS = ['A','B','C','D','E'];
+  function getTeamClass(teamName) {
+    const idx = Object.keys(allTeams).indexOf(teamName);
+    return TEAM_COLORS[idx % TEAM_COLORS.length];
+  }
+
+  window.doLogin = function() {
+    const name = document.getElementById('inputName').value.trim();
+    const code = document.getElementById('inputCode').value.trim();
+    if (!name || !code) { showLoginError(); return; }
+    onValue(ref(db,'participants'), snap => {
+      const data = snap.val();
+      if (!data) { showLoginError(); return; }
+      const match = Object.entries(data).find(([k,v]) => v.name===name && v.code===code);
+      if (match) {
+        const [uid, user] = match;
+        currentUser = { uid, ...user };
+        localStorage.setItem('ws_user', JSON.stringify(currentUser));
+        startApp();
+      } else { showLoginError(); }
+    }, { onlyOnce: true });
+  };
+
+  function showLoginError() {
+    document.getElementById('loginError').style.display = 'block';
+  }
+
+  window.doLogout = function() {
+    localStorage.removeItem('ws_user'); location.reload();
+  };
+
+  document.getElementById('inputCode').addEventListener('keyup', e => { if(e.key==='Enter') window.doLogin(); });
+  document.getElementById('inputName').addEventListener('keyup', e => { if(e.key==='Enter') document.getElementById('inputCode').focus(); });
+
+  const saved = localStorage.getItem('ws_user');
+  if (saved) {
+    try { currentUser = JSON.parse(saved); startApp(); }
+    catch(e) { localStorage.removeItem('ws_user'); }
+  }
+
+  function startApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display   = 'block';
+    document.getElementById('headerName').textContent = currentUser.name;
+    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; renderRanking(); updateMyScores(); });
+    onValue(ref(db,'teams'),        snap => { allTeams = snap.val()||{};        renderTeamRanking(); updateMyTeamScore(); });
+    onValue(ref(db,'notices'),      snap => { renderNotice(snap.val()); });
+  }
+
+  function updateMyScores() {
+    const me = allParticipants[currentUser.uid]; if (!me) return;
+    const ps = document.getElementById('personalScoreDisplay');
+    if (ps.textContent !== String(me.score||0)) {
+      ps.textContent = me.score||0;
+      ps.classList.remove('score-flash'); void ps.offsetWidth; ps.classList.add('score-flash');
+    }
+    const tc = getTeamClass(me.team);
+    const badge = document.getElementById('headerTeamBadge');
+    badge.textContent = me.team||''; badge.className = `team-badge tc-${tc}`;
+  }
+
+  function updateMyTeamScore() {
+    const me = allParticipants[currentUser.uid]; if (!me) return;
+    const td = allTeams[me.team]; if (!td) return;
+    const ts = document.getElementById('teamScoreDisplay');
+    if (ts.textContent !== String(td.score||0)) {
+      ts.textContent = td.score||0;
+      ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
+    }
+  }
+
+  function renderNotice(data) {
+    const el = document.getElementById('noticeBody');
+    if (!data) { el.innerHTML='<p class="notice-empty">공지사항이 없습니다.</p>'; return; }
+    const list = Object.values(data).sort((a,b)=>b.timestamp-a.timestamp);
+    if (!list.length) { el.innerHTML='<p class="notice-empty">공지사항이 없습니다.</p>'; return; }
+    const latest = list[0];
+    const t = new Date(latest.timestamp).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    el.innerHTML=`<p class="notice-text"><span class="notice-new"></span>${escHtml(latest.text)}</p><p class="notice-time">📅 ${t} 업데이트</p>`;
+  }
+
+  function renderRanking() {
+    const el = document.getElementById('rankingList');
+    const sorted = Object.entries(allParticipants).map(([uid,p])=>({uid,...p}))
+      .sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,TOP_N);
+    if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
+    const icons=['🥇','🥈','🥉'];
+    el.innerHTML = sorted.map((p,i) => {
+      const isMe = p.uid===currentUser.uid;
+      const numHtml = i<3?`<span class="rank-num top${i+1}">${icons[i]}</span>`:`<span class="rank-num">${i+1}</span>`;
+      return `<div class="rank-item${isMe?' me':''}">
+        ${numHtml}
+        <div class="rank-info">
+          <div class="rank-name">${escHtml(p.name)}${isMe?'<span class="me-tag">나</span>':''}</div>
+          <div class="rank-team">${escHtml(p.team||'')}</div>
+        </div>
+        <div class="rank-score">${p.score||0}<span>점</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderTeamRanking() {
+    const el = document.getElementById('teamRankList');
+    const me = allParticipants[currentUser.uid];
+    const sorted = Object.entries(allTeams).map(([k,v])=>({key:k,...v})).sort((a,b)=>(b.score||0)-(a.score||0));
+    if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
+    el.innerHTML = sorted.map(t => {
+      const tc = getTeamClass(t.key);
+      const isMyTeam = me && me.team===t.key;
+      return `<div class="team-rank-item" style="${isMyTeam?'background:#f5f3ff':''}">
+        <div class="team-color-dot dot-${tc}"></div>
+        <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
+        <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>관리자 페이지 — 워크샵 스코어</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg:        #f4f6fb;
+    --surface:   #ffffff;
+    --surface2:  #f0f2f8;
+    --border:    #e2e6f0;
+    --accent:    #5b50f0;
+    --accent3:   #16b864;
+    --accent4:   #e08b00;
+    --text:      #1a1a2e;
+    --text2:     #7a7a9a;
+    --danger:    #e02040;
+    --success:   #16b864;
+    --shadow:    0 2px 12px rgba(80,80,160,0.08);
+    --shadow-lg: 0 4px 24px rgba(80,80,160,0.13);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; min-height:100vh; }
+
+  #adminLogin {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; padding:24px; gap:24px;
+    background:linear-gradient(160deg,#fdf6e8 0%,#fafaff 100%);
+  }
+  .admin-logo { text-align:center; }
+  .admin-logo .logo-icon { font-size:48px; line-height:1; margin-bottom:10px; display:block; }
+  .admin-logo h1 { font-size:24px; font-weight:900; color:var(--accent4); }
+  .admin-logo p  { color:var(--text2); font-size:13px; margin-top:4px; }
+
+  .admin-login-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:20px;
+    padding:24px; width:100%; max-width:340px;
+    display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow-lg);
+  }
+  .admin-login-card input {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:14px 16px; font-size:17px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .admin-login-card input:focus { border-color:var(--accent4); box-shadow:0 0 0 3px rgba(224,139,0,0.12); }
+  .admin-login-card input::placeholder { color:var(--text2); }
+
+  .btn-admin-enter {
+    width:100%; background:linear-gradient(135deg,var(--accent4),#b86a00);
+    color:#fff; border:none; border-radius:14px; padding:15px;
+    font-size:17px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 16px rgba(224,139,0,0.3);
+  }
+  .btn-admin-enter:active { opacity:0.85; }
+
+  #adminPwError {
+    display:none; background:#fff0f3; border:1px solid #ffc0cc;
+    border-radius:10px; padding:11px; font-size:14px; color:#c0003c; text-align:center;
+  }
+
+  #adminApp { display:none; }
+  .admin-header {
+    position:sticky; top:0; z-index:100;
+    background:rgba(255,255,255,0.95); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border); padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:0 2px 12px rgba(80,80,160,0.06);
+  }
+  .admin-header h2 { font-size:18px; font-weight:900; color:var(--accent4); }
+  .live-dot { width:8px; height:8px; background:var(--success); border-radius:50%; animation:pulse 1.5s infinite; display:inline-block; margin-right:6px; vertical-align:middle; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .btn-logout-sm { background:none; border:1.5px solid var(--border); color:var(--text2); border-radius:8px; padding:6px 12px; font-size:13px; font-family:'Noto Sans KR',sans-serif; cursor:pointer; }
+
+  .admin-content { padding:16px; display:flex; flex-direction:column; gap:16px; padding-bottom:40px; }
+
+  .tab-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .tab-row::-webkit-scrollbar { display:none; }
+  .tab-btn {
+    flex-shrink:0; background:var(--surface); border:1.5px solid var(--border);
+    color:var(--text2); border-radius:10px; padding:10px 18px;
+    font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; white-space:nowrap; transition:all 0.15s; box-shadow:var(--shadow);
+  }
+  .tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.25); }
+  .tab-panel { display:none; flex-direction:column; gap:16px; }
+  .tab-panel.active { display:flex; }
+
+  .section-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
+  .section-header { padding:14px 18px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+  .section-header .sh-icon  { font-size:18px; }
+  .section-header .sh-title { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text2); }
+  .section-body { padding:16px; }
+
+  .admin-select {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:13px 16px; font-size:16px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text);
+    outline:none; appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center;
+    padding-right:36px; transition:border-color 0.2s; margin-bottom:12px;
+  }
+  .admin-select:focus { border-color:var(--accent); }
+
+  .score-btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px; }
+  .score-btn {
+    background:var(--surface2); border:1.5px solid var(--border);
+    color:var(--text); border-radius:12px; padding:14px 0;
+    font-size:16px; font-weight:700; font-family:'Space Mono',monospace;
+    cursor:pointer; text-align:center; transition:all 0.15s;
+  }
+  .score-btn.plus  { border-color:rgba(22,184,100,0.4); color:var(--accent3); background:#f0fdf6; }
+  .score-btn.plus:active  { background:rgba(22,184,100,0.15); }
+  .score-btn.minus { border-color:rgba(224,32,64,0.3);  color:var(--danger);  background:#fff5f7; }
+  .score-btn.minus:active { background:rgba(224,32,64,0.1); }
+
+  .custom-row { display:flex; gap:8px; margin-top:4px; }
+  .custom-input {
+    flex:1; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:13px 14px; font-size:16px;
+    font-family:'Space Mono',monospace; color:var(--text);
+    outline:none; transition:border-color 0.2s;
+  }
+  .custom-input:focus { border-color:var(--accent); }
+  .custom-input::placeholder { color:var(--text2); font-family:'Noto Sans KR',sans-serif; }
+
+  .btn-apply {
+    background:var(--accent); border:none; color:#fff; border-radius:12px;
+    padding:13px 18px; font-size:14px; font-weight:700;
+    font-family:'Noto Sans KR',sans-serif; cursor:pointer; white-space:nowrap; transition:opacity 0.15s;
+  }
+  .btn-apply:active { opacity:0.8; }
+
+  .notice-textarea {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:14px 16px; font-size:16px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text);
+    outline:none; resize:none; transition:border-color 0.2s;
+    min-height:100px; margin-bottom:12px;
+  }
+  .notice-textarea:focus { border-color:var(--accent4); }
+  .notice-textarea::placeholder { color:var(--text2); }
+
+  .btn-notice {
+    width:100%; background:linear-gradient(135deg,var(--accent4),#b86a00);
+    color:#fff; border:none; border-radius:12px; padding:14px;
+    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s;
+  }
+  .btn-notice:active { opacity:0.8; }
+
+  #toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    padding:13px 22px; border-radius:40px; font-size:15px; font-weight:600;
+    z-index:9999; white-space:nowrap; box-shadow:0 8px 24px rgba(80,80,160,0.15);
+    transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); pointer-events:none;
+  }
+  #toast.show { transform:translateX(-50%) translateY(0); }
+  #toast.success { border-color:rgba(22,184,100,0.5); color:var(--accent3); }
+  #toast.error   { border-color:rgba(224,32,64,0.4);  color:var(--danger); }
+
+  .log-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .log-item:last-child { border-bottom:none; }
+  .log-badge { font-size:17px; font-weight:900; font-family:'Space Mono',monospace; min-width:52px; text-align:center; padding:6px 4px; border-radius:8px; flex-shrink:0; }
+  .log-badge.pos { color:var(--accent3); background:rgba(22,184,100,0.1); }
+  .log-badge.neg { color:var(--danger);  background:rgba(224,32,64,0.08); }
+  .log-info { flex:1; min-width:0; }
+  .log-target { font-size:15px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .log-time { font-size:12px; color:var(--text2); margin-top:2px; }
+
+  .scores-table { width:100%; border-collapse:collapse; }
+  .scores-table th { font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text2); padding:10px 12px; text-align:left; border-bottom:1px solid var(--border); font-weight:700; }
+  .scores-table td { padding:12px; border-bottom:1px solid var(--border); font-size:15px; }
+  .scores-table tr:last-child td { border-bottom:none; }
+  .score-num { font-family:'Space Mono',monospace; font-weight:700; color:var(--accent3); }
+
+  .loading-dots { display:flex; gap:6px; justify-content:center; padding:20px; }
+  .loading-dots span { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:dot-bounce 1.2s infinite; }
+  .loading-dots span:nth-child(2){animation-delay:0.2s;} .loading-dots span:nth-child(3){animation-delay:0.4s;}
+  @keyframes dot-bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.3;} 40%{transform:scale(1);opacity:1;} }
+
+  .btn-danger {
+    width:100%; background:linear-gradient(135deg,var(--danger),#a0001a);
+    color:#fff; border:none; border-radius:12px; padding:14px;
+    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s;
+    box-shadow:0 4px 16px rgba(224,32,64,0.3);
+  }
+  .btn-danger:active { opacity:0.8; }
+  .danger-desc { font-size:13px; color:var(--text2); text-align:center; margin-bottom:14px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<div id="adminLogin">
+  <div class="admin-logo">
+    <span class="logo-icon">🎛️</span>
+    <h1>관리자 페이지</h1>
+    <p>진행자 전용 관리 콘솔</p>
+  </div>
+  <div class="admin-login-card">
+    <input type="password" id="adminPwInput" placeholder="관리자 비밀번호 입력" autocomplete="off">
+    <div id="adminPwError">비밀번호가 일치하지 않습니다.</div>
+    <button class="btn-admin-enter" onclick="doAdminLogin()">입장</button>
+  </div>
+  <a href="index.html" style="color:var(--text2);font-size:13px;text-decoration:none;">← 참가자 페이지</a>
+</div>
+
+<div id="adminApp">
+  <div class="admin-header">
+    <h2><span class="live-dot"></span>관리자 콘솔</h2>
+    <button class="btn-logout-sm" onclick="adminLogout()">나가기</button>
+  </div>
+  <div class="admin-content">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('team',this)">🏅 팀 점수</button>
+      <button class="tab-btn" onclick="switchTab('personal',this)">👤 개인 점수</button>
+      <button class="tab-btn" onclick="switchTab('notice',this)">📢 공지</button>
+      <button class="tab-btn" onclick="switchTab('log',this)">📋 로그</button>
+      <button class="tab-btn" onclick="switchTab('scores',this)">📊 현황</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-team">
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 점수 조정</span></div>
+        <div class="section-body">
+          <select class="admin-select" id="selectTeam"><option value="">팀 선택...</option></select>
+          <div class="score-btn-grid">
+            <button class="score-btn plus"  onclick="applyTeamScore(+1)">+1</button>
+            <button class="score-btn plus"  onclick="applyTeamScore(+5)">+5</button>
+            <button class="score-btn plus"  onclick="applyTeamScore(+10)">+10</button>
+            <button class="score-btn plus"  onclick="applyTeamScore(+50)">+50</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-1)">-1</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-5)">-5</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-10)">-10</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-50)">-50</button>
+          </div>
+          <div class="custom-row">
+            <input type="number" class="custom-input" id="teamCustomVal" placeholder="직접 입력 (음수 가능)">
+            <button class="btn-apply" onclick="applyTeamCustom()">적용</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-personal">
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">👤</span><span class="sh-title">개인 점수 조정</span></div>
+        <div class="section-body">
+          <select class="admin-select" id="selectParticipant"><option value="">참가자 선택...</option></select>
+          <div class="score-btn-grid">
+            <button class="score-btn plus"  onclick="applyPersonalScore(+1)">+1</button>
+            <button class="score-btn plus"  onclick="applyPersonalScore(+5)">+5</button>
+            <button class="score-btn plus"  onclick="applyPersonalScore(+10)">+10</button>
+            <button class="score-btn plus"  onclick="applyPersonalScore(+50)">+50</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-1)">-1</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-5)">-5</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-10)">-10</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-50)">-50</button>
+          </div>
+          <div class="custom-row">
+            <input type="number" class="custom-input" id="personalCustomVal" placeholder="직접 입력 (음수 가능)">
+            <button class="btn-apply" onclick="applyPersonalCustom()">적용</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-notice">
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">📢</span><span class="sh-title">공지 작성</span></div>
+        <div class="section-body">
+          <textarea class="notice-textarea" id="noticeInput" placeholder="공지 내용을 입력하세요..."></textarea>
+          <button class="btn-notice" onclick="sendNotice()">📤 공지 전송</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-log">
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">📋</span><span class="sh-title">점수 로그</span></div>
+        <div style="padding:8px 16px 16px" id="logList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-scores">
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 현황</span></div>
+        <div style="padding:8px 16px">
+          <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="teamScoresTbody"></tbody></table>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">👤</span><span class="sh-title">개인 현황</span></div>
+        <div style="padding:8px 16px">
+          <table class="scores-table"><thead><tr><th>이름</th><th>팀</th><th>점수</th></tr></thead><tbody id="personalScoresTbody"></tbody></table>
+        </div>
+      </div>
+      <div class="section-card" style="border-color:rgba(224,32,64,0.3)">
+        <div class="section-header"><span class="sh-icon">⚠️</span><span class="sh-title" style="color:var(--danger)">점수 초기화</span></div>
+        <div class="section-body">
+          <p class="danger-desc">모든 팀 점수와 개인 점수를 0으로 초기화합니다.<br>이 작업은 되돌릴 수 없습니다.</p>
+          <button class="btn-danger" onclick="resetAllScores()">🔄 전체 점수 초기화</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, update, push }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyC7S-HzpRjOPqtbyfJAYO1y3ir0msbV4SA",
+    authDomain:        "oromworkshop-56b21.firebaseapp.com",
+    databaseURL:       "https://oromworkshop-56b21-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "oromworkshop-56b21",
+    storageBucket:     "oromworkshop-56b21.firebasestorage.app",
+    messagingSenderId: "769454280422",
+    appId:             "1:769454280422:web:7ec2295e6f58e157d67527"
+  };
+
+  const ADMIN_PASSWORD = "orom0430";
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  let allTeams        = {};
+  let allParticipants = {};
+
+  window.switchTab = function(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    btn.classList.add('active');
+  };
+
+  window.doAdminLogin = function() {
+    const pw = document.getElementById('adminPwInput').value;
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem('ws_admin','1');
+      startAdminApp();
+    } else {
+      document.getElementById('adminPwError').style.display = 'block';
+    }
+  };
+
+  document.getElementById('adminPwInput').addEventListener('keyup', e => { if(e.key==='Enter') window.doAdminLogin(); });
+  window.adminLogout = function() { sessionStorage.removeItem('ws_admin'); location.reload(); };
+
+  if (sessionStorage.getItem('ws_admin')) startAdminApp();
+
+  function startAdminApp() {
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminApp').style.display   = 'block';
+    onValue(ref(db,'teams'),        snap => { allTeams = snap.val()||{};        populateTeamSelect(); renderTeamScores(); });
+    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); });
+    onValue(ref(db,'scoreLogs'),    snap => { renderLogs(snap.val()); });
+  }
+
+  function populateTeamSelect() {
+    const sel = document.getElementById('selectTeam'), cur = sel.value;
+    sel.innerHTML = '<option value="">팀 선택...</option>';
+    Object.entries(allTeams).forEach(([k,v]) => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = `${v.teamName||k} (${v.score||0}점)`; sel.appendChild(o);
+    });
+    sel.value = cur;
+  }
+
+  function populateParticipantSelect() {
+    const sel = document.getElementById('selectParticipant'), cur = sel.value;
+    sel.innerHTML = '<option value="">참가자 선택...</option>';
+    Object.entries(allParticipants).sort((a,b)=>(a[1].team||'').localeCompare(b[1].team||'')).forEach(([k,v]) => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = `${v.team||''} - ${v.name} (${v.score||0}점)`; sel.appendChild(o);
+    });
+    sel.value = cur;
+  }
+
+  window.applyTeamScore   = async d => { const k=document.getElementById('selectTeam').value; if(!k){showToast('팀을 선택하세요','error');return;} await changeTeamScore(k,d); };
+  window.applyTeamCustom  = async () => { const k=document.getElementById('selectTeam').value, v=parseInt(document.getElementById('teamCustomVal').value); if(!k){showToast('팀을 선택하세요','error');return;} if(isNaN(v)){showToast('점수를 입력하세요','error');return;} await changeTeamScore(k,v); document.getElementById('teamCustomVal').value=''; };
+  async function changeTeamScore(k,delta) {
+    const newScore=(allTeams[k]?.score||0)+delta, name=allTeams[k]?.teamName||k;
+    await update(ref(db,`teams/${k}`),{score:newScore});
+    await logScore(`팀: ${name}`,delta);
+    showToast(`${name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
+  }
+
+  window.applyPersonalScore  = async d => { const uid=document.getElementById('selectParticipant').value; if(!uid){showToast('참가자를 선택하세요','error');return;} await changePersonalScore(uid,d); };
+  window.applyPersonalCustom = async () => { const uid=document.getElementById('selectParticipant').value, v=parseInt(document.getElementById('personalCustomVal').value); if(!uid){showToast('참가자를 선택하세요','error');return;} if(isNaN(v)){showToast('점수를 입력하세요','error');return;} await changePersonalScore(uid,v); document.getElementById('personalCustomVal').value=''; };
+  async function changePersonalScore(uid,delta) {
+    const p=allParticipants[uid], newScore=(p?.score||0)+delta;
+    await update(ref(db,`participants/${uid}`),{score:newScore});
+    await logScore(`${p?.team||''} ${p?.name||uid}`,delta);
+    showToast(`${p?.name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
+  }
+
+  window.sendNotice = async function() {
+    const text=document.getElementById('noticeInput').value.trim();
+    if(!text){showToast('공지 내용을 입력하세요','error');return;}
+    await push(ref(db,'notices'),{text,timestamp:Date.now()});
+    document.getElementById('noticeInput').value='';
+    showToast('공지가 전송됐습니다 📢','success');
+  };
+
+  async function logScore(target,value) { await push(ref(db,'scoreLogs'),{target,value,timestamp:Date.now()}); }
+
+  function renderLogs(data) {
+    const el=document.getElementById('logList');
+    if(!data){el.innerHTML='<p style="color:var(--text2);text-align:center;padding:16px">로그 없음</p>';return;}
+    const list=Object.values(data).sort((a,b)=>b.timestamp-a.timestamp).slice(0,30);
+    el.innerHTML=list.map(l=>{
+      const pos=l.value>=0, t=new Date(l.timestamp).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      return `<div class="log-item"><div class="log-badge ${pos?'pos':'neg'}">${pos?'+':''}${l.value}</div><div class="log-info"><div class="log-target">${escHtml(l.target)}</div><div class="log-time">${t}</div></div></div>`;
+    }).join('');
+  }
+
+  function renderTeamScores() {
+    document.getElementById('teamScoresTbody').innerHTML=
+      Object.entries(allTeams).sort((a,b)=>(b[1].score||0)-(a[1].score||0))
+      .map(([k,v])=>`<tr><td>${escHtml(v.teamName||k)}</td><td><span class="score-num">${v.score||0}</span></td></tr>`).join('');
+  }
+
+  function renderPersonalScores() {
+    document.getElementById('personalScoresTbody').innerHTML=
+      Object.entries(allParticipants).sort((a,b)=>(b[1].score||0)-(a[1].score||0))
+      .map(([k,v])=>`<tr><td>${escHtml(v.name||k)}</td><td style="color:var(--text2)">${escHtml(v.team||'')}</td><td><span class="score-num">${v.score||0}</span></td></tr>`).join('');
+  }
+
+  let toastTimer;
+  function showToast(msg,type='success') {
+    const el=document.getElementById('toast');
+    el.textContent=(type==='success'?'✅ ':'❌ ')+msg;
+    el.className=`show ${type}`; clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>{el.className='';},2800);
+  }
+
+  window.resetAllScores = async function() {
+    if (!confirm('정말로 모든 점수를 초기화하시겠습니까?\n팀 점수와 개인 점수가 전부 0이 됩니다.\n\n이 작업은 되돌릴 수 없습니다.')) return;
+    const updates = {};
+    Object.keys(allTeams).forEach(k => { updates[`teams/${k}/score`] = 0; });
+    Object.keys(allParticipants).forEach(k => { updates[`participants/${k}/score`] = 0; });
+    await update(ref(db), updates);
+    await logScore('전체 점수 초기화', 0);
+    showToast('전체 점수가 초기화됐습니다', 'success');
+  };
+
+  function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>
