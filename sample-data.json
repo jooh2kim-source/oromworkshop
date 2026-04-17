@@ -23,6 +23,24 @@
       "code": "5678",
       "team": "B팀",
       "score": 0
+    },
+    "user_005": {
+      "name": "조필상",
+      "code": "9458",
+      "team": "1조",
+      "score": 0
+    },
+    "user_006": {
+      "name": "연규용",
+      "code": "8957",
+      "team": "2조",
+      "score": 0
+    },
+    "user_007": {
+      "name": "한경철",
+      "code": "0550",
+      "team": "1조",
+      "score": 0
     }
   },
   "teams": {
@@ -32,6 +50,14 @@
     },
     "B팀": {
       "teamName": "B팀",
+      "score": 0
+    },
+    "1조": {
+      "teamName": "1조",
+      "score": 0
+    },
+    "2조": {
+      "teamName": "2조",
       "score": 0
     }
   },
