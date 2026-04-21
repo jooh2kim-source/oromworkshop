@@ -493,7 +493,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push }
+  import { getDatabase, ref, onValue, update, push, remove }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   // ── Firebase 설정 ──────────────────────────────────────
@@ -935,6 +935,7 @@
   let allClubs       = {};
   let clubFormOpen   = false;
   let clubSubmitting = false;
+  let editingClubId  = null;
 
   // 공지 렌더
   function renderClubNotices() {
@@ -1004,6 +1005,60 @@
     }
   };
 
+  // 참여 취소
+  window.leaveClub = async function(clubId) {
+    if (!confirm('참여를 취소할까요?')) return;
+    try {
+      await remove(ref(db, `clubs/${clubId}/participants/${currentUser.uid}`));
+    } catch(e) {
+      console.error('참여 취소 실패', e);
+    }
+  };
+
+  // 동아리 삭제
+  window.deleteClub = async function(clubId) {
+    if (!confirm('동아리를 삭제할까요? 되돌릴 수 없습니다.')) return;
+    try {
+      await remove(ref(db, `clubs/${clubId}`));
+    } catch(e) {
+      console.error('삭제 실패', e);
+    }
+  };
+
+  // 수정 폼 열기
+  window.openEditForm = function(clubId) {
+    editingClubId = clubId;
+    renderClubList(); // 수정 폼 포함해서 다시 렌더
+  };
+
+  // 수정 취소
+  window.cancelEditClub = function() {
+    editingClubId = null;
+    renderClubList();
+  };
+
+  // 수정 저장
+  window.submitEditClub = async function(clubId) {
+    const title = document.getElementById(`editTitle_${clubId}`).value.trim();
+    const desc  = document.getElementById(`editDesc_${clubId}`).value.trim();
+    if (!title || !desc) { alert('제목과 설명은 필수입니다.'); return; }
+    const place  = document.getElementById(`editPlace_${clubId}`).value.trim();
+    const time   = document.getElementById(`editTime_${clubId}`).value.trim();
+    const maxRaw = document.getElementById(`editMax_${clubId}`).value.trim();
+    const maxVal = maxRaw ? parseInt(maxRaw) : null;
+    try {
+      await update(ref(db, `clubs/${clubId}`), {
+        title, description: desc,
+        place: place || null, time: time || null,
+        maxMembers: maxVal || null
+      });
+      editingClubId = null;
+    } catch(e) {
+      console.error('수정 실패', e);
+      alert('오류가 발생했습니다.');
+    }
+  };
+
   // 동아리 목록 렌더
   function renderClubList() {
     const el = document.getElementById('clubList');
@@ -1020,6 +1075,8 @@
       const maxM        = c.maxMembers;
       const isFull      = maxM && memberCount >= maxM;
       const isJoined    = members.includes(currentUser.uid);
+      const isCreator   = c.creatorId === currentUser.uid;
+      const isEditing   = editingClubId === cid;
 
       // 참여자 이름 표시 (최대 5명 + 나머지 수)
       const nameList = members.map(uid => {
@@ -1032,14 +1089,46 @@
         ? `<span class="club-count-badge${isFull?' full':''}">${memberCount}/${maxM}명</span>`
         : `<span class="club-count-badge">${memberCount}명</span>`;
 
+      // 참여/취소/마감 버튼
       let joinBtn = '';
-      if (isJoined) {
-        joinBtn = `<button class="btn-club-joined">✅ 참여 중</button>`;
+      if (isCreator) {
+        joinBtn = `<button class="btn-club-joined">👑 내가 만든 동아리</button>`;
+      } else if (isJoined) {
+        joinBtn = `<button class="btn-club-join" style="background:linear-gradient(135deg,#e02040,#a0001a);box-shadow:0 4px 12px rgba(224,32,64,0.25)" onclick="window.leaveClub('${cid}')">참여 취소</button>`;
       } else if (isFull) {
         joinBtn = `<button class="btn-club-join" disabled>인원 마감</button>`;
       } else {
         joinBtn = `<button class="btn-club-join" onclick="window.joinClub('${cid}')">참여하기</button>`;
       }
+
+      // 개설자 전용 관리 버튼
+      const creatorBtns = isCreator ? `
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button onclick="window.openEditForm('${cid}')"
+            style="flex:1;background:none;border:1.5px solid var(--border);color:var(--text2);border-radius:10px;padding:9px;font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer">
+            ✏️ 수정
+          </button>
+          <button onclick="window.deleteClub('${cid}')"
+            style="flex:1;background:none;border:1.5px solid rgba(224,32,64,0.3);color:var(--danger);border-radius:10px;padding:9px;font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer">
+            🗑 삭제
+          </button>
+        </div>` : '';
+
+      // 수정 폼 (수정 중일 때만 표시)
+      const editForm = isEditing ? `
+        <div style="display:flex;flex-direction:column;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--surface2)">
+          <input class="club-form-input" id="editTitle_${cid}" value="${escHtml(c.title)}" placeholder="제목 *">
+          <input class="club-form-input" id="editDesc_${cid}"  value="${escHtml(c.description)}" placeholder="설명 *">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input class="club-form-input" id="editPlace_${cid}" value="${escHtml(c.place||'')}" placeholder="장소">
+            <input class="club-form-input" id="editTime_${cid}"  value="${escHtml(c.time||'')}"  placeholder="시간">
+          </div>
+          <input class="club-form-input" id="editMax_${cid}" type="number" value="${c.maxMembers||''}" placeholder="최대 인원 (없으면 무제한)">
+          <div style="display:flex;gap:8px">
+            <button class="btn-club-submit" style="flex:1;padding:11px;font-size:14px" onclick="window.submitEditClub('${cid}')">저장</button>
+            <button class="btn-club-cancel" style="flex:1" onclick="window.cancelEditClub()">취소</button>
+          </div>
+        </div>` : '';
 
       return `
         <div class="club-card">
@@ -1061,7 +1150,9 @@
               ${countBadge}
             </div>
             ${joinBtn}
+            ${creatorBtns}
           </div>
+          ${editForm}
         </div>`;
     }).join('');
   }
