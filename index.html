@@ -124,6 +124,8 @@
   }
   .nav-btn.game-tab.active { color:var(--gold); }
   .nav-btn.game-tab.active::after { background:var(--gold); }
+  .nav-btn.club-tab.active { color:var(--accent3); }
+  .nav-btn.club-tab.active::after { background:var(--accent3); }
 
   /* ── 섹션 카드 ── */
   .section-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
@@ -237,6 +239,69 @@
   .game-done-msg { text-align:center; padding:24px 18px; color:var(--text2); font-size:15px; line-height:1.7; }
 
   @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0;} 60%{transform:scale(1.18);} 100%{transform:scale(1);opacity:1;} }
+
+  /* ── 동아리 탭 ── */
+  .club-notice-card { background:linear-gradient(135deg,#fffbf0,#fff8e8); border:1.5px solid rgba(224,139,0,0.25); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
+  .club-notice-header { display:flex; align-items:center; gap:8px; padding:14px 18px 12px; border-bottom:1px solid rgba(224,139,0,0.2); }
+  .club-notice-badge { font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--gold),#b86a00); color:#fff; padding:3px 8px; border-radius:20px; margin-left:auto; }
+  .club-notice-list { padding:4px 0; }
+  .club-notice-item { padding:14px 18px; border-bottom:1px solid rgba(224,139,0,0.12); }
+  .club-notice-item:last-child { border-bottom:none; }
+  .club-notice-title { font-size:15px; font-weight:700; margin-bottom:4px; color:var(--text); }
+  .club-notice-place { font-size:12px; color:var(--gold); font-weight:600; margin-bottom:4px; }
+  .club-notice-desc  { font-size:13px; color:var(--text2); line-height:1.55; }
+
+  .btn-club-create {
+    width:100%; background:var(--surface); border:1.5px dashed var(--accent);
+    color:var(--accent); border-radius:14px; padding:14px;
+    font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .btn-club-create:active { background:rgba(91,80,240,0.05); }
+
+  .club-form-card { background:var(--surface); border:1.5px solid var(--accent); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-lg); }
+  .club-form-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:12px; }
+  .club-form-label { font-size:12px; font-weight:700; color:var(--text2); letter-spacing:0.8px; text-transform:uppercase; margin-bottom:4px; display:block; }
+  .club-form-input {
+    width:100%; background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:12px 14px; font-size:15px;
+    font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none;
+    transition:border-color 0.2s;
+  }
+  .club-form-input:focus { border-color:var(--accent); }
+  .club-form-input::placeholder { color:var(--text2); }
+  .club-form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btn-club-submit {
+    width:100%; background:linear-gradient(135deg,var(--accent),#3d32cc);
+    color:#fff; border:none; border-radius:12px; padding:14px;
+    font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 14px rgba(91,80,240,0.25);
+  }
+  .btn-club-submit:active { opacity:0.85; }
+  .btn-club-cancel { width:100%; background:none; border:1.5px solid var(--border); color:var(--text2); border-radius:12px; padding:12px; font-size:14px; font-family:'Noto Sans KR',sans-serif; cursor:pointer; }
+
+  .club-list-empty { text-align:center; color:var(--text2); font-size:14px; padding:28px 18px; line-height:1.7; }
+  .club-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
+  .club-card-header { padding:14px 18px 10px; border-bottom:1px solid var(--border); }
+  .club-card-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+  .club-card-meta { display:flex; flex-wrap:wrap; gap:8px; }
+  .club-meta-chip { font-size:12px; color:var(--text2); display:flex; align-items:center; gap:3px; }
+  .club-card-body { padding:12px 18px 14px; display:flex; flex-direction:column; gap:10px; }
+  .club-card-desc { font-size:14px; color:var(--text2); line-height:1.55; }
+  .club-members-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .club-members-label { font-size:12px; color:var(--text2); font-weight:600; }
+  .club-members-list { font-size:13px; color:var(--text); font-weight:600; flex:1; }
+  .club-count-badge { font-size:12px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--surface2); color:var(--text2); white-space:nowrap; }
+  .club-count-badge.full { background:rgba(224,32,64,0.08); color:var(--danger); }
+  .btn-club-join {
+    width:100%; background:linear-gradient(135deg,var(--accent3),#0e8a4a);
+    color:#fff; border:none; border-radius:12px; padding:13px;
+    font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 12px rgba(22,184,100,0.25);
+  }
+  .btn-club-join:active { opacity:0.85; }
+  .btn-club-join:disabled { background:var(--surface2); color:var(--text2); box-shadow:none; cursor:default; }
+  .btn-club-joined { width:100%; background:rgba(22,184,100,0.1); border:1.5px solid rgba(22,184,100,0.3); color:var(--accent3); border-radius:12px; padding:13px; font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:default; }
 </style>
 </head>
 <body>
@@ -350,6 +415,63 @@
 
     </div>
 
+    <!-- ── 동아리 탭 ── -->
+    <div class="tab-panel" id="tab-club">
+
+      <!-- TF 추천 공지 -->
+      <div class="club-notice-card">
+        <div class="club-notice-header">
+          <span class="sh-icon">📌</span>
+          <span class="sh-title">TF 추천 활동</span>
+          <span class="club-notice-badge">공지</span>
+        </div>
+        <div class="club-notice-list" id="clubNoticeList"></div>
+      </div>
+
+      <!-- 동아리 만들기 버튼 -->
+      <button class="btn-club-create" onclick="window.toggleClubForm()">＋ 동아리 만들기</button>
+
+      <!-- 생성 폼 (기본 숨김) -->
+      <div class="club-form-card" id="clubFormCard" style="display:none">
+        <div class="section-header">
+          <span class="sh-icon">✏️</span>
+          <span class="sh-title">새 동아리</span>
+        </div>
+        <div class="club-form-body">
+          <div>
+            <label class="club-form-label">제목 *</label>
+            <input class="club-form-input" id="clubTitle" placeholder="예: 산책 같이 해요" maxlength="30">
+          </div>
+          <div>
+            <label class="club-form-label">설명 *</label>
+            <input class="club-form-input" id="clubDesc" placeholder="간단하게 소개해주세요" maxlength="60">
+          </div>
+          <div class="club-form-row">
+            <div>
+              <label class="club-form-label">장소</label>
+              <input class="club-form-input" id="clubPlace" placeholder="예: 로비" maxlength="20">
+            </div>
+            <div>
+              <label class="club-form-label">시간</label>
+              <input class="club-form-input" id="clubTime" placeholder="예: 9시" maxlength="20">
+            </div>
+          </div>
+          <div>
+            <label class="club-form-label">최대 인원 (없으면 무제한)</label>
+            <input class="club-form-input" id="clubMax" type="number" placeholder="숫자 입력" min="1" max="50">
+          </div>
+          <button class="btn-club-submit" onclick="window.submitClub()">동아리 개설하기</button>
+          <button class="btn-club-cancel" onclick="window.toggleClubForm()">취소</button>
+        </div>
+      </div>
+
+      <!-- 동아리 목록 -->
+      <div id="clubList">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+
+    </div>
+
   </div><!-- /.tab-content -->
 </div><!-- /#appScreen -->
 
@@ -362,6 +484,10 @@
   <button class="nav-btn game-tab" id="navGame" onclick="switchTab('game')">
     <span class="nav-icon">🎮</span>
     <span class="nav-label">게임</span>
+  </button>
+  <button class="nav-btn club-tab" id="navClub" onclick="switchTab('club')">
+    <span class="nav-icon">🤝</span>
+    <span class="nav-label">동아리</span>
   </button>
 </nav>
 
@@ -417,6 +543,7 @@
     document.getElementById('tab-' + name).classList.add('active');
     document.getElementById('navHome').classList.toggle('active', name === 'home');
     document.getElementById('navGame').classList.toggle('active', name === 'game');
+    document.getElementById('navClub').classList.toggle('active', name === 'club');
   };
 
   // ── 팀 색상 ───────────────────────────────────────────
@@ -474,6 +601,8 @@
     });
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
     onValue(ref(db,'notices'), snap => { renderNotice(snap.val()); });
+    onValue(ref(db,'clubs'),   snap => { allClubs = snap.val() || {}; renderClubList(); });
+    renderClubNotices();
   }
 
   // ── 내 점수 업데이트 ──────────────────────────────────
@@ -790,6 +919,152 @@
     const me    = allParticipants[currentUser.uid];
     renderGame(me?.drawGameCount ?? 0);
   };
+
+  // ══════════════════════════════════════════════════════
+  // ── 동아리 기능 ──────────────────────────────────────
+  // ══════════════════════════════════════════════════════
+
+  const CLUB_NOTICE_POSTS = [
+    { title: "글로우펏 (블랙 라이트 미니 골프)", place: "리조트 지하 2층",  description: "형광 조명 아래에서 즐기는 미니 골프. 가볍게 놀기 좋음" },
+    { title: "인스파이어 리조트",                place: "차량 약 10분",     description: "고래 미디어아트, 대형 오락실 등 볼거리/즐길거리 다양" },
+    { title: "카페 오라",                        place: "도보 약 5분",      description: "가까운 거리에서 편하게 쉬기 좋은 카페" },
+    { title: "카페 블랑",                        place: "도보 약 10분",     description: "여유롭게 쉬기 좋은 카페 (저녁 식사 건물 3층)" },
+    { title: "자유 주제",                        place: "",                description: "원하는 활동 자유롭게 모집 (산책, 간식, 수다 등)" }
+  ];
+
+  let allClubs       = {};
+  let clubFormOpen   = false;
+  let clubSubmitting = false;
+
+  // 공지 렌더
+  function renderClubNotices() {
+    const el = document.getElementById('clubNoticeList');
+    el.innerHTML = CLUB_NOTICE_POSTS.map(p => `
+      <div class="club-notice-item">
+        <div class="club-notice-title">${escHtml(p.title)}</div>
+        ${p.place ? `<div class="club-notice-place">📍 ${escHtml(p.place)}</div>` : ''}
+        <div class="club-notice-desc">${escHtml(p.description)}</div>
+      </div>`).join('');
+  }
+
+  // 폼 토글
+  window.toggleClubForm = function() {
+    clubFormOpen = !clubFormOpen;
+    document.getElementById('clubFormCard').style.display = clubFormOpen ? 'block' : 'none';
+    if (!clubFormOpen) {
+      ['clubTitle','clubDesc','clubPlace','clubTime','clubMax'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+  };
+
+  // 동아리 생성
+  window.submitClub = async function() {
+    if (clubSubmitting) return;
+    const title = document.getElementById('clubTitle').value.trim();
+    const desc  = document.getElementById('clubDesc').value.trim();
+    if (!title || !desc) { alert('제목과 설명은 필수입니다.'); return; }
+
+    const place    = document.getElementById('clubPlace').value.trim();
+    const time     = document.getElementById('clubTime').value.trim();
+    const maxRaw   = document.getElementById('clubMax').value.trim();
+    const maxVal   = maxRaw ? parseInt(maxRaw) : null;
+
+    clubSubmitting = true;
+    const btn = document.querySelector('.btn-club-submit');
+    if (btn) { btn.disabled = true; btn.textContent = '생성 중...'; }
+
+    try {
+      const newClub = {
+        title, description: desc,
+        place: place || null, time: time || null,
+        maxMembers: maxVal || null,
+        creatorId:   currentUser.uid,
+        creatorName: currentUser.name,
+        participants: { [currentUser.uid]: true },
+        createdAt: Date.now()
+      };
+      await push(ref(db, 'clubs'), newClub);
+      window.toggleClubForm();
+    } catch(e) {
+      console.error('동아리 생성 실패', e);
+      alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = '동아리 개설하기'; }
+    clubSubmitting = false;
+  };
+
+  // 동아리 참여
+  window.joinClub = async function(clubId) {
+    try {
+      await update(ref(db, `clubs/${clubId}/participants`), { [currentUser.uid]: true });
+    } catch(e) {
+      console.error('참여 실패', e);
+    }
+  };
+
+  // 동아리 목록 렌더
+  function renderClubList() {
+    const el = document.getElementById('clubList');
+    const list = Object.entries(allClubs).sort((a,b) => (a[1].createdAt||0)-(b[1].createdAt||0));
+
+    if (!list.length) {
+      el.innerHTML = `<div class="club-list-empty">아직 개설된 동아리가 없어요 😊<br>첫 번째 동아리를 만들어보세요!</div>`;
+      return;
+    }
+
+    el.innerHTML = list.map(([cid, c]) => {
+      const members     = Object.keys(c.participants || {});
+      const memberCount = members.length;
+      const maxM        = c.maxMembers;
+      const isFull      = maxM && memberCount >= maxM;
+      const isJoined    = members.includes(currentUser.uid);
+
+      // 참여자 이름 표시 (최대 5명 + 나머지 수)
+      const nameList = members.map(uid => {
+        const p = allParticipants[uid];
+        return p ? p.name : '?';
+      });
+      const showNames = nameList.slice(0,5).join(', ') + (nameList.length > 5 ? ` 외 ${nameList.length-5}명` : '');
+
+      const countBadge = maxM
+        ? `<span class="club-count-badge${isFull?' full':''}">${memberCount}/${maxM}명</span>`
+        : `<span class="club-count-badge">${memberCount}명</span>`;
+
+      let joinBtn = '';
+      if (isJoined) {
+        joinBtn = `<button class="btn-club-joined">✅ 참여 중</button>`;
+      } else if (isFull) {
+        joinBtn = `<button class="btn-club-join" disabled>인원 마감</button>`;
+      } else {
+        joinBtn = `<button class="btn-club-join" onclick="window.joinClub('${cid}')">참여하기</button>`;
+      }
+
+      return `
+        <div class="club-card">
+          <div class="club-card-header">
+            <div class="club-card-title">${escHtml(c.title)}</div>
+            <div class="club-card-meta">
+              ${c.place ? `<span class="club-meta-chip">📍 ${escHtml(c.place)}</span>` : ''}
+              ${c.time  ? `<span class="club-meta-chip">🕐 ${escHtml(c.time)}</span>`  : ''}
+              <span class="club-meta-chip">👤 ${escHtml(c.creatorName)}</span>
+            </div>
+          </div>
+          <div class="club-card-body">
+            <div class="club-card-desc">${escHtml(c.description)}</div>
+            <div class="club-members-row">
+              <div style="flex:1;min-width:0">
+                <div class="club-members-label">참여자</div>
+                <div class="club-members-list">${escHtml(showNames)}</div>
+              </div>
+              ${countBadge}
+            </div>
+            ${joinBtn}
+          </div>
+        </div>`;
+    }).join('');
+  }
 
   // ── 유틸 ─────────────────────────────────────────────
   function escHtml(s) {
