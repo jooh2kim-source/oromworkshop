@@ -104,7 +104,7 @@
     height:var(--nav-h);
     background:rgba(255,255,255,0.97); backdrop-filter:blur(16px);
     border-top:1px solid var(--border);
-    display:none; /* JS로 로그인 후 표시 */
+    display:none;
     align-items:stretch;
     box-shadow:0 -2px 16px rgba(80,80,160,0.08);
   }
@@ -185,40 +185,18 @@
   .review-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
   .review-desc { font-size:14px; color:var(--text2); line-height:1.6; }
   .review-desc strong { color:var(--text); }
-
   .star-row { display:flex; justify-content:center; gap:6px; padding:4px 0; }
-  .star-btn {
-    background:none; border:none; font-size:38px; cursor:pointer;
-    line-height:1; padding:4px; transition:transform 0.1s;
-    filter:grayscale(1) opacity(0.35);
-  }
+  .star-btn { background:none; border:none; font-size:38px; cursor:pointer; line-height:1; padding:4px; transition:transform 0.1s; filter:grayscale(1) opacity(0.35); }
   .star-btn.active { filter:none; }
   .star-btn:active { transform:scale(0.82); }
-
-  .review-input {
-    width:100%; background:var(--surface2); border:1.5px solid var(--border);
-    border-radius:12px; padding:14px 16px; font-size:15px;
-    font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none;
-    transition:border-color 0.2s; resize:none;
-  }
+  .review-input { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:14px 16px; font-size:15px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; transition:border-color 0.2s; resize:none; }
   .review-input:focus { border-color:var(--gold); }
   .review-input::placeholder { color:var(--text2); }
   .review-input:disabled { opacity:0.5; cursor:not-allowed; }
-
-  .review-error {
-    display:none; background:#fff0f3; border:1px solid #ffc0cc;
-    border-radius:10px; padding:11px 14px; font-size:14px; color:#c0003c; text-align:center;
-  }
-
-  .btn-review-submit {
-    width:100%; background:linear-gradient(135deg,var(--gold),#b86a00);
-    color:#fff; border:none; border-radius:14px; padding:15px;
-    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
-    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 14px rgba(224,139,0,0.3);
-  }
+  .review-error { display:none; background:#fff0f3; border:1px solid #ffc0cc; border-radius:10px; padding:11px 14px; font-size:14px; color:#c0003c; text-align:center; }
+  .btn-review-submit { width:100%; background:linear-gradient(135deg,var(--gold),#b86a00); color:#fff; border:none; border-radius:14px; padding:15px; font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 14px rgba(224,139,0,0.3); }
   .btn-review-submit:active { opacity:0.85; }
   .btn-review-submit:disabled { background:var(--surface2); color:var(--text2); box-shadow:none; cursor:not-allowed; }
-
   .review-complete-box { padding:24px 18px; text-align:center; }
   .review-complete-emoji { font-size:52px; display:block; margin-bottom:12px; animation:bounceIn 0.45s; }
   .review-complete-title { font-size:22px; font-weight:900; color:var(--accent3); margin-bottom:6px; }
@@ -233,23 +211,13 @@
   .game-count-label { font-size:13px; color:var(--text2); font-weight:600; margin-left:4px; }
   .game-section-label { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
   .bet-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-  .bet-btn {
-    background:var(--surface2); border:1.5px solid var(--border);
-    color:var(--text); border-radius:12px; padding:14px 0;
-    font-size:16px; font-weight:700; font-family:'Space Mono',monospace;
-    cursor:pointer; text-align:center; transition:all 0.15s;
-  }
+  .bet-btn { background:var(--surface2); border:1.5px solid var(--border); color:var(--text); border-radius:12px; padding:14px 0; font-size:16px; font-weight:700; font-family:'Space Mono',monospace; cursor:pointer; text-align:center; transition:all 0.15s; }
   .bet-btn.selected { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.3); }
   .bet-btn:disabled { opacity:0.3; cursor:not-allowed; }
   .bet-btn:not(:disabled):not(.selected):active { border-color:var(--accent); color:var(--accent); }
   .slip-hint { font-size:13px; color:var(--text2); text-align:center; padding:6px 0; }
   .slip-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
-  .slip-btn {
-    aspect-ratio:2/3; border:none; border-radius:12px; font-size:24px;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(135deg,var(--accent),#3d32cc);
-    box-shadow:0 4px 12px rgba(91,80,240,0.25); transition:transform 0.12s, opacity 0.15s;
-  }
+  .slip-btn { aspect-ratio:2/3; border:none; border-radius:12px; font-size:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--accent),#3d32cc); box-shadow:0 4px 12px rgba(91,80,240,0.25); transition:transform 0.12s, opacity 0.15s; }
   .slip-btn:active:not(:disabled) { transform:scale(0.88); }
   .slip-btn:disabled { opacity:0.3; cursor:not-allowed; box-shadow:none; background:var(--surface2); }
   .game-result-box { text-align:center; padding:8px 0 6px; }
@@ -262,10 +230,7 @@
   .game-result-delta.minus { color:var(--danger); }
   .game-result-delta.plus  { color:var(--accent3); }
   .game-result-delta.zero  { color:var(--text2); }
-  .btn-game-action {
-    width:100%; border:none; border-radius:14px; padding:15px;
-    font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s;
-  }
+  .btn-game-action { width:100%; border:none; border-radius:14px; padding:15px; font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s; }
   .btn-game-action.active { background:linear-gradient(135deg,var(--accent),#3d32cc); color:#fff; box-shadow:0 4px 14px rgba(91,80,240,0.3); }
   .btn-game-action.active:active { opacity:0.85; }
   .btn-game-action.done  { background:var(--surface2); color:var(--text2); cursor:default; }
@@ -416,12 +381,12 @@
     appId:             "1:769454280422:web:7ec2295e6f58e157d67527"
   };
 
-  // ── 뽑기 게임 설정 (이 배열만 수정하면 버튼 자동 반영) ──
+  // ── 뽑기 게임 설정 ────────────────────────────────────
   const BET_OPTIONS = [10, 30, 50, 100];
   const MAX_PLAYS   = 3;
   const PRIZE_POOL  = ['fail', 'keep', 'keep', 'x1.5', 'x2'];
 
-  // ── 별점 이벤트 설정 ───────────────────────────────────
+  // ── 별점 이벤트 설정 ──────────────────────────────────
   const REVIEW_REQUIRED_TEXT  = '오롬 워크샵 너무 재미있어요!';
   const REVIEW_REQUIRED_STARS = 5;
   const REVIEW_REWARD         = 100;
@@ -528,7 +493,6 @@
     badge.textContent = me.team || ''; badge.className = `team-badge tc-${tc}`;
 
     // 별점 이벤트 동기화
-    // - 최초 렌더이거나, 다른 기기에서 완료되어 상태가 바뀐 경우에만 재렌더
     const serverCompleted = !!me.reviewEventCompleted;
     if (!reviewInitialized || (serverCompleted && !reviewCompletedCache)) {
       reviewInitialized    = true;
@@ -614,7 +578,6 @@
 
   function renderReviewEvent(completed) {
     const el = document.getElementById('reviewContent');
-
     if (completed) {
       document.getElementById('reviewEventBadge').textContent = '참여완료 ✓';
       el.innerHTML = `
@@ -625,13 +588,9 @@
         </div>`;
       return;
     }
-
-    // 별 HTML
     const starsHtml = Array.from({length: REVIEW_REQUIRED_STARS}, (_,i) =>
-      `<button class="star-btn${i < selectedStars ? ' active' : ''}"
-        onclick="window.selectStar(${i+1})">⭐</button>`
+      `<button class="star-btn${i < selectedStars ? ' active' : ''}" onclick="window.selectStar(${i+1})">⭐</button>`
     ).join('');
-
     el.innerHTML = `
       <div class="review-body">
         <div class="review-desc">
@@ -645,67 +604,42 @@
       </div>`;
   }
 
-  // 별 선택
   window.selectStar = function(n) {
     selectedStars = n;
-    // 별만 업데이트 (textarea 내용 유지)
     document.querySelectorAll('.star-btn').forEach((btn, i) => {
       btn.classList.toggle('active', i < n);
     });
   };
 
-  // 리뷰 제출
   window.submitReview = async function() {
     if (reviewProcessing) return;
-
     const me = allParticipants[currentUser.uid];
-    // 이중 안전장치: Firebase 기준으로도 체크
-    if (me?.reviewEventCompleted) {
-      renderReviewEvent(true);
-      return;
-    }
-
+    if (me?.reviewEventCompleted) { renderReviewEvent(true); return; }
     const inputEl   = document.getElementById('reviewInput');
     const inputText = (inputEl?.value || '').trim();
-
-    // 유효성 검사
-    if (selectedStars < REVIEW_REQUIRED_STARS) {
-      showReviewError('별 5개를 모두 선택해주세요 ⭐');
-      return;
-    }
-    if (inputText !== REVIEW_REQUIRED_TEXT) {
-      showReviewError('문구를 정확히 입력해주세요');
-      return;
-    }
-
+    if (selectedStars < REVIEW_REQUIRED_STARS) { showReviewError('별 5개를 모두 선택해주세요 ⭐'); return; }
+    if (inputText !== REVIEW_REQUIRED_TEXT)    { showReviewError('문구를 정확히 입력해주세요'); return; }
     reviewProcessing = true;
-
-    // 버튼 비활성화
     const btn = document.querySelector('.btn-review-submit');
     if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
-
     try {
       const currentScore = me?.score ?? 0;
       await update(ref(db, `participants/${currentUser.uid}`), {
-        score:                currentScore + REVIEW_REWARD,
-        reviewEventCompleted: true
+        score: currentScore + REVIEW_REWARD, reviewEventCompleted: true
       });
-      // 로컬 캐시 즉시 반영 → 재렌더
       reviewCompletedCache = true;
       renderReviewEvent(true);
     } catch(e) {
       console.error('별점 이벤트 저장 실패', e);
       showReviewError('오류가 발생했습니다. 다시 시도해주세요.');
     }
-
     reviewProcessing = false;
   };
 
   function showReviewError(msg) {
     const el = document.getElementById('reviewError');
     if (!el) return;
-    el.textContent = msg;
-    el.style.display = 'block';
+    el.textContent = msg; el.style.display = 'block';
     setTimeout(() => { el.style.display = 'none'; }, 3000);
   }
 
@@ -796,8 +730,7 @@
 
     try {
       await update(ref(db, `participants/${currentUser.uid}`), {
-        score:         currentScore + delta,
-        drawGameCount: currentCount + 1
+        score: currentScore + delta, drawGameCount: currentCount + 1
       });
       await push(ref(db, 'gameLogs'), {
         user: currentUser.name, uid: currentUser.uid,
