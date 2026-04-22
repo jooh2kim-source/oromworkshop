@@ -160,11 +160,13 @@
   .rank-score span { font-size:12px; font-weight:400; color:var(--text2); font-family:'Noto Sans KR',sans-serif; }
   .me-tag { font-size:10px; font-weight:700; background:var(--accent); color:#fff; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
   .team-rank-list { padding:4px 0; }
-  .team-rank-item { display:flex; align-items:center; padding:14px 18px; gap:14px; border-bottom:1px solid var(--border); }
+  .team-rank-item { display:flex; align-items:flex-start; padding:14px 18px; gap:14px; border-bottom:1px solid var(--border); }
   .team-rank-item:last-child { border-bottom:none; }
-  .team-color-dot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-  .team-rank-name  { flex:1; font-size:17px; font-weight:700; }
-  .team-rank-score { font-size:24px; font-weight:900; font-family:'Space Mono',monospace; }
+  .team-color-dot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:7px; }
+  .team-rank-info    { flex:1; min-width:0; }
+  .team-rank-name    { font-size:17px; font-weight:700; }
+  .team-rank-members { font-size:12px; color:var(--text2); margin-top:3px; line-height:1.5; word-break:keep-all; }
+  .team-rank-score { font-size:24px; font-weight:900; font-family:'Space Mono',monospace; flex-shrink:0; align-self:center; }
 
   /* ── 로그아웃 ── */
   .logout-btn { background:none; border:1.5px solid var(--border); color:var(--text2); border-radius:10px; padding:10px 16px; font-size:14px; font-family:'Noto Sans KR',sans-serif; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto; }
@@ -623,6 +625,8 @@
       allParticipants = snap.val() || {};
       renderRanking();
       renderFullRanking();
+      renderTeamRanking();
+      renderBbqTeamRanking();
       updateMyScores();
     });
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
@@ -760,6 +764,14 @@
     }).join('');
   }
 
+  // 팀 소속 참가자 이름 리스트 반환 (피지컬47 / 바베큐 공용)
+  function getMemberNames(teamKey, field) {
+    return Object.values(allParticipants)
+      .filter(p => p[field] === teamKey)
+      .map(p => p.name)
+      .join(', ');
+  }
+
   // ── 팀 순위 (피지컬47, MC 제외) ───────────────────────
   function renderTeamRanking() {
     const el = document.getElementById('teamRankList');
@@ -772,9 +784,13 @@
     el.innerHTML = sorted.map(t => {
       const tc       = getTeamClass(t.key, allTeams);
       const isMyTeam = me && me.team === t.key;
+      const members  = getMemberNames(t.key, 'team');
       return `<div class="team-rank-item" style="${isMyTeam?'background:#f5f3ff':''}">
         <div class="team-color-dot dot-${tc}"></div>
-        <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
+        <div class="team-rank-info">
+          <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
+          ${members ? `<div class="team-rank-members">${escHtml(members)}</div>` : ''}
+        </div>
         <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
       </div>`;
     }).join('');
@@ -791,9 +807,13 @@
     el.innerHTML = sorted.map(t => {
       const tc       = getTeamClass(t.key, allBbqTeams);
       const isMyTeam = me && me.bbqTeam === t.key;
+      const members  = getMemberNames(t.key, 'bbqTeam');
       return `<div class="team-rank-item" style="${isMyTeam?'background:#fffaec':''}">
         <div class="team-color-dot dot-${tc}"></div>
-        <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag" style="background:var(--gold)">내 팀</span>':''}</div>
+        <div class="team-rank-info">
+          <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag" style="background:var(--gold)">내 팀</span>':''}</div>
+          ${members ? `<div class="team-rank-members">${escHtml(members)}</div>` : ''}
+        </div>
         <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
       </div>`;
     }).join('');
