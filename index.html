@@ -131,6 +131,19 @@
   .nav-btn.community-tab.active::after { background:var(--accent3); }
 
   /* ── 섹션 카드 ── */
+  /* ── 내 숙소 카드 (홈, 공지 위) ── */
+  .room-card {
+    display:flex; gap:10px; align-items:flex-start;
+    background:linear-gradient(135deg,#fdf6ff 0%,#f5f3ff 100%);
+    border:1px solid rgba(91,80,240,0.2);
+    border-radius:14px; padding:12px 16px;
+    font-size:13px; line-height:1.55;
+    box-shadow:var(--shadow);
+  }
+  .room-icon { font-size:18px; flex-shrink:0; line-height:1.4; }
+  .room-text { flex:1; min-width:0; color:var(--text); word-break:keep-all; }
+  .room-text strong { color:var(--accent); font-weight:800; margin-right:2px; }
+
   .section-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
   .section-header { display:flex; align-items:center; gap:8px; padding:14px 18px 12px; border-bottom:1px solid var(--border); }
   .section-header .sh-icon  { font-size:18px; }
@@ -461,6 +474,12 @@
     <!-- ── 홈 탭 ── -->
     <div class="tab-panel active" id="tab-home">
 
+      <!-- 내 숙소 (공지 위) -->
+      <div class="room-card" id="roomCard" style="display:none">
+        <span class="room-icon">😴</span>
+        <span class="room-text" id="roomText"></span>
+      </div>
+
       <!-- 공지사항 -->
       <div class="section-card">
         <div class="section-header">
@@ -749,6 +768,7 @@
       renderTeamRanking();
       renderBbqTeamRanking();
       updateMyScores();
+      updateMyRoom();
     });
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
     onValue(ref(db,'bbqTeams'),snap => { allBbqTeams = snap.val() || {}; renderBbqTeamRanking(); updateMyBbqTeamScore(); });
@@ -854,6 +874,25 @@
       ts.textContent = score;
       ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
     }
+  }
+
+  // ── 내 숙소 카드 (😴 호실: 인원) ──────────────────────
+  // roomLabel이 있으면 우선 사용 (예: user_028 → PM님)
+  function roomDispName(p) {
+    return p.roomLabel || p.displayName || p.name;
+  }
+  function updateMyRoom() {
+    const card = document.getElementById('roomCard');
+    const me = allParticipants[currentUser.uid];
+    if (!me || !me.room) { card.style.display = 'none'; return; }
+    card.style.display = 'flex';
+    // 같은 방 모든 멤버 (본인 포함, 가나다순 대신 uid 순으로 안정 정렬)
+    const members = Object.entries(allParticipants)
+      .filter(([uid,p]) => p.room === me.room)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([uid,p]) => roomDispName(p));
+    document.getElementById('roomText').innerHTML =
+      `<strong>${escHtml(me.room)}</strong>: ${escHtml(members.join(', '))}`;
   }
 
   // ── 공지 ─────────────────────────────────────────────
