@@ -90,6 +90,7 @@
   .score-pill.team     .sp-value { color:var(--accent); }
   .score-pill.personal .sp-value { color:var(--accent3); }
   .score-pill.bbq      .sp-value { color:var(--gold); }
+  .sp-rank { font-size:11px; font-weight:800; color:var(--accent3); margin-top:1px; letter-spacing:0.3px; }
   .team-badge.bbq-badge { background:rgba(224,139,0,0.12); color:var(--gold); }
 
   /* ── 탭 콘텐츠 영역 ── */
@@ -149,6 +150,18 @@
   .rank-item { display:flex; align-items:center; padding:13px 18px; gap:14px; border-bottom:1px solid var(--border); }
   .rank-item:last-child { border-bottom:none; }
   .rank-item.me { background:#f5f3ff; }
+  /* ── 티어 이펙트 ── */
+  .rank-item.tier-top { background:linear-gradient(90deg,rgba(224,139,0,0.07) 0%,transparent 60%); }
+  .rank-item.tier-top .rank-num { color:var(--gold); font-weight:900; }
+  .rank-item.tier-bot { background:linear-gradient(90deg,rgba(224,32,64,0.06) 0%,transparent 60%); }
+  .rank-item.tier-bot .rank-num { color:var(--danger); }
+  .rank-item.me.tier-top { background:linear-gradient(90deg,rgba(224,139,0,0.12),rgba(245,243,255,0.9)); }
+  .rank-item.me.tier-bot { background:linear-gradient(90deg,rgba(224,32,64,0.08),rgba(245,243,255,0.9)); }
+  /* 팀 순위 티어 */
+  .team-rank-item.tier-top { background:linear-gradient(90deg,rgba(224,139,0,0.08) 0%,transparent 60%); }
+  .team-rank-item.tier-top .team-rank-score { color:var(--gold) !important; }
+  .team-rank-item.tier-bot { background:linear-gradient(90deg,rgba(224,32,64,0.06) 0%,transparent 60%); }
+  .team-rank-item.tier-bot .team-rank-score { color:var(--danger) !important; }
   .rank-num { font-size:11px; font-weight:700; font-family:'Space Mono',monospace; color:var(--text2); width:28px; text-align:center; flex-shrink:0; }
   .rank-num.top1 { color:#c8900a; font-size:18px; }
   .rank-num.top2 { color:#7a8a9a; font-size:16px; }
@@ -347,6 +360,7 @@
       <div class="score-pill personal">
         <div class="sp-label">개인 점수</div>
         <div class="sp-value" id="personalScoreDisplay">0</div>
+        <div class="sp-rank" id="personalRankDisplay">–위</div>
       </div>
       <div class="score-pill team">
         <div class="sp-label">피지컬47</div>
@@ -376,6 +390,14 @@
         </div>
       </div>
 
+      <!-- 개인 TOP 5 -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">개인 TOP 5</span></div>
+        <div class="ranking-list" id="rankingList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
       <!-- 피지컬47 팀 순위 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">💪</span><span class="sh-title">피지컬47 팀 순위</span></div>
@@ -388,14 +410,6 @@
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">🍖</span><span class="sh-title">바베큐 팀 순위</span></div>
         <div class="team-rank-list" id="bbqRankList">
-          <div class="loading-dots"><span></span><span></span><span></span></div>
-        </div>
-      </div>
-
-      <!-- 개인 TOP 5 -->
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">개인 TOP 5</span></div>
-        <div class="ranking-list" id="rankingList">
           <div class="loading-dots"><span></span><span></span><span></span></div>
         </div>
       </div>
@@ -637,6 +651,14 @@
   }
 
   // ── 내 점수 업데이트 ──────────────────────────────────
+  // ── 등수 티어 계산 (top 30% / bot 30%) ──────────────────
+  function getTier(rank, total) {
+    if (!total) return '';
+    if (rank <= Math.ceil(total * 0.3)) return 'tier-top';
+    if (rank > Math.floor(total * 0.7)) return 'tier-bot';
+    return '';
+  }
+
   function updateMyScores() {
     const me = allParticipants[currentUser.uid]; if (!me) return;
 
@@ -646,6 +668,15 @@
       ps.textContent = me.score || 0;
       ps.classList.remove('score-flash'); void ps.offsetWidth; ps.classList.add('score-flash');
     }
+
+    // 현재 개인 순위 표시
+    const allSorted = Object.values(allParticipants).sort((a,b)=>(b.score||0)-(a.score||0));
+    const myRank = allSorted.findIndex(p => {
+      // uid 기준 매칭 (allParticipants 값 객체는 uid 프로퍼티 없음 → name 으로 fallback)
+      return p === me;
+    }) + 1;
+    const rankEl = document.getElementById('personalRankDisplay');
+    if (rankEl) rankEl.textContent = myRank > 0 ? `${myRank}위` : '–위';
 
     // 팀 뱃지 (피지컬47)
     const tc    = getTeamClass(me.team, allTeams);
@@ -712,16 +743,19 @@
   // ── 개인 TOP 5 ────────────────────────────────────────
   function renderRanking() {
     const el = document.getElementById('rankingList');
-    const sorted = Object.entries(allParticipants)
+    const allSorted = Object.entries(allParticipants)
       .map(([uid,p]) => ({uid,...p}))
-      .sort((a,b) => (b.score||0)-(a.score||0))
-      .slice(0, TOP_N);
+      .sort((a,b) => (b.score||0)-(a.score||0));
+    const total  = allSorted.length;
+    const sorted = allSorted.slice(0, TOP_N);
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
     const icons = ['🥇','🥈','🥉'];
     el.innerHTML = sorted.map((p,i) => {
       const isMe    = p.uid === currentUser.uid;
+      const rank    = i + 1; // global rank (TOP5 이므로 i와 동일)
+      const tier    = getTier(rank, total);
       const numHtml = i<3 ? `<span class="rank-num top${i+1}">${icons[i]}</span>` : `<span class="rank-num">${i+1}</span>`;
-      return `<div class="rank-item${isMe?' me':''}">
+      return `<div class="rank-item${isMe?' me':''}${tier?' '+tier:''}">
         ${numHtml}
         <div class="rank-info">
           <div class="rank-name">${escHtml(p.name)}${isMe?'<span class="me-tag">나</span>':''}</div>
@@ -747,17 +781,20 @@
       el.innerHTML = '<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>';
       return;
     }
+    const total = sorted.length;
     const icons = ['🥇','🥈','🥉'];
     el.innerHTML = sorted.map((p,i) => {
       const isMe    = p.uid === currentUser.uid;
+      const rank    = i + 1;
+      const tier    = getTier(rank, total);
       const numHtml = i<3 ? `<span class="rank-num top${i+1}">${icons[i]}</span>` : `<span class="rank-num">${i+1}</span>`;
-      // 소속·직급이 있으면 "소속 · 직급", 없으면 피지컬47 팀 이름 fallback
-      const subtitle = [p.affiliation, p.position].filter(Boolean).join(' · ') || (p.team || '');
-      return `<div class="rank-item${isMe?' me':''}">
+      // 소속·직급이 있으면 "소속 · 직급", 없으면 빈 문자열 (조 정보 미표시)
+      const subtitle = [p.affiliation, p.position].filter(Boolean).join(' · ');
+      return `<div class="rank-item${isMe?' me':''}${tier?' '+tier:''}">
         ${numHtml}
         <div class="rank-info">
           <div class="rank-name">${escHtml(p.name)}${isMe?'<span class="me-tag">나</span>':''}</div>
-          <div class="rank-team">${escHtml(subtitle)}</div>
+          ${subtitle ? `<div class="rank-team">${escHtml(subtitle)}</div>` : ''}
         </div>
         <div class="rank-score">${p.score||0}<span>점</span></div>
       </div>`;
@@ -783,11 +820,13 @@
       .map(([k,v]) => ({key:k,...v}))
       .sort((a,b) => (b.score||0)-(a.score||0));
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
-    el.innerHTML = sorted.map(t => {
+    const total47 = sorted.length;
+    el.innerHTML = sorted.map((t,i) => {
       const tc       = getTeamClass(t.key, allTeams);
       const isMyTeam = me && me.team === t.key;
       const members  = getMemberNames(t.key, 'team');
-      return `<div class="team-rank-item" style="${isMyTeam?'background:#f5f3ff':''}">
+      const tier     = getTier(i+1, total47);
+      return `<div class="team-rank-item${tier?' '+tier:''}" style="${isMyTeam?'background:#f5f3ff':''}">
         <div class="team-color-dot dot-${tc}"></div>
         <div class="team-rank-info">
           <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
@@ -806,11 +845,13 @@
       .map(([k,v]) => ({key:k,...v}))
       .sort((a,b) => (b.score||0)-(a.score||0));
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">바베큐 팀 데이터 없음</p>'; return; }
-    el.innerHTML = sorted.map(t => {
+    const totalBbq = sorted.length;
+    el.innerHTML = sorted.map((t,i) => {
       const tc       = getTeamClass(t.key, allBbqTeams);
       const isMyTeam = me && me.bbqTeam === t.key;
       const members  = getMemberNames(t.key, 'bbqTeam');
-      return `<div class="team-rank-item" style="${isMyTeam?'background:#fffaec':''}">
+      const tier     = getTier(i+1, totalBbq);
+      return `<div class="team-rank-item${tier?' '+tier:''}" style="${isMyTeam?'background:#fffaec':''}">
         <div class="team-color-dot dot-${tc}"></div>
         <div class="team-rank-info">
           <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag" style="background:var(--gold)">내 팀</span>':''}</div>
