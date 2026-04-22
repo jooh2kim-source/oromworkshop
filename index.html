@@ -251,6 +251,50 @@
   .game-result-delta.minus { color:var(--danger); }
   .game-result-delta.plus  { color:var(--accent3); }
   .game-result-delta.zero  { color:var(--text2); }
+
+  /* ── 1등 당첨 (x2.5) 전용 mega 스타일 ── */
+  .game-result-box.mega {
+    background:radial-gradient(circle at center, rgba(255,215,0,0.18), rgba(255,107,157,0.08) 50%, transparent 75%);
+    border-radius:20px;
+    position:relative;
+  }
+  .game-result-box.mega::before,
+  .game-result-box.mega::after {
+    content:'✨'; position:absolute; font-size:28px;
+    animation:sparkleFloat 2s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .game-result-box.mega::before { top:6%;  left:12%; }
+  .game-result-box.mega::after  { top:12%; right:12%; animation-delay:1s; }
+  @keyframes sparkleFloat {
+    0%,100% { transform:translateY(0)    rotate(0deg);  opacity:0.6; }
+    50%     { transform:translateY(-6px) rotate(18deg); opacity:1;   }
+  }
+  .game-result-emoji.mega {
+    font-size:72px;
+    animation:bounceIn 0.45s, megaFloat 2.2s ease-in-out 0.45s infinite;
+    filter:drop-shadow(0 4px 12px rgba(255,183,0,0.5));
+  }
+  @keyframes megaFloat {
+    0%,100% { transform:translateY(0)    scale(1);    }
+    50%     { transform:translateY(-5px) scale(1.06); }
+  }
+  .game-result-title.mega {
+    font-size:26px; font-weight:900;
+    background:linear-gradient(135deg, #ffb800 0%, #ff6b9d 35%, #c77dff 70%, #7209b7 100%);
+    background-size:220% 220%;
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+    animation:megaShine 2.4s ease-in-out infinite;
+  }
+  @keyframes megaShine {
+    0%,100% { background-position:0% 50%;   }
+    50%     { background-position:100% 50%; }
+  }
+  .game-result-delta.mega-delta {
+    font-size:22px; color:var(--gold); font-weight:900;
+    text-shadow:0 2px 8px rgba(255,183,0,0.35);
+  }
   .btn-game-action { width:100%; border:none; border-radius:14px; padding:15px; font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s; }
   .btn-game-action.active { background:linear-gradient(135deg,var(--accent),#3d32cc); color:#fff; box-shadow:0 4px 14px rgba(91,80,240,0.3); }
   .btn-game-action.active:active { opacity:0.85; }
@@ -552,7 +596,7 @@
   // ── 뽑기 게임 설정 ────────────────────────────────────
   const BET_OPTIONS = [10, 30, 50, 100];
   const MAX_PLAYS   = 3;
-  const PRIZE_POOL  = ['fail', 'keep', 'keep', 'x1.5', 'x2'];
+  const PRIZE_POOL  = ['fail','fail','keep','keep','x1.5','x1.5','x1.5','x2','x2','x2.5'];
 
   // ── 별점 이벤트 설정 ──────────────────────────────────
   const REVIEW_REQUIRED_TEXT  = '오롬 워크샵 너무 재미있어요!';
@@ -985,7 +1029,7 @@
 
     // 관리자가 클로즈한 상태
     if (!drawGameOpen) {
-      el.innerHTML = `<div class="game-done-msg" style="font-size:22px;padding:32px 16px">🌟<br><span style="font-size:15px;margin-top:8px;display:block">점수 일확천금의 기회 개봉박두 🌟</span></div>`;
+      el.innerHTML = `<div class="game-done-msg" style="font-size:44px;padding:32px 16px">🍀<br><span style="font-size:16px;margin-top:10px;display:block;font-weight:700">🌟점수 일확천금의 기회 개봉박두🌟</span></div>`;
       return;
     }
 
@@ -1007,7 +1051,7 @@
     }).join('');
 
     const slipsActive = (gamePhase === 'picking');
-    const slipHtml = Array.from({length: 5}, (_,i) =>
+    const slipHtml = Array.from({length: PRIZE_POOL.length}, (_,i) =>
       `<button class="slip-btn"
         ${slipsActive ? '' : 'disabled'}
         onclick="window.pickSlip(${i})">📝</button>`
@@ -1061,6 +1105,7 @@
     else if (result === 'keep') delta =  0;
     else if (result === 'x1.5') delta =  Math.floor(B * 0.5);
     else if (result === 'x2')   delta =  B;
+    else if (result === 'x2.5') delta =  Math.floor(B * 1.5);
 
     try {
       await update(ref(db, `participants/${currentUser.uid}`), {
@@ -1094,20 +1139,24 @@
     } else if (result === 'x1.5') {
       emoji = '🎉'; title = '1.5배 당첨!'; titleClass = 'win';
       deltaText = `+${Math.floor(B*0.5)}점`; deltaClass = 'plus';
-    } else {
+    } else if (result === 'x2') {
       emoji = '🏆'; title = '2배 당첨!'; titleClass = 'win';
       deltaText = `+${B}점`; deltaClass = 'plus';
+    } else { // x2.5 — 1등 당첨
+      emoji = '💎'; title = '🎊 1등 당첨! 2.5배 🎊'; titleClass = 'mega';
+      deltaText = `+${Math.floor(B*1.5)}점`; deltaClass = 'plus';
     }
 
     document.getElementById('gameCountBadge').textContent = `${newCount}/${MAX_PLAYS}`;
-    const remaining = MAX_PLAYS - newCount;
+    const remaining  = MAX_PLAYS - newCount;
+    const isMega     = titleClass === 'mega';
 
     el.innerHTML = `
       <div class="game-body">
-        <div class="game-result-box">
-          <span class="game-result-emoji">${emoji}</span>
+        <div class="game-result-box${isMega?' mega':''}">
+          <span class="game-result-emoji${isMega?' mega':''}">${emoji}</span>
           <div class="game-result-title ${titleClass}">${title}</div>
-          <div class="game-result-delta ${deltaClass}">${deltaText}</div>
+          <div class="game-result-delta ${deltaClass}${isMega?' mega-delta':''}">${deltaText}</div>
           <button class="btn-game-action ${remaining > 0 ? 'active' : 'done'}"
             ${remaining === 0 ? 'disabled' : ''}
             onclick="window.resetGame()">
