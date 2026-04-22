@@ -295,6 +295,36 @@
     font-size:22px; color:var(--gold); font-weight:900;
     text-shadow:0 2px 8px rgba(255,183,0,0.35);
   }
+
+  /* ── 결과 후 남은 쪽지 공개 ── */
+  .reveal-section { margin-top:4px; padding-top:14px; border-top:1px dashed var(--border); }
+  .reveal-label { font-size:12px; color:var(--text2); text-align:center; margin-bottom:10px; font-weight:700; letter-spacing:0.3px; }
+  .reveal-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+  .reveal-slot {
+    aspect-ratio:2/3; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; background:var(--surface2);
+    animation:revealFadeIn 0.4s ease backwards;
+  }
+  .reveal-slot:nth-child(1) { animation-delay:0.05s; } .reveal-slot:nth-child(2) { animation-delay:0.10s; }
+  .reveal-slot:nth-child(3) { animation-delay:0.15s; } .reveal-slot:nth-child(4) { animation-delay:0.20s; }
+  .reveal-slot:nth-child(5) { animation-delay:0.25s; } .reveal-slot:nth-child(6) { animation-delay:0.30s; }
+  .reveal-slot:nth-child(7) { animation-delay:0.35s; } .reveal-slot:nth-child(8) { animation-delay:0.40s; }
+  .reveal-slot:nth-child(9) { animation-delay:0.45s; } .reveal-slot:nth-child(10){ animation-delay:0.50s; }
+  @keyframes revealFadeIn {
+    0%   { opacity:0; transform:rotateY(90deg); }
+    100% { opacity:1; transform:rotateY(0); }
+  }
+  .reveal-slot.fail { background:rgba(224,32,64,0.08);  }
+  .reveal-slot.keep { background:var(--surface2); opacity:0.6; }
+  .reveal-slot.x15  { background:rgba(22,184,100,0.08); }
+  .reveal-slot.x2   { background:rgba(22,184,100,0.15); }
+  .reveal-slot.x25  { background:linear-gradient(135deg,rgba(255,183,0,0.22),rgba(255,107,157,0.18)); }
+  .reveal-slot.picked {
+    outline:3px solid var(--gold); transform:scale(1.06);
+    box-shadow:0 4px 12px rgba(224,139,0,0.3); opacity:1;
+    position:relative; z-index:1;
+  }
   .btn-game-action { width:100%; border:none; border-radius:14px; padding:15px; font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s; }
   .btn-game-action.active { background:linear-gradient(135deg,var(--accent),#3d32cc); color:#fff; box-shadow:0 4px 14px rgba(91,80,240,0.3); }
   .btn-game-action.active:active { opacity:0.85; }
@@ -1054,7 +1084,7 @@
     const slipHtml = Array.from({length: PRIZE_POOL.length}, (_,i) =>
       `<button class="slip-btn"
         ${slipsActive ? '' : 'disabled'}
-        onclick="window.pickSlip(${i})">📝</button>`
+        onclick="window.pickSlip(${i})">🍀</button>`
     ).join('');
 
     const hintText = slipsActive
@@ -1119,15 +1149,19 @@
       console.error('Firebase 업데이트 실패', e);
     }
 
-    lastResult  = { result, delta, B, newCount: currentCount + 1 };
+    lastResult  = { result, delta, B, newCount: currentCount + 1, prizes, pickedIdx: idx };
     gamePhase   = 'result';
     showGameResult();
     gameProcessing = false;
   };
 
+  // 결과 코드 → 이모지 매핑 (reveal 그리드용)
+  const PRIZE_EMOJI = { fail:'💀', keep:'😐', 'x1.5':'🎉', 'x2':'🏆', 'x2.5':'💎' };
+  const PRIZE_CLASS = { fail:'fail', keep:'keep', 'x1.5':'x15', 'x2':'x2', 'x2.5':'x25' };
+
   function showGameResult() {
     const el = document.getElementById('gameContent');
-    const { result, delta, B, newCount } = lastResult;
+    const { result, delta, B, newCount, prizes, pickedIdx } = lastResult;
 
     let emoji, title, titleClass, deltaText, deltaClass;
     if (result === 'fail') {
@@ -1151,18 +1185,32 @@
     const remaining  = MAX_PLAYS - newCount;
     const isMega     = titleClass === 'mega';
 
+    // 남은 쪽지 공개: 전체 10개 중 내가 고른 것 강조
+    const revealHtml = (prizes || []).map((p, i) => {
+      const picked = i === pickedIdx ? ' picked' : '';
+      const cls    = PRIZE_CLASS[p] || 'keep';
+      const em     = PRIZE_EMOJI[p] || '?';
+      return `<div class="reveal-slot ${cls}${picked}">${em}</div>`;
+    }).join('');
+
     el.innerHTML = `
       <div class="game-body">
         <div class="game-result-box${isMega?' mega':''}">
           <span class="game-result-emoji${isMega?' mega':''}">${emoji}</span>
           <div class="game-result-title ${titleClass}">${title}</div>
           <div class="game-result-delta ${deltaClass}${isMega?' mega-delta':''}">${deltaText}</div>
-          <button class="btn-game-action ${remaining > 0 ? 'active' : 'done'}"
-            ${remaining === 0 ? 'disabled' : ''}
-            onclick="window.resetGame()">
-            ${remaining > 0 ? `다시 뽑기 (${remaining}회 남음)` : '완료! 수고하셨습니다 🎊'}
-          </button>
         </div>
+        ${revealHtml ? `
+          <div class="reveal-section">
+            <div class="reveal-label">🔍 나머지 쪽지엔 이런 게 있었어요</div>
+            <div class="reveal-grid">${revealHtml}</div>
+          </div>
+        ` : ''}
+        <button class="btn-game-action ${remaining > 0 ? 'active' : 'done'}"
+          ${remaining === 0 ? 'disabled' : ''}
+          onclick="window.resetGame()">
+          ${remaining > 0 ? `다시 뽑기 (${remaining}회 남음)` : '완료! 수고하셨습니다 🎊'}
+        </button>
       </div>`;
   }
 
