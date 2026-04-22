@@ -267,6 +267,7 @@
       <button class="tab-btn" onclick="switchTab('notice',this)">📢 공지</button>
       <button class="tab-btn" onclick="switchTab('log',this)">📋 로그</button>
       <button class="tab-btn" onclick="switchTab('scores',this)">📊 현황</button>
+      <button class="tab-btn" onclick="switchTab('settings',this)">⚙️ 설정</button>
     </div>
 
     <div class="tab-panel active" id="tab-team">
@@ -395,6 +396,29 @@
         </div>
       </div>
     </div>
+
+    <div class="tab-panel" id="tab-settings">
+      <!-- 뽑기 게임 오픈/클로즈 -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🎰</span><span class="sh-title">뽑기 게임 오픈 설정</span></div>
+        <div class="section-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">참가자 페이지의 뽑기 게임 활성화 여부를 설정합니다.<br>클로즈 시 <strong>🚧 뽑기게임 준비중입니다 🚧</strong> 안내 표시.</p>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div id="drawGameStatus" style="font-size:15px;font-weight:700">상태 확인 중...</div>
+            <button class="btn-apply" id="drawGameToggleBtn" onclick="toggleDrawGame()" style="min-width:80px">로딩 중</button>
+          </div>
+        </div>
+      </div>
+      <!-- 별점 이벤트 제시 문구 -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">별점 이벤트 제시 문구</span></div>
+        <div class="section-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">참가자가 그대로 입력해야 하는 문구를 설정합니다.<br>저장하면 즉시 참가자 화면에 반영됩니다.</p>
+          <textarea class="notice-textarea" id="reviewPromptInput" placeholder="예) 오롬 워크샵 너무 재미있어요!" rows="2"></textarea>
+          <button class="btn-notice" onclick="saveReviewPrompt()" style="margin-top:10px">💾 제시 문구 저장</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -424,6 +448,7 @@
   let allBbqTeams     = {};
   let allParticipants = {};
   let currentTeamType = 'pt'; // 'pt' | 'bbq'
+  let currentSettings = {};
 
   window.switchTab = function(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -454,7 +479,44 @@
     onValue(ref(db,'bbqTeams'),     snap => { allBbqTeams = snap.val()||{};    populateTeamSelect(); populateBbqAssignSelect(); renderBbqScores(); });
     onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); syncBbqAssignRow(); refreshTeamManageIfVisible(); });
     onValue(ref(db,'scoreLogs'),    snap => { renderLogs(snap.val()); });
+    onValue(ref(db,'settings'),     snap => { currentSettings = snap.val()||{}; renderSettingsPanel(); });
   }
+
+  function renderSettingsPanel() {
+    const open   = !!currentSettings.drawGameOpen;
+    const status = document.getElementById('drawGameStatus');
+    const btn    = document.getElementById('drawGameToggleBtn');
+    if (status) status.innerHTML = open
+      ? '<span style="color:var(--accent3)">✅ 오픈 중</span>'
+      : '<span style="color:var(--danger)">🚧 클로즈</span>';
+    if (btn) {
+      btn.textContent = open ? '클로즈' : '오픈';
+      btn.style.background = open ? 'var(--danger)' : 'var(--accent3)';
+    }
+    const promptEl = document.getElementById('reviewPromptInput');
+    if (promptEl && !promptEl.dataset.dirty) {
+      promptEl.value = currentSettings.reviewPrompt || '';
+    }
+  }
+
+  window.toggleDrawGame = async function() {
+    const newVal = !currentSettings.drawGameOpen;
+    try {
+      await update(ref(db,'settings'), { drawGameOpen: newVal });
+      showToast(newVal ? '뽑기 게임 오픈!' : '뽑기 게임 클로즈');
+    } catch(e) { showToast('오류: ' + e.message); }
+  };
+
+  window.saveReviewPrompt = async function() {
+    const el = document.getElementById('reviewPromptInput');
+    const text = (el?.value || '').trim();
+    if (!text) { showToast('문구를 입력해주세요'); return; }
+    try {
+      await update(ref(db,'settings'), { reviewPrompt: text });
+      el.dataset.dirty = '';
+      showToast('제시 문구 저장 완료!');
+    } catch(e) { showToast('오류: ' + e.message); }
+  };
 
   function getCurrentTeamsDict() {
     return currentTeamType === 'pt' ? allTeams : allBbqTeams;

@@ -569,6 +569,9 @@
   let selectedBet    = null;
   let lastResult     = null;
   let gameProcessing = false;
+  // 글로벌 설정 (Firebase settings/)
+  let drawGameOpen    = false;
+  let reviewPromptText = REVIEW_REQUIRED_TEXT;
 
   // 별점 이벤트 상태
   let selectedStars        = 0;
@@ -643,8 +646,16 @@
     });
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
     onValue(ref(db,'bbqTeams'),snap => { allBbqTeams = snap.val() || {}; renderBbqTeamRanking(); updateMyBbqTeamScore(); });
-    onValue(ref(db,'notices'), snap => { renderNotice(snap.val()); });
-    onValue(ref(db,'clubs'),   snap => { allClubs = snap.val() || {}; renderClubList(); });
+    onValue(ref(db,'notices'),  snap => { renderNotice(snap.val()); });
+    onValue(ref(db,'clubs'),    snap => { allClubs = snap.val() || {}; renderClubList(); });
+    onValue(ref(db,'settings'), snap => {
+      const s = snap.val() || {};
+      drawGameOpen    = !!s.drawGameOpen;
+      reviewPromptText = s.reviewPrompt || REVIEW_REQUIRED_TEXT;
+      // 게임 탭이 보이는 상태면 즉시 갱신
+      const me = allParticipants[currentUser?.uid];
+      renderGame(me?.drawGameCount ?? 0);
+    });
     renderClubNotices();
   }
 
@@ -905,7 +916,7 @@
           별 <strong>5개</strong>를 선택하고 아래 문구 그대로 제출하면 <strong>+${REVIEW_REWARD}점</strong>을 드려요!
         </div>
         <div class="star-row">${starsHtml}</div>
-        <textarea class="review-input" id="reviewInput" rows="2">${escHtml(REVIEW_REQUIRED_TEXT)}</textarea>
+        <textarea class="review-input" id="reviewInput" rows="2">${escHtml(reviewPromptText)}</textarea>
         <div class="review-error" id="reviewError"></div>
         <button class="btn-review-submit" onclick="window.submitReview()">✍️ 제출하기</button>
       </div>`;
@@ -925,7 +936,7 @@
     const inputEl   = document.getElementById('reviewInput');
     const inputText = (inputEl?.value || '').trim();
     if (selectedStars < REVIEW_REQUIRED_STARS) { showReviewError('별 5개를 모두 선택해주세요 ⭐'); return; }
-    if (inputText !== REVIEW_REQUIRED_TEXT)    { showReviewError('문구를 정확히 입력해주세요'); return; }
+    if (inputText !== reviewPromptText)        { showReviewError('문구를 정확히 입력해주세요'); return; }
     reviewProcessing = true;
     const btn = document.querySelector('.btn-review-submit');
     if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
@@ -961,6 +972,12 @@
     count = count ?? (me?.drawGameCount ?? 0);
 
     document.getElementById('gameCountBadge').textContent = `${count}/${MAX_PLAYS}`;
+
+    // 관리자가 클로즈한 상태
+    if (!drawGameOpen) {
+      el.innerHTML = `<div class="game-done-msg" style="font-size:22px;padding:32px 16px">🚧<br><span style="font-size:15px;margin-top:8px;display:block">뽑기게임 준비중입니다 🚧</span></div>`;
+      return;
+    }
 
     if (count >= MAX_PLAYS) {
       el.innerHTML = `<div class="game-done-msg">🎉 3회 모두 참여했어요!<br><span style="font-size:13px">수고하셨습니다 😊</span></div>`;
