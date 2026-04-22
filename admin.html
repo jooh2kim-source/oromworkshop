@@ -79,13 +79,13 @@
 
   .admin-content { padding:16px; display:flex; flex-direction:column; gap:16px; padding-bottom:40px; }
 
-  .tab-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-  .tab-row::-webkit-scrollbar { display:none; }
+  .tab-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .tab-btn {
-    flex-shrink:0; background:var(--surface); border:1.5px solid var(--border);
-    color:var(--text2); border-radius:10px; padding:10px 18px;
+    background:var(--surface); border:1.5px solid var(--border);
+    color:var(--text2); border-radius:10px; padding:10px 8px;
     font-size:14px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
     cursor:pointer; white-space:nowrap; transition:all 0.15s; box-shadow:var(--shadow);
+    text-align:center;
   }
   .tab-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.25); }
   .tab-panel { display:none; flex-direction:column; gap:16px; }
@@ -279,24 +279,7 @@
             <button class="team-type-btn bbq"      id="ttBbq" onclick="switchTeamType('bbq')">🍖 바베큐</button>
           </div>
           <p style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:#fff8e8;border:1px solid rgba(224,139,0,0.2);border-radius:10px;">💡 팀 점수 조정 시 해당 팀 소속 참가자 전원의 <strong>개인 점수에도 동일 값이 자동 반영</strong>됩니다.</p>
-          <select class="admin-select" id="selectTeam" onchange="onTeamSelectChange()"><option value="">팀 선택...</option></select>
-
-          <div class="team-manage-box" id="teamManageBox" style="display:none">
-            <div>
-              <div class="team-manage-label">팀명 수정</div>
-              <div class="team-manage-row">
-                <input type="text" class="custom-input" id="teamNameInput" placeholder="새 팀 이름" maxlength="20">
-                <button class="btn-apply" onclick="applyTeamName()">저장</button>
-              </div>
-            </div>
-            <div>
-              <div class="team-manage-label">👑 팀장 지정</div>
-              <div class="team-manage-row">
-                <select class="admin-select" id="teamCaptainSelect"><option value="">미지정</option></select>
-                <button class="btn-apply" onclick="applyCaptain()">저장</button>
-              </div>
-            </div>
-          </div>
+          <select class="admin-select" id="selectTeam"><option value="">팀 선택...</option></select>
           <div class="score-btn-grid">
             <button class="score-btn plus"  onclick="applyTeamScore(+1)">+1</button>
             <button class="score-btn plus"  onclick="applyTeamScore(+5)">+5</button>
@@ -398,11 +381,38 @@
     </div>
 
     <div class="tab-panel" id="tab-settings">
+      <!-- 팀 관리 (팀명 · 팀장) -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 관리</span></div>
+        <div class="section-body">
+          <div class="team-type-row">
+            <button class="team-type-btn active pt" id="stgTtPt"  onclick="stgSwitchTeamType('pt')">💪 피지컬47</button>
+            <button class="team-type-btn bbq"      id="stgTtBbq" onclick="stgSwitchTeamType('bbq')">🍖 바베큐</button>
+          </div>
+          <select class="admin-select" id="stgSelectTeam" onchange="stgOnTeamSelectChange()"><option value="">팀 선택...</option></select>
+          <div class="team-manage-box" id="stgTeamManageBox" style="display:none">
+            <div>
+              <div class="team-manage-label">팀명 수정</div>
+              <div class="team-manage-row">
+                <input type="text" class="custom-input" id="stgTeamNameInput" placeholder="새 팀 이름" maxlength="20">
+                <button class="btn-apply" onclick="stgApplyTeamName()">저장</button>
+              </div>
+            </div>
+            <div>
+              <div class="team-manage-label">👑 팀장 지정</div>
+              <div class="team-manage-row">
+                <select class="admin-select" id="stgTeamCaptainSelect"><option value="">미지정</option></select>
+                <button class="btn-apply" onclick="stgApplyCaptain()">저장</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- 뽑기 게임 오픈/클로즈 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">🎰</span><span class="sh-title">뽑기 게임 오픈 설정</span></div>
         <div class="section-body">
-          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">참가자 페이지의 뽑기 게임 활성화 여부를 설정합니다.<br>클로즈 시 <strong>🚧 뽑기게임 준비중입니다 🚧</strong> 안내 표시.</p>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">참가자 페이지의 뽑기 게임 활성화 여부를 설정합니다.<br>클로즈 시 <strong>🌟 점수 일확천금의 기회 개봉박두 🌟</strong> 안내 표시.</p>
           <div style="display:flex;align-items:center;gap:16px">
             <div id="drawGameStatus" style="font-size:15px;font-weight:700">상태 확인 중...</div>
             <button class="btn-apply" id="drawGameToggleBtn" onclick="toggleDrawGame()" style="min-width:80px">로딩 중</button>
@@ -466,9 +476,9 @@
   function startAdminApp() {
     document.getElementById('adminLogin').style.display = 'none';
     document.getElementById('adminApp').style.display   = 'block';
-    onValue(ref(db,'teams'),        snap => { allTeams    = snap.val()||{};    populateTeamSelect(); renderTeamScores(); });
-    onValue(ref(db,'bbqTeams'),     snap => { allBbqTeams = snap.val()||{};    populateTeamSelect(); populateBbqAssignSelect(); renderBbqScores(); });
-    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); syncBbqAssignRow(); refreshTeamManageIfVisible(); });
+    onValue(ref(db,'teams'),        snap => { allTeams    = snap.val()||{};    populateTeamSelect(); stgPopulateTeamSelect(); renderTeamScores(); });
+    onValue(ref(db,'bbqTeams'),     snap => { allBbqTeams = snap.val()||{};    populateTeamSelect(); stgPopulateTeamSelect(); populateBbqAssignSelect(); renderBbqScores(); });
+    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); syncBbqAssignRow(); stgRefreshIfVisible(); });
     onValue(ref(db,'scoreLogs'),    snap => { renderLogs(snap.val()); });
     onValue(ref(db,'settings'),     snap => { currentSettings = snap.val()||{}; renderSettingsPanel(); });
   }
@@ -514,62 +524,82 @@
     document.getElementById('ttPt').classList.toggle('active',  type === 'pt');
     document.getElementById('ttBbq').classList.toggle('active', type === 'bbq');
     populateTeamSelect();
-    // 팀 타입 바꾸면 선택 초기화 → 관리 박스 닫힘
-    document.getElementById('teamManageBox').style.display = 'none';
   };
 
-  // 팀 선택 드롭다운 change → 팀 관리 박스 노출 + 현재 값 채우기
-  window.onTeamSelectChange = function() {
-    const k    = document.getElementById('selectTeam').value;
-    const box  = document.getElementById('teamManageBox');
+  // ── 설정 탭 팀 관리 (stg*) ────────────────────────────
+  let stgCurrentTeamType = 'pt';
+  function stgGetDict()  { return stgCurrentTeamType === 'pt' ? allTeams : allBbqTeams; }
+  function stgGetPath()  { return stgCurrentTeamType === 'pt' ? 'teams' : 'bbqTeams'; }
+  function stgGetLabel() { return stgCurrentTeamType === 'pt' ? '피지컬47' : '바베큐'; }
+
+  window.stgSwitchTeamType = function(type) {
+    stgCurrentTeamType = type;
+    document.getElementById('stgTtPt').classList.toggle('active',  type === 'pt');
+    document.getElementById('stgTtBbq').classList.toggle('active', type === 'bbq');
+    stgPopulateTeamSelect();
+    document.getElementById('stgTeamManageBox').style.display = 'none';
+  };
+
+  function stgPopulateTeamSelect() {
+    const sel = document.getElementById('stgSelectTeam'); if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">팀 선택...</option>';
+    Object.entries(stgGetDict()).forEach(([k,v]) => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = v.teamName || k; sel.appendChild(o);
+    });
+    if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) sel.value = cur;
+  }
+
+  window.stgOnTeamSelectChange = function() {
+    const k   = document.getElementById('stgSelectTeam').value;
+    const box = document.getElementById('stgTeamManageBox');
     if (!k) { box.style.display = 'none'; return; }
     box.style.display = 'flex';
-    const dict = getCurrentTeamsDict();
-    document.getElementById('teamNameInput').value = dict[k]?.teamName || k;
-    populateCaptainSelect(k, dict[k]?.captainId || '');
+    const dict = stgGetDict();
+    document.getElementById('stgTeamNameInput').value = dict[k]?.teamName || k;
+    stgPopulateCaptainSelect(k, dict[k]?.captainId || '');
   };
 
-  // 팀장 드롭다운: 해당 팀 소속 참가자만 옵션
-  function populateCaptainSelect(teamKey, captainId) {
-    const sel = document.getElementById('teamCaptainSelect');
-    const memberField = currentTeamType === 'pt' ? 'team' : 'bbqTeam';
+  function stgPopulateCaptainSelect(teamKey, captainId) {
+    const sel = document.getElementById('stgTeamCaptainSelect');
+    const memberField = stgCurrentTeamType === 'pt' ? 'team' : 'bbqTeam';
     sel.innerHTML = '<option value="">미지정</option>';
     Object.entries(allParticipants)
       .filter(([uid,p]) => p[memberField] === teamKey)
       .forEach(([uid,p]) => {
         const o = document.createElement('option');
-        o.value = uid; o.textContent = p.name; sel.appendChild(o);
+        o.value = uid; o.textContent = p.displayName || p.name; sel.appendChild(o);
       });
     sel.value = captainId;
   }
 
-  function refreshTeamManageIfVisible() {
-    const box = document.getElementById('teamManageBox');
+  function stgRefreshIfVisible() {
+    const box = document.getElementById('stgTeamManageBox');
     if (!box || box.style.display === 'none') return;
-    const k = document.getElementById('selectTeam')?.value;
+    const k = document.getElementById('stgSelectTeam')?.value;
     if (!k) return;
-    const dict = getCurrentTeamsDict();
-    populateCaptainSelect(k, dict[k]?.captainId || '');
+    const dict = stgGetDict();
+    stgPopulateCaptainSelect(k, dict[k]?.captainId || '');
   }
 
-  window.applyTeamName = async function() {
-    const k  = document.getElementById('selectTeam').value;
+  window.stgApplyTeamName = async function() {
+    const k  = document.getElementById('stgSelectTeam').value;
     if (!k) { showToast('팀을 선택하세요','error'); return; }
-    const newName = document.getElementById('teamNameInput').value.trim();
+    const newName = document.getElementById('stgTeamNameInput').value.trim();
     if (!newName) { showToast('팀명을 입력하세요','error'); return; }
-    const path = getCurrentTeamsPath();
-    await update(ref(db, `${path}/${k}`), { teamName: newName });
-    showToast(`[${getCurrentTypeLabel()}] ${k} 팀명 → ${newName}`,'success');
+    await update(ref(db, `${stgGetPath()}/${k}`), { teamName: newName });
+    showToast(`[${stgGetLabel()}] ${k} 팀명 → ${newName}`,'success');
   };
 
-  window.applyCaptain = async function() {
-    const k = document.getElementById('selectTeam').value;
+  window.stgApplyCaptain = async function() {
+    const k = document.getElementById('stgSelectTeam').value;
     if (!k) { showToast('팀을 선택하세요','error'); return; }
-    const captainId = document.getElementById('teamCaptainSelect').value || null;
-    const path = getCurrentTeamsPath();
-    await update(ref(db, `${path}/${k}`), { captainId });
-    const name = captainId ? (allParticipants[captainId]?.name || captainId) : '미지정';
-    showToast(`[${getCurrentTypeLabel()}] ${k} 팀장 → ${name}`,'success');
+    const captainId = document.getElementById('stgTeamCaptainSelect').value || null;
+    await update(ref(db, `${stgGetPath()}/${k}`), { captainId });
+    const p = allParticipants[captainId];
+    const name = captainId ? (p?.displayName || p?.name || captainId) : '미지정';
+    showToast(`[${stgGetLabel()}] ${k} 팀장 → ${name}`,'success');
   };
 
   function populateTeamSelect() {
