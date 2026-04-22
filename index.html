@@ -615,7 +615,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push, remove }
+  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   // ── Firebase 설정 ──────────────────────────────────────
@@ -641,6 +641,28 @@
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
+
+  // ── 백그라운드 탭 자동 오프라인 (Firebase 연결 슬롯 절약) ──
+  // 탭이 2분 이상 숨겨져 있으면 goOffline, 복귀하면 goOnline.
+  // 사용자는 전혀 눈치채지 못하며 복귀 시 onValue가 최신값 자동 재동기화.
+  const IDLE_OFFLINE_MS = 2 * 60 * 1000;
+  let idleTimer = null;
+  let fbOffline = false;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        try { goOffline(db); fbOffline = true; }
+        catch (e) { console.warn('[ws] goOffline fail', e); }
+      }, IDLE_OFFLINE_MS);
+    } else {
+      if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+      if (fbOffline) {
+        try { goOnline(db); fbOffline = false; }
+        catch (e) { console.warn('[ws] goOnline fail', e); }
+      }
+    }
+  });
 
   const TOP_N = 5;
   let currentUser     = null;
