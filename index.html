@@ -202,6 +202,7 @@
   .review-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
   .review-desc { font-size:14px; color:var(--text2); line-height:1.6; }
   .review-desc strong { color:var(--text); }
+  .review-prompt-label { font-size:14px; color:var(--text); background:var(--surface2); border-left:3px solid var(--gold); border-radius:8px; padding:10px 14px; line-height:1.5; }
   .star-row { display:flex; justify-content:center; gap:6px; padding:4px 0; }
   .star-btn { background:none; border:none; font-size:38px; cursor:pointer; line-height:1; padding:4px; transition:transform 0.1s; filter:grayscale(1) opacity(0.35); }
   .star-btn.active { filter:none; }
@@ -915,8 +916,9 @@
         <div class="review-desc">
           별 <strong>5개</strong>를 선택하고 아래 문구 그대로 제출하면 <strong>+${REVIEW_REWARD}점</strong>을 드려요!
         </div>
+        <div class="review-prompt-label">📝 제시 문구: <strong>${escHtml(reviewPromptText)}</strong></div>
         <div class="star-row">${starsHtml}</div>
-        <textarea class="review-input" id="reviewInput" rows="2">${escHtml(reviewPromptText)}</textarea>
+        <textarea class="review-input" id="reviewInput" rows="2" placeholder="위 제시 문구를 그대로 입력하세요"></textarea>
         <div class="review-error" id="reviewError"></div>
         <button class="btn-review-submit" onclick="window.submitReview()">✍️ 제출하기</button>
       </div>`;

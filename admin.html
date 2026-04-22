@@ -409,15 +409,6 @@
           </div>
         </div>
       </div>
-      <!-- 별점 이벤트 제시 문구 -->
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">별점 이벤트 제시 문구</span></div>
-        <div class="section-body">
-          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">참가자가 그대로 입력해야 하는 문구를 설정합니다.<br>저장하면 즉시 참가자 화면에 반영됩니다.</p>
-          <textarea class="notice-textarea" id="reviewPromptInput" placeholder="예) 오롬 워크샵 너무 재미있어요!" rows="2"></textarea>
-          <button class="btn-notice" onclick="saveReviewPrompt()" style="margin-top:10px">💾 제시 문구 저장</button>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -507,16 +498,6 @@
     } catch(e) { showToast('오류: ' + e.message); }
   };
 
-  window.saveReviewPrompt = async function() {
-    const el = document.getElementById('reviewPromptInput');
-    const text = (el?.value || '').trim();
-    if (!text) { showToast('문구를 입력해주세요'); return; }
-    try {
-      await update(ref(db,'settings'), { reviewPrompt: text });
-      el.dataset.dirty = '';
-      showToast('제시 문구 저장 완료!');
-    } catch(e) { showToast('오류: ' + e.message); }
-  };
 
   function getCurrentTeamsDict() {
     return currentTeamType === 'pt' ? allTeams : allBbqTeams;
