@@ -266,6 +266,7 @@
             <button class="team-type-btn active pt" id="ttPt"  onclick="switchTeamType('pt')">💪 피지컬47</button>
             <button class="team-type-btn bbq"      id="ttBbq" onclick="switchTeamType('bbq')">🍖 바베큐</button>
           </div>
+          <p style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:#fff8e8;border:1px solid rgba(224,139,0,0.2);border-radius:10px;">💡 팀 점수 조정 시 해당 팀 소속 참가자 전원의 <strong>개인 점수에도 동일 값이 자동 반영</strong>됩니다.</p>
           <select class="admin-select" id="selectTeam"><option value="">팀 선택...</option></select>
           <div class="score-btn-grid">
             <button class="score-btn plus"  onclick="applyTeamScore(+1)">+1</button>
@@ -517,10 +518,22 @@
     const dict    = getCurrentTeamsDict();
     const path    = getCurrentTeamsPath();
     const typeLbl = getCurrentTypeLabel();
-    const newScore=(dict[k]?.score||0)+delta, name=dict[k]?.teamName||k;
-    await update(ref(db,`${path}/${k}`),{score:newScore});
-    await logScore(`${typeLbl} 팀: ${name}`,delta);
-    showToast(`[${typeLbl}] ${name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
+    const memberField = currentTeamType === 'pt' ? 'team' : 'bbqTeam';
+    const newScore    = (dict[k]?.score||0)+delta;
+    const name        = dict[k]?.teamName||k;
+
+    // 팀 소속 참가자 전원의 개인 점수에도 동일한 값 반영
+    const memberUids = Object.entries(allParticipants)
+      .filter(([uid,p]) => p[memberField] === k)
+      .map(([uid]) => uid);
+
+    const updates = { [`${path}/${k}/score`]: newScore };
+    memberUids.forEach(uid => {
+      updates[`participants/${uid}/score`] = (allParticipants[uid]?.score||0) + delta;
+    });
+    await update(ref(db), updates);
+    await logScore(`${typeLbl} 팀: ${name} (팀원 ${memberUids.length}명 개인 점수 동반)`, delta);
+    showToast(`[${typeLbl}] ${name} ${delta>0?'+':''}${delta}점 · 팀원 ${memberUids.length}명 반영`,'success');
   }
 
   window.applyPersonalScore  = async d => { const uid=document.getElementById('selectParticipant').value; if(!uid){showToast('참가자를 선택하세요','error');return;} await changePersonalScore(uid,d); };

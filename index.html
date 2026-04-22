@@ -124,10 +124,8 @@
     content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
     width:32px; height:3px; background:var(--accent); border-radius:0 0 4px 4px;
   }
-  .nav-btn.game-tab.active { color:var(--gold); }
-  .nav-btn.game-tab.active::after { background:var(--gold); }
-  .nav-btn.club-tab.active { color:var(--accent3); }
-  .nav-btn.club-tab.active::after { background:var(--accent3); }
+  .nav-btn.community-tab.active { color:var(--accent3); }
+  .nav-btn.community-tab.active::after { background:var(--accent3); }
 
   /* ── 섹션 카드 ── */
   .section-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
@@ -401,8 +399,8 @@
       <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
     </div>
 
-    <!-- ── 게임 탭 ── -->
-    <div class="tab-panel" id="tab-game">
+    <!-- ── 커뮤니티 탭 (게임 + 동아리) ── -->
+    <div class="tab-panel" id="tab-community">
 
       <!-- 첫 참여 이벤트 -->
       <div class="section-card">
@@ -427,11 +425,6 @@
           <div class="loading-dots"><span></span><span></span><span></span></div>
         </div>
       </div>
-
-    </div>
-
-    <!-- ── 동아리 탭 ── -->
-    <div class="tab-panel" id="tab-club">
 
       <!-- TF 추천 공지 -->
       <div class="club-notice-card">
@@ -496,13 +489,9 @@
     <span class="nav-icon">🏠</span>
     <span class="nav-label">홈</span>
   </button>
-  <button class="nav-btn game-tab" id="navGame" onclick="switchTab('game')">
-    <span class="nav-icon">🎮</span>
-    <span class="nav-label">게임</span>
-  </button>
-  <button class="nav-btn club-tab" id="navClub" onclick="switchTab('club')">
+  <button class="nav-btn community-tab" id="navCommunity" onclick="switchTab('community')">
     <span class="nav-icon">🤝</span>
-    <span class="nav-label">동아리</span>
+    <span class="nav-label">커뮤니티</span>
   </button>
 </nav>
 
@@ -558,8 +547,7 @@
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     document.getElementById('navHome').classList.toggle('active', name === 'home');
-    document.getElementById('navGame').classList.toggle('active', name === 'game');
-    document.getElementById('navClub').classList.toggle('active', name === 'club');
+    document.getElementById('navCommunity').classList.toggle('active', name === 'community');
   };
 
   // ── 팀 색상 ───────────────────────────────────────────
