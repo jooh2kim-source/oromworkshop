@@ -684,6 +684,9 @@
   function updateMyScores() {
     const me = allParticipants[currentUser.uid]; if (!me) return;
 
+    // 헤더 이름: Firebase 최신 데이터 기준 (localStorage 캐시 무시)
+    document.getElementById('headerName').textContent = dispName(me);
+
     // 개인 점수 표시
     const ps = document.getElementById('personalScoreDisplay');
     if (ps.textContent !== String(me.score || 0)) {
