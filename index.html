@@ -639,7 +639,7 @@
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').style.display   = 'block';
     document.getElementById('bottomNav').style.display   = 'flex';
-    document.getElementById('headerName').textContent    = currentUser.name;
+    document.getElementById('headerName').textContent    = dispName(currentUser);
     onValue(ref(db,'participants'), snap => {
       allParticipants = snap.val() || {};
       renderRanking();
@@ -664,6 +664,9 @@
   }
 
   // ── 내 점수 업데이트 ──────────────────────────────────
+  // 표시 이름: displayName 우선, 없으면 name
+  function dispName(p) { return p.displayName || p.name; }
+
   // ── 등수 티어 계산 (top 30% / bot 30%) ──────────────────
   function getTier(rank, total) {
     if (!total) return '';
@@ -779,7 +782,7 @@
       return `<div class="rank-item${isMe?' me':''}${tier?' '+tier:''}">
         ${numHtml}
         <div class="rank-info">
-          <div class="rank-name">${escHtml(p.name)}${isMe?'<span class="me-tag">나</span>':''}</div>
+          <div class="rank-name">${escHtml(dispName(p))}${isMe?'<span class="me-tag">나</span>':''}</div>
           <div class="rank-team">${escHtml(p.team||'')}</div>
         </div>
         <div class="rank-score">${p.score||0}<span>점</span></div>
@@ -811,13 +814,11 @@
       const numHtml    = i<3
         ? `<span class="rank-num top${i+1}">${icons[i]}</span>`
         : `<span class="rank-num">${tierEmoji(tier)} ${i+1}</span>`;
-      // 사장님: realName 있으면 표시 이름으로 사용
-      const displayName = p.realName || p.name;
       return `<div class="rank-item${isMe?' me':''}${tier?' '+tier:''}">
         ${numHtml}
         <div class="rank-info">
           ${p.affiliation ? `<div class="rank-affil">${escHtml(p.affiliation)}</div>` : ''}
-          <div class="rank-name">${escHtml(displayName)}${isMe?'<span class="me-tag">나</span>':''}</div>
+          <div class="rank-name">${escHtml(dispName(p))}${isMe?'<span class="me-tag">나</span>':''}</div>
           ${p.position ? `<div class="rank-pos">${escHtml(p.position)}</div>` : ''}
         </div>
         <div class="rank-score">${p.score||0}<span>점</span></div>
@@ -837,7 +838,7 @@
         return 0;
       })
       .map(([uid,p]) => {
-        const safeName = escHtml(p.name);
+        const safeName = escHtml(dispName(p));
         return uid === captainId
           ? `👑 <strong style="color:var(--accent);font-weight:900">${safeName}</strong>`
           : safeName;
@@ -1063,7 +1064,7 @@
         score: currentScore + delta, drawGameCount: currentCount + 1
       });
       await push(ref(db, 'gameLogs'), {
-        user: currentUser.name, uid: currentUser.uid,
+        user: dispName(currentUser), uid: currentUser.uid,
         bet: B, result, delta, timestamp: Date.now()
       });
     } catch(e) {
@@ -1182,7 +1183,7 @@
         place: place || null, time: time || null,
         maxMembers: maxVal || null,
         creatorId:   currentUser.uid,
-        creatorName: currentUser.name,
+        creatorName: dispName(currentUser),
         participants: { [currentUser.uid]: true },
         createdAt: Date.now()
       };
@@ -1282,7 +1283,7 @@
       // 참여자 이름 표시 (최대 5명 + 나머지 수)
       const nameList = members.map(uid => {
         const p = allParticipants[uid];
-        return p ? p.name : '?';
+        return p ? dispName(p) : '?';
       });
       const showNames = nameList.slice(0,5).join(', ') + (nameList.length > 5 ? ` 외 ${nameList.length-5}명` : '');
 

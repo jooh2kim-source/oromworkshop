@@ -8,7 +8,7 @@
     "user_006": { "name": "김진욱", "code": "1234", "team": "1조", "bbqTeam": "1조", "score": 0, "affiliation": "온라인마케팅팀", "position": "파트너" },
     "user_007": { "name": "박주연", "code": "1234", "team": "1조", "bbqTeam": "9조", "score": 0, "affiliation": "법인·매장영업팀", "position": "파트너" },
     "user_008": { "name": "강민석", "code": "1234", "team": "2조", "bbqTeam": "6조", "score": 0, "affiliation": "제작본부", "position": "파트너" },
-    "user_009": { "name": "사장님", "code": "1234", "team": "2조", "bbqTeam": "8조", "score": 0, "affiliation": "오롬주식회사", "position": "사장님", "realName": "이호열" },
+    "user_009": { "name": "이호열", "code": "1234", "team": "2조", "bbqTeam": "8조", "score": 0, "affiliation": "오롬주식회사", "position": "사장님", "displayName": "사장님" },
     "user_010": { "name": "이미경", "code": "1234", "team": "2조", "bbqTeam": "1조", "score": 0, "affiliation": "디자인팀", "position": "팀장" },
     "user_011": { "name": "김득주", "code": "1234", "team": "2조", "bbqTeam": "9조", "score": 0, "affiliation": "온라인마케팅팀", "position": "파트장" },
     "user_012": { "name": "백홍화", "code": "1234", "team": "2조", "bbqTeam": "2조", "score": 0, "affiliation": "오롬예공소", "position": "" },
