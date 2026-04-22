@@ -150,23 +150,16 @@
   .rank-item { display:flex; align-items:center; padding:13px 18px; gap:14px; border-bottom:1px solid var(--border); }
   .rank-item:last-child { border-bottom:none; }
   .rank-item.me { background:#f5f3ff; }
-  /* ── 티어 이펙트 (초록/노랑/빨강) ── */
-  .rank-item.tier-top { background:linear-gradient(90deg,rgba(22,184,100,0.07) 0%,transparent 60%); }
+  /* ── 티어 이펙트 (텍스트 색상만, 배경 없음) ── */
   .rank-item.tier-top .rank-num { color:var(--accent3); font-weight:900; }
-  .rank-item.tier-mid { background:linear-gradient(90deg,rgba(220,160,0,0.07) 0%,transparent 60%); }
   .rank-item.tier-mid .rank-num { color:#c08800; font-weight:700; }
-  .rank-item.tier-bot { background:linear-gradient(90deg,rgba(224,32,64,0.06) 0%,transparent 60%); }
   .rank-item.tier-bot .rank-num { color:var(--danger); font-weight:900; }
-  .rank-item.me.tier-top { background:linear-gradient(90deg,rgba(22,184,100,0.12),rgba(245,243,255,0.9)); }
-  .rank-item.me.tier-mid { background:linear-gradient(90deg,rgba(220,160,0,0.10),rgba(245,243,255,0.9)); }
-  .rank-item.me.tier-bot { background:linear-gradient(90deg,rgba(224,32,64,0.08),rgba(245,243,255,0.9)); }
-  /* 팀 순위 티어 */
-  .team-rank-item.tier-top { background:linear-gradient(90deg,rgba(22,184,100,0.08) 0%,transparent 60%); }
-  .team-rank-item.tier-top .team-rank-name { color:var(--accent3); font-weight:900; }
-  .team-rank-item.tier-mid { background:linear-gradient(90deg,rgba(220,160,0,0.07) 0%,transparent 60%); }
-  .team-rank-item.tier-mid .team-rank-name { color:#c08800; font-weight:700; }
-  .team-rank-item.tier-bot { background:linear-gradient(90deg,rgba(224,32,64,0.06) 0%,transparent 60%); }
-  .team-rank-item.tier-bot .team-rank-name { color:var(--danger); font-weight:900; }
+  /* 팀 순위 티어 — rank-num 색상만 */
+  .team-rank-item.tier-top .team-rank-num { color:var(--accent3); font-weight:900; }
+  .team-rank-item.tier-mid .team-rank-num { color:#c08800; font-weight:700; }
+  .team-rank-item.tier-bot .team-rank-num { color:var(--danger); font-weight:900; }
+  /* 팀 순위 등수 숫자 */
+  .team-rank-num { font-size:13px; font-weight:900; font-family:'Space Mono',monospace; color:var(--text2); width:36px; text-align:center; flex-shrink:0; line-height:1.3; }
   .rank-num { font-size:11px; font-weight:700; font-family:'Space Mono',monospace; color:var(--text2); width:28px; text-align:center; flex-shrink:0; }
   .rank-num.top1 { color:#c8900a; font-size:18px; }
   .rank-num.top2 { color:#7a8a9a; font-size:16px; }
@@ -664,8 +657,9 @@
     return 'tier-mid';
   }
   function tierEmoji(tier) {
-    if (tier === 'tier-top') return '👑 ';
-    if (tier === 'tier-bot') return '💀 ';
+    if (tier === 'tier-top') return '😍';
+    if (tier === 'tier-mid') return '😊';
+    if (tier === 'tier-bot') return '😥';
     return '';
   }
 
@@ -766,7 +760,7 @@
       const tier    = getTier(rank, total);
       const numHtml = i<3
         ? `<span class="rank-num top${i+1}">${icons[i]}</span>`
-        : `<span class="rank-num">${tierEmoji(tier)}${i+1}</span>`;
+        : `<span class="rank-num">${tierEmoji(tier)} ${i+1}</span>`;
       return `<div class="rank-item${isMe?' me':''}${tier?' '+tier:''}">
         ${numHtml}
         <div class="rank-info">
@@ -801,7 +795,7 @@
       const tier    = getTier(rank, total);
       const numHtml = i<3
         ? `<span class="rank-num top${i+1}">${icons[i]}</span>`
-        : `<span class="rank-num">${tierEmoji(tier)}${i+1}</span>`;
+        : `<span class="rank-num">${tierEmoji(tier)} ${i+1}</span>`;
       // 소속·직급이 있으면 "소속 · 직급", 없으면 빈 문자열 (조 정보 미표시)
       const subtitle = [p.affiliation, p.position].filter(Boolean).join(' · ');
       return `<div class="rank-item${isMe?' me':''}${tier?' '+tier:''}">
@@ -826,7 +820,12 @@
         if (uidB === captainId) return  1;
         return 0;
       })
-      .map(([uid,p]) => (uid === captainId ? '👑 ' : '') + p.name)
+      .map(([uid,p]) => {
+        const safeName = escHtml(p.name);
+        return uid === captainId
+          ? `👑 <strong style="color:var(--accent);font-weight:900">${safeName}</strong>`
+          : safeName;
+      })
       .join(', ');
   }
 
@@ -846,10 +845,10 @@
       const members  = getMemberNames(t.key, 'team');
       const tier     = getTier(i+1, total47);
       return `<div class="team-rank-item${tier?' '+tier:''}" style="${isMyTeam?'background:#f5f3ff':''}">
-        <div class="team-color-dot dot-${tc}"></div>
+        <div class="team-rank-num">${tierEmoji(tier)}<br>${i+1}위</div>
         <div class="team-rank-info">
-          <div class="team-rank-name">${tierEmoji(tier)}${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
-          ${members ? `<div class="team-rank-members">${escHtml(members)}</div>` : ''}
+          <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
+          ${members ? `<div class="team-rank-members">${members}</div>` : ''}
         </div>
         <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
       </div>`;
@@ -871,10 +870,10 @@
       const members  = getMemberNames(t.key, 'bbqTeam');
       const tier     = getTier(i+1, totalBbq);
       return `<div class="team-rank-item${tier?' '+tier:''}" style="${isMyTeam?'background:#fffaec':''}">
-        <div class="team-color-dot dot-${tc}"></div>
+        <div class="team-rank-num">${tierEmoji(tier)}<br>${i+1}위</div>
         <div class="team-rank-info">
-          <div class="team-rank-name">${tierEmoji(tier)}${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag" style="background:var(--gold)">내 팀</span>':''}</div>
-          ${members ? `<div class="team-rank-members">${escHtml(members)}</div>` : ''}
+          <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag" style="background:var(--gold)">내 팀</span>':''}</div>
+          ${members ? `<div class="team-rank-members">${members}</div>` : ''}
         </div>
         <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
       </div>`;
