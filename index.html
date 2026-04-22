@@ -83,12 +83,14 @@
   .header-top { display:flex; align-items:center; justify-content:space-between; }
   .header-identity { font-size:20px; font-weight:900; letter-spacing:-0.3px; }
   .team-badge { display:inline-block; padding:3px 11px; border-radius:20px; font-size:13px; font-weight:700; margin-right:6px; vertical-align:middle; }
-  .scores-row { display:flex; gap:12px; margin-top:12px; }
-  .score-pill { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:10px 14px; text-align:center; }
-  .score-pill .sp-label { font-size:11px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
-  .score-pill .sp-value { font-size:28px; font-weight:900; font-family:'Space Mono',monospace; line-height:1.2; margin-top:2px; }
+  .scores-row { display:flex; gap:8px; margin-top:12px; }
+  .score-pill { flex:1; min-width:0; background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:10px 8px; text-align:center; }
+  .score-pill .sp-label { font-size:10px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .score-pill .sp-value { font-size:22px; font-weight:900; font-family:'Space Mono',monospace; line-height:1.2; margin-top:2px; }
   .score-pill.team     .sp-value { color:var(--accent); }
   .score-pill.personal .sp-value { color:var(--accent3); }
+  .score-pill.bbq      .sp-value { color:var(--gold); }
+  .team-badge.bbq-badge { background:rgba(224,139,0,0.12); color:var(--gold); }
 
   /* ── 탭 콘텐츠 영역 ── */
   .tab-content {
@@ -335,17 +337,22 @@
     <div class="header-top">
       <div class="header-identity">
         <span id="headerTeamBadge" class="team-badge">팀</span>
+        <span id="headerBbqBadge" class="team-badge bbq-badge" style="display:none">BBQ</span>
         <span id="headerName">이름</span>
       </div>
     </div>
     <div class="scores-row">
-      <div class="score-pill team">
-        <div class="sp-label">팀 점수</div>
-        <div class="sp-value" id="teamScoreDisplay">0</div>
-      </div>
       <div class="score-pill personal">
         <div class="sp-label">개인 점수</div>
         <div class="sp-value" id="personalScoreDisplay">0</div>
+      </div>
+      <div class="score-pill team">
+        <div class="sp-label">피지컬47</div>
+        <div class="sp-value" id="teamScoreDisplay">0</div>
+      </div>
+      <div class="score-pill bbq">
+        <div class="sp-label">바베큐</div>
+        <div class="sp-value" id="bbqScoreDisplay">0</div>
       </div>
     </div>
   </div>
@@ -367,10 +374,18 @@
         </div>
       </div>
 
-      <!-- 팀 순위 -->
+      <!-- 피지컬47 팀 순위 -->
       <div class="section-card">
-        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 순위</span></div>
+        <div class="section-header"><span class="sh-icon">💪</span><span class="sh-title">피지컬47 팀 순위</span></div>
         <div class="team-rank-list" id="teamRankList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <!-- 바베큐 팀 순위 -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🍖</span><span class="sh-title">바베큐 팀 순위</span></div>
+        <div class="team-rank-list" id="bbqRankList">
           <div class="loading-dots"><span></span><span></span><span></span></div>
         </div>
       </div>
@@ -524,6 +539,7 @@
   let currentUser     = null;
   let allParticipants = {};
   let allTeams        = {};
+  let allBbqTeams     = {};
 
   // 뽑기 게임 상태
   let gamePhase      = 'idle'; // 'idle' | 'picking' | 'result'
@@ -548,9 +564,9 @@
 
   // ── 팀 색상 ───────────────────────────────────────────
   const TEAM_COLORS = ['A','B','C','D','E','F'];
-  function getTeamClass(teamName) {
-    const idx = Object.keys(allTeams).indexOf(teamName);
-    return TEAM_COLORS[idx % TEAM_COLORS.length];
+  function getTeamClass(teamName, dict) {
+    const idx = Object.keys(dict || {}).indexOf(teamName);
+    return TEAM_COLORS[(idx < 0 ? 0 : idx) % TEAM_COLORS.length];
   }
 
   // ── 로그인 ────────────────────────────────────────────
@@ -600,6 +616,7 @@
       updateMyScores();
     });
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
+    onValue(ref(db,'bbqTeams'),snap => { allBbqTeams = snap.val() || {}; renderBbqTeamRanking(); updateMyBbqTeamScore(); });
     onValue(ref(db,'notices'), snap => { renderNotice(snap.val()); });
     onValue(ref(db,'clubs'),   snap => { allClubs = snap.val() || {}; renderClubList(); });
     renderClubNotices();
@@ -616,10 +633,19 @@
       ps.classList.remove('score-flash'); void ps.offsetWidth; ps.classList.add('score-flash');
     }
 
-    // 팀 뱃지
-    const tc    = getTeamClass(me.team);
+    // 팀 뱃지 (피지컬47)
+    const tc    = getTeamClass(me.team, allTeams);
     const badge = document.getElementById('headerTeamBadge');
     badge.textContent = me.team || ''; badge.className = `team-badge tc-${tc}`;
+
+    // 팀 뱃지 (바베큐)
+    const bbqBadge = document.getElementById('headerBbqBadge');
+    if (me.bbqTeam) {
+      bbqBadge.textContent = `🍖 ${me.bbqTeam}`;
+      bbqBadge.style.display = '';
+    } else {
+      bbqBadge.style.display = 'none';
+    }
 
     // 별점 이벤트 동기화
     const serverCompleted = !!me.reviewEventCompleted;
@@ -644,6 +670,16 @@
     const ts = document.getElementById('teamScoreDisplay');
     if (ts.textContent !== String(td.score || 0)) {
       ts.textContent = td.score || 0;
+      ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
+    }
+  }
+
+  function updateMyBbqTeamScore() {
+    const me = allParticipants[currentUser.uid]; if (!me) return;
+    const ts = document.getElementById('bbqScoreDisplay');
+    const score = me.bbqTeam ? (allBbqTeams[me.bbqTeam]?.score || 0) : 0;
+    if (ts.textContent !== String(score)) {
+      ts.textContent = score;
       ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
     }
   }
@@ -682,7 +718,7 @@
     }).join('');
   }
 
-  // ── 팀 순위 ───────────────────────────────────────────
+  // ── 팀 순위 (피지컬47) ────────────────────────────────
   function renderTeamRanking() {
     const el = document.getElementById('teamRankList');
     const me = allParticipants[currentUser.uid];
@@ -691,11 +727,30 @@
       .sort((a,b) => (b.score||0)-(a.score||0));
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
     el.innerHTML = sorted.map(t => {
-      const tc       = getTeamClass(t.key);
+      const tc       = getTeamClass(t.key, allTeams);
       const isMyTeam = me && me.team === t.key;
       return `<div class="team-rank-item" style="${isMyTeam?'background:#f5f3ff':''}">
         <div class="team-color-dot dot-${tc}"></div>
         <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag">내 팀</span>':''}</div>
+        <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── 팀 순위 (바베큐) ──────────────────────────────────
+  function renderBbqTeamRanking() {
+    const el = document.getElementById('bbqRankList');
+    const me = allParticipants[currentUser.uid];
+    const sorted = Object.entries(allBbqTeams)
+      .map(([k,v]) => ({key:k,...v}))
+      .sort((a,b) => (b.score||0)-(a.score||0));
+    if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">바베큐 팀 데이터 없음</p>'; return; }
+    el.innerHTML = sorted.map(t => {
+      const tc       = getTeamClass(t.key, allBbqTeams);
+      const isMyTeam = me && me.bbqTeam === t.key;
+      return `<div class="team-rank-item" style="${isMyTeam?'background:#fffaec':''}">
+        <div class="team-color-dot dot-${tc}"></div>
+        <div class="team-rank-name">${escHtml(t.teamName||t.key)}${isMyTeam?'<span class="me-tag" style="background:var(--gold)">내 팀</span>':''}</div>
         <div class="team-rank-score score-${tc}">${t.score||0}<span style="font-size:13px;color:var(--text2);font-weight:400;font-family:sans-serif">점</span></div>
       </div>`;
     }).join('');

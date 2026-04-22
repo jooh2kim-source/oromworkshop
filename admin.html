@@ -91,6 +91,25 @@
   .tab-panel { display:none; flex-direction:column; gap:16px; }
   .tab-panel.active { display:flex; }
 
+  .team-type-row { display:flex; gap:6px; margin-bottom:12px; }
+  .team-type-btn {
+    flex:1; background:var(--surface2); border:1.5px solid var(--border);
+    color:var(--text2); border-radius:10px; padding:11px 8px;
+    font-size:13px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .team-type-btn.active.pt  { background:var(--accent);  border-color:var(--accent);  color:#fff; }
+  .team-type-btn.active.bbq { background:var(--accent4); border-color:var(--accent4); color:#fff; }
+
+  .bbq-assign-row {
+    margin-bottom:12px; padding:12px 14px;
+    background:#fff8e8; border:1px solid rgba(224,139,0,0.25); border-radius:12px;
+  }
+  .bbq-assign-label { display:block; font-size:12px; font-weight:700; color:var(--accent4); margin-bottom:8px; }
+  .bbq-assign-inner { display:flex; gap:8px; }
+  .bbq-assign-inner .admin-select { flex:1; margin-bottom:0; padding:11px 14px; font-size:14px; }
+  .bbq-assign-inner .btn-apply { padding:11px 16px; background:var(--accent4); }
+
   .section-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
   .section-header { padding:14px 18px 12px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
   .section-header .sh-icon  { font-size:18px; }
@@ -243,6 +262,10 @@
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 점수 조정</span></div>
         <div class="section-body">
+          <div class="team-type-row">
+            <button class="team-type-btn active pt" id="ttPt"  onclick="switchTeamType('pt')">💪 피지컬47</button>
+            <button class="team-type-btn bbq"      id="ttBbq" onclick="switchTeamType('bbq')">🍖 바베큐</button>
+          </div>
           <select class="admin-select" id="selectTeam"><option value="">팀 선택...</option></select>
           <div class="score-btn-grid">
             <button class="score-btn plus"  onclick="applyTeamScore(+1)">+1</button>
@@ -271,7 +294,14 @@
             <input type="text" class="participant-search" id="participantSearch" placeholder="이름 검색 (예: 도연, 보람)" autocomplete="off" oninput="filterParticipants(this.value)">
           </div>
           <div class="search-result-count" id="searchResultCount"></div>
-          <select class="admin-select" id="selectParticipant"><option value="">참가자 선택...</option></select>
+          <select class="admin-select" id="selectParticipant" onchange="onParticipantChange()"><option value="">참가자 선택...</option></select>
+          <div class="bbq-assign-row" id="bbqAssignRow" style="display:none">
+            <label class="bbq-assign-label">🍖 바베큐 팀 배정</label>
+            <div class="bbq-assign-inner">
+              <select class="admin-select" id="selectBbqTeam"><option value="">미배정</option></select>
+              <button class="btn-apply" onclick="applyBbqAssign()">배정</button>
+            </div>
+          </div>
           <div class="score-btn-grid">
             <button class="score-btn plus"  onclick="applyPersonalScore(+1)">+1</button>
             <button class="score-btn plus"  onclick="applyPersonalScore(+5)">+5</button>
@@ -311,21 +341,27 @@
 
     <div class="tab-panel" id="tab-scores">
       <div class="section-card">
-        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 현황</span></div>
+        <div class="section-header"><span class="sh-icon">💪</span><span class="sh-title">피지컬47 팀 현황</span></div>
         <div style="padding:8px 16px">
           <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="teamScoresTbody"></tbody></table>
         </div>
       </div>
       <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🍖</span><span class="sh-title">바베큐 팀 현황</span></div>
+        <div style="padding:8px 16px">
+          <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="bbqScoresTbody"></tbody></table>
+        </div>
+      </div>
+      <div class="section-card">
         <div class="section-header"><span class="sh-icon">👤</span><span class="sh-title">개인 현황</span></div>
         <div style="padding:8px 16px">
-          <table class="scores-table"><thead><tr><th>이름</th><th>팀</th><th>점수</th></tr></thead><tbody id="personalScoresTbody"></tbody></table>
+          <table class="scores-table"><thead><tr><th>이름</th><th>피지컬47</th><th>바베큐</th><th>점수</th></tr></thead><tbody id="personalScoresTbody"></tbody></table>
         </div>
       </div>
       <div class="section-card" style="border-color:rgba(224,32,64,0.3)">
         <div class="section-header"><span class="sh-icon">⚠️</span><span class="sh-title" style="color:var(--danger)">점수 초기화</span></div>
         <div class="section-body">
-          <p class="danger-desc">모든 팀 점수, 개인 점수, 게임 참여 기록을 초기화합니다.<br>뽑기 게임과 첫 참여 이벤트도 다시 참여 가능해집니다.<br>이 작업은 되돌릴 수 없습니다.</p>
+          <p class="danger-desc">피지컬47·바베큐 팀 점수, 개인 점수, 게임 참여 기록을 초기화합니다.<br>뽑기 게임과 첫 참여 이벤트도 다시 참여 가능해집니다.<br>이 작업은 되돌릴 수 없습니다.</p>
           <button class="btn-danger" onclick="resetAllScores()">🔄 전체 점수 및 기록 초기화</button>
         </div>
       </div>
@@ -356,7 +392,9 @@
   const db  = getDatabase(app);
 
   let allTeams        = {};
+  let allBbqTeams     = {};
   let allParticipants = {};
+  let currentTeamType = 'pt'; // 'pt' | 'bbq'
 
   window.switchTab = function(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -383,20 +421,71 @@
   function startAdminApp() {
     document.getElementById('adminLogin').style.display = 'none';
     document.getElementById('adminApp').style.display   = 'block';
-    onValue(ref(db,'teams'),        snap => { allTeams = snap.val()||{};        populateTeamSelect(); renderTeamScores(); });
-    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); });
+    onValue(ref(db,'teams'),        snap => { allTeams    = snap.val()||{};    populateTeamSelect(); renderTeamScores(); });
+    onValue(ref(db,'bbqTeams'),     snap => { allBbqTeams = snap.val()||{};    populateTeamSelect(); populateBbqAssignSelect(); renderBbqScores(); });
+    onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); syncBbqAssignRow(); });
     onValue(ref(db,'scoreLogs'),    snap => { renderLogs(snap.val()); });
   }
 
+  function getCurrentTeamsDict() {
+    return currentTeamType === 'pt' ? allTeams : allBbqTeams;
+  }
+  function getCurrentTeamsPath() {
+    return currentTeamType === 'pt' ? 'teams' : 'bbqTeams';
+  }
+  function getCurrentTypeLabel() {
+    return currentTeamType === 'pt' ? '피지컬47' : '바베큐';
+  }
+
+  window.switchTeamType = function(type) {
+    currentTeamType = type;
+    document.getElementById('ttPt').classList.toggle('active',  type === 'pt');
+    document.getElementById('ttBbq').classList.toggle('active', type === 'bbq');
+    populateTeamSelect();
+  };
+
   function populateTeamSelect() {
     const sel = document.getElementById('selectTeam'), cur = sel.value;
+    const dict = getCurrentTeamsDict();
     sel.innerHTML = '<option value="">팀 선택...</option>';
-    Object.entries(allTeams).forEach(([k,v]) => {
+    Object.entries(dict).forEach(([k,v]) => {
       const o = document.createElement('option');
       o.value = k; o.textContent = `${v.teamName||k} (${v.score||0}점)`; sel.appendChild(o);
     });
-    sel.value = cur;
+    if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) sel.value = cur;
   }
+
+  function populateBbqAssignSelect() {
+    const sel = document.getElementById('selectBbqTeam'); if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">미배정</option>';
+    Object.entries(allBbqTeams).forEach(([k,v]) => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = v.teamName || k; sel.appendChild(o);
+    });
+    if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) sel.value = cur;
+  }
+
+  window.onParticipantChange = function() { syncBbqAssignRow(); };
+
+  function syncBbqAssignRow() {
+    const uid = document.getElementById('selectParticipant')?.value;
+    const row = document.getElementById('bbqAssignRow'); if (!row) return;
+    if (!uid) { row.style.display = 'none'; return; }
+    row.style.display = 'block';
+    const sel = document.getElementById('selectBbqTeam');
+    populateBbqAssignSelect();
+    sel.value = allParticipants[uid]?.bbqTeam || '';
+  }
+
+  window.applyBbqAssign = async function() {
+    const uid = document.getElementById('selectParticipant').value;
+    if (!uid) { showToast('참가자를 선택하세요','error'); return; }
+    const newTeam = document.getElementById('selectBbqTeam').value;
+    await update(ref(db, `participants/${uid}`), { bbqTeam: newTeam || null });
+    const pname = allParticipants[uid]?.name || uid;
+    showToast(`${pname} 바베큐: ${newTeam || '미배정'}`, 'success');
+  };
 
   function populateParticipantSelect() {
     const q = (document.getElementById('participantSearch')?.value || '').trim();
@@ -425,10 +514,13 @@
   window.applyTeamScore   = async d => { const k=document.getElementById('selectTeam').value; if(!k){showToast('팀을 선택하세요','error');return;} await changeTeamScore(k,d); };
   window.applyTeamCustom  = async () => { const k=document.getElementById('selectTeam').value, v=parseInt(document.getElementById('teamCustomVal').value); if(!k){showToast('팀을 선택하세요','error');return;} if(isNaN(v)){showToast('점수를 입력하세요','error');return;} await changeTeamScore(k,v); document.getElementById('teamCustomVal').value=''; };
   async function changeTeamScore(k,delta) {
-    const newScore=(allTeams[k]?.score||0)+delta, name=allTeams[k]?.teamName||k;
-    await update(ref(db,`teams/${k}`),{score:newScore});
-    await logScore(`팀: ${name}`,delta);
-    showToast(`${name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
+    const dict    = getCurrentTeamsDict();
+    const path    = getCurrentTeamsPath();
+    const typeLbl = getCurrentTypeLabel();
+    const newScore=(dict[k]?.score||0)+delta, name=dict[k]?.teamName||k;
+    await update(ref(db,`${path}/${k}`),{score:newScore});
+    await logScore(`${typeLbl} 팀: ${name}`,delta);
+    showToast(`[${typeLbl}] ${name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
   }
 
   window.applyPersonalScore  = async d => { const uid=document.getElementById('selectParticipant').value; if(!uid){showToast('참가자를 선택하세요','error');return;} await changePersonalScore(uid,d); };
@@ -466,10 +558,18 @@
       .map(([k,v])=>`<tr><td>${escHtml(v.teamName||k)}</td><td><span class="score-num">${v.score||0}</span></td></tr>`).join('');
   }
 
+  function renderBbqScores() {
+    const tbody = document.getElementById('bbqScoresTbody'); if (!tbody) return;
+    const entries = Object.entries(allBbqTeams).sort((a,b)=>(b[1].score||0)-(a[1].score||0));
+    tbody.innerHTML = entries.length
+      ? entries.map(([k,v])=>`<tr><td>${escHtml(v.teamName||k)}</td><td><span class="score-num">${v.score||0}</span></td></tr>`).join('')
+      : `<tr><td colspan="2" style="color:var(--text2);text-align:center;padding:16px">바베큐 팀 데이터 없음</td></tr>`;
+  }
+
   function renderPersonalScores() {
     document.getElementById('personalScoresTbody').innerHTML=
       Object.entries(allParticipants).sort((a,b)=>(b[1].score||0)-(a[1].score||0))
-      .map(([k,v])=>`<tr><td>${escHtml(v.name||k)}</td><td style="color:var(--text2)">${escHtml(v.team||'')}</td><td><span class="score-num">${v.score||0}</span></td></tr>`).join('');
+      .map(([k,v])=>`<tr><td>${escHtml(v.name||k)}</td><td style="color:var(--text2)">${escHtml(v.team||'')}</td><td style="color:var(--accent4)">${escHtml(v.bbqTeam||'-')}</td><td><span class="score-num">${v.score||0}</span></td></tr>`).join('');
   }
 
   let toastTimer;
@@ -481,10 +581,13 @@
   }
 
   window.resetAllScores = async function() {
-    if (!confirm('정말로 모든 점수와 게임 기록을 초기화하시겠습니까?\n\n• 모든 팀 점수 → 0\n• 모든 개인 점수 → 0\n• 뽑기 게임 참여 횟수 → 초기화\n• 첫 참여 이벤트 완료 여부 → 초기화\n\n이 작업은 되돌릴 수 없습니다.')) return;
+    if (!confirm('정말로 모든 점수와 게임 기록을 초기화하시겠습니까?\n\n• 피지컬47 팀 점수 → 0\n• 바베큐 팀 점수 → 0\n• 모든 개인 점수 → 0\n• 뽑기 게임 참여 횟수 → 초기화\n• 첫 참여 이벤트 완료 여부 → 초기화\n\n이 작업은 되돌릴 수 없습니다.')) return;
     const updates = {};
     Object.keys(allTeams).forEach(k => {
       updates[`teams/${k}/score`] = 0;
+    });
+    Object.keys(allBbqTeams).forEach(k => {
+      updates[`bbqTeams/${k}/score`] = 0;
     });
     Object.keys(allParticipants).forEach(k => {
       updates[`participants/${k}/score`]                = 0;
