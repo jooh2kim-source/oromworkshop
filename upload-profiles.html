@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>프로필 데이터 업로드</title>
+<style>
+  body { font-family: sans-serif; padding: 32px; max-width: 600px; margin: 0 auto; background: #f4f6fb; }
+  h2 { color: #5b50f0; }
+  .log { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 16px; height: 320px; overflow-y: auto; font-size: 13px; font-family: monospace; white-space: pre-wrap; }
+  button { background: #5b50f0; color: #fff; border: none; padding: 14px 28px; border-radius: 10px; font-size: 15px; cursor: pointer; margin-top: 16px; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .done { color: #16b864; font-weight: bold; }
+  .err  { color: #e02040; font-weight: bold; }
+</style>
+</head>
+<body>
+<h2>👤 참가자 프로필 업로드</h2>
+<p>소속·직급·realName(이호열) 필드만 Firebase에 반영합니다.<br><strong>점수·팀·코드는 건드리지 않습니다.</strong></p>
+<button id="startBtn" onclick="startUpload()">🚀 업로드 시작</button>
+<div class="log" id="log">버튼을 누르면 시작합니다.</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyC7S-HzpRjOPqtbyfJAYO1y3ir0msbV4SA",
+    authDomain:        "oromworkshop-56b21.firebaseapp.com",
+    databaseURL:       "https://oromworkshop-56b21-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:         "oromworkshop-56b21",
+    storageBucket:     "oromworkshop-56b21.firebasestorage.app",
+    messagingSenderId: "769454280422",
+    appId:             "1:769454280422:web:7ec2295e6f58e157d67527"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  // 소속·직급·realName 데이터 (점수·코드·팀 제외)
+  const profiles = {
+    "user_001": { affiliation: "제작본부",       position: "파트너" },
+    "user_002": { affiliation: "오롬예공소",      position: "" },
+    "user_003": { affiliation: "제작본부",       position: "팀장" },
+    "user_004": { affiliation: "경영기획팀",      position: "파트장" },
+    "user_005": { affiliation: "오롬예공소",      position: "" },
+    "user_006": { affiliation: "온라인마케팅팀",   position: "파트너" },
+    "user_007": { affiliation: "법인·매장영업팀",  position: "파트너" },
+    "user_008": { affiliation: "제작본부",       position: "파트너" },
+    "user_009": { affiliation: "오롬주식회사",    position: "사장님", realName: "이호열" },
+    "user_010": { affiliation: "디자인팀",        position: "팀장" },
+    "user_011": { affiliation: "온라인마케팅팀",   position: "파트장" },
+    "user_012": { affiliation: "오롬예공소",      position: "" },
+    "user_013": { affiliation: "제작본부",       position: "파트너" },
+    "user_014": { affiliation: "법인·매장영업팀",  position: "파트너" },
+    "user_015": { affiliation: "광화문점",        position: "매니저" },
+    "user_016": { affiliation: "제작본부",       position: "파트너" },
+    "user_017": { affiliation: "제작본부",       position: "본부장" },
+    "user_018": { affiliation: "경영기획팀",      position: "팀장" },
+    "user_019": { affiliation: "오롬예공소",      position: "" },
+    "user_020": { affiliation: "온라인마케팅팀",   position: "파트너" },
+    "user_021": { affiliation: "법인·매장영업팀",  position: "파트장" },
+    "user_022": { affiliation: "강남점",          position: "매니저" },
+    "user_023": { affiliation: "제작본부",       position: "파트너" },
+    "user_024": { affiliation: "오롬예공소",      position: "" },
+    "user_025": { affiliation: "광화문점",        position: "매니저" },
+    "user_026": { affiliation: "오롬예공소",      position: "" },
+    "user_027": { affiliation: "온라인마케팅팀",   position: "파트너" },
+    "user_028": { affiliation: "오롬주식회사",    position: "PM" },
+    "user_029": { affiliation: "롱플레잉 쌈지",   position: "매니저" },
+    "user_030": { affiliation: "강남점",          position: "매니저" },
+    "user_031": { affiliation: "제작본부",       position: "파트너" },
+    "user_032": { affiliation: "물류팀",          position: "팀장" },
+    "user_033": { affiliation: "오롬예공소",      position: "" },
+    "user_034": { affiliation: "법인·매장영업팀",  position: "팀장" },
+    "user_035": { affiliation: "대구점",          position: "매니저" },
+    "user_036": { affiliation: "디자인팀",        position: "파트너" },
+    "user_037": { affiliation: "디자인팀",        position: "파트너" },
+    "user_038": { affiliation: "페이퍼테일러",     position: "매니저" },
+    "user_039": { affiliation: "물류팀",          position: "파트너" },
+    "user_040": { affiliation: "제작본부",       position: "파트장" },
+    "user_041": { affiliation: "센텀점",          position: "매니저" },
+    "user_042": { affiliation: "법인·매장영업팀",  position: "파트너" },
+    "user_043": { affiliation: "경영기획팀",      position: "파트너" },
+    "user_044": { affiliation: "오롬예공소",      position: "" },
+    "user_045": { affiliation: "디자인팀",        position: "파트너" },
+    "user_046": { affiliation: "디자인팀",        position: "파트장" },
+    "user_047": { affiliation: "디자인팀",        position: "파트너" }
+  };
+
+  const log = document.getElementById('log');
+  function addLog(msg, cls='') {
+    log.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  window.startUpload = async function() {
+    const btn = document.getElementById('startBtn');
+    btn.disabled = true;
+    log.innerHTML = '';
+    addLog('업로드 시작...\n');
+    let ok = 0, fail = 0;
+    for (const [uid, data] of Object.entries(profiles)) {
+      try {
+        await update(ref(db, `participants/${uid}`), data);
+        addLog(`✓ ${uid} (${data.affiliation} / ${data.position || '—'})`);
+        ok++;
+      } catch(e) {
+        addLog(`✗ ${uid} 실패: ${e.message}`, 'err');
+        fail++;
+      }
+    }
+    addLog(`\n완료! 성공: ${ok}명 / 실패: ${fail}명`, 'done');
+    btn.disabled = false;
+    btn.textContent = '✅ 완료 (다시 실행)';
+  };
+</script>
+</body>
+</html>
