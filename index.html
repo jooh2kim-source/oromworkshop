@@ -124,6 +124,8 @@
     content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
     width:32px; height:3px; background:var(--accent); border-radius:0 0 4px 4px;
   }
+  .nav-btn.ranking-tab.active   { color:var(--accent2); }
+  .nav-btn.ranking-tab.active::after   { background:var(--accent2); }
   .nav-btn.community-tab.active { color:var(--accent3); }
   .nav-btn.community-tab.active::after { background:var(--accent3); }
 
@@ -399,6 +401,20 @@
       <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
     </div>
 
+    <!-- ── 전체 순위 탭 ── -->
+    <div class="tab-panel" id="tab-ranking">
+      <div class="section-card">
+        <div class="section-header">
+          <span class="sh-icon">🏆</span>
+          <span class="sh-title">전체 순위</span>
+          <span class="sh-badge" id="fullRankCount">–</span>
+        </div>
+        <div class="ranking-list" id="fullRankList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── 커뮤니티 탭 (게임 + 동아리) ── -->
     <div class="tab-panel" id="tab-community">
 
@@ -489,6 +505,10 @@
     <span class="nav-icon">🏠</span>
     <span class="nav-label">홈</span>
   </button>
+  <button class="nav-btn ranking-tab" id="navRanking" onclick="switchTab('ranking')">
+    <span class="nav-icon">🏆</span>
+    <span class="nav-label">전체순위</span>
+  </button>
   <button class="nav-btn community-tab" id="navCommunity" onclick="switchTab('community')">
     <span class="nav-icon">🤝</span>
     <span class="nav-label">커뮤니티</span>
@@ -546,7 +566,8 @@
   window.switchTab = function(name) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
-    document.getElementById('navHome').classList.toggle('active', name === 'home');
+    document.getElementById('navHome').classList.toggle('active',      name === 'home');
+    document.getElementById('navRanking').classList.toggle('active',   name === 'ranking');
     document.getElementById('navCommunity').classList.toggle('active', name === 'community');
   };
 
@@ -601,6 +622,7 @@
     onValue(ref(db,'participants'), snap => {
       allParticipants = snap.val() || {};
       renderRanking();
+      renderFullRanking();
       updateMyScores();
     });
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
@@ -706,11 +728,44 @@
     }).join('');
   }
 
-  // ── 팀 순위 (피지컬47) ────────────────────────────────
+  // ── 전체 순위 (전원, 점수 내림차순) ───────────────────
+  function renderFullRanking() {
+    const el = document.getElementById('fullRankList');
+    if (!el) return;
+    const sorted = Object.entries(allParticipants)
+      .map(([uid,p]) => ({uid,...p}))
+      .sort((a,b) => (b.score||0)-(a.score||0));
+
+    const countEl = document.getElementById('fullRankCount');
+    if (countEl) countEl.textContent = `${sorted.length}명`;
+
+    if (!sorted.length) {
+      el.innerHTML = '<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>';
+      return;
+    }
+    const icons = ['🥇','🥈','🥉'];
+    el.innerHTML = sorted.map((p,i) => {
+      const isMe    = p.uid === currentUser.uid;
+      const numHtml = i<3 ? `<span class="rank-num top${i+1}">${icons[i]}</span>` : `<span class="rank-num">${i+1}</span>`;
+      // 소속·직급이 있으면 "소속 · 직급", 없으면 피지컬47 팀 이름 fallback
+      const subtitle = [p.affiliation, p.position].filter(Boolean).join(' · ') || (p.team || '');
+      return `<div class="rank-item${isMe?' me':''}">
+        ${numHtml}
+        <div class="rank-info">
+          <div class="rank-name">${escHtml(p.name)}${isMe?'<span class="me-tag">나</span>':''}</div>
+          <div class="rank-team">${escHtml(subtitle)}</div>
+        </div>
+        <div class="rank-score">${p.score||0}<span>점</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── 팀 순위 (피지컬47, MC 제외) ───────────────────────
   function renderTeamRanking() {
     const el = document.getElementById('teamRankList');
     const me = allParticipants[currentUser.uid];
     const sorted = Object.entries(allTeams)
+      .filter(([k]) => k !== 'MC')
       .map(([k,v]) => ({key:k,...v}))
       .sort((a,b) => (b.score||0)-(a.score||0));
     if (!sorted.length) { el.innerHTML='<p style="color:var(--text2);text-align:center;padding:20px">데이터 없음</p>'; return; }
@@ -766,11 +821,10 @@
     el.innerHTML = `
       <div class="review-body">
         <div class="review-desc">
-          별 <strong>5개</strong>와 아래 문구를 그대로 입력하면 <strong>+${REVIEW_REWARD}점</strong>을 드려요!
+          별 <strong>5개</strong>를 선택하고 아래 문구 그대로 제출하면 <strong>+${REVIEW_REWARD}점</strong>을 드려요!
         </div>
         <div class="star-row">${starsHtml}</div>
-        <textarea class="review-input" id="reviewInput" rows="2"
-          placeholder="${escHtml(REVIEW_REQUIRED_TEXT)}"></textarea>
+        <textarea class="review-input" id="reviewInput" rows="2">${escHtml(REVIEW_REQUIRED_TEXT)}</textarea>
         <div class="review-error" id="reviewError"></div>
         <button class="btn-review-submit" onclick="window.submitReview()">✍️ 제출하기</button>
       </div>`;
