@@ -821,7 +821,7 @@
         ${numHtml}
         <div class="rank-info">
           ${p.affiliation ? `<div class="rank-affil">${escHtml(p.affiliation)}</div>` : ''}
-          <div class="rank-name">${escHtml(dispName(p))}${isMe?'<span class="me-tag">나</span>':''}</div>
+          <div class="rank-name">${escHtml(p.name)}${isMe?'<span class="me-tag">나</span>':''}</div>
           ${p.position ? `<div class="rank-pos">${escHtml(p.position)}</div>` : ''}
         </div>
         <div class="rank-score">${p.score||0}<span>점</span></div>
