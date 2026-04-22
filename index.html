@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>2026 오롬주식회사 워크샵 스코어</title>
+<title>2026 오롬주식회사 워크샵 페이지</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
 
@@ -41,7 +41,7 @@
   .login-logo { text-align:center; }
   .login-logo .logo-icon { font-size:56px; line-height:1; margin-bottom:12px; display:block; }
   .login-logo h1 {
-    font-size:28px; font-weight:900; letter-spacing:-0.5px;
+    font-size:26px; font-weight:900; letter-spacing:-0.5px; line-height:1.25;
     background:linear-gradient(135deg,var(--accent),var(--accent2));
     -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   }
@@ -91,6 +91,8 @@
   .score-pill.personal .sp-value { color:var(--accent3); }
   .score-pill.bbq      .sp-value { color:var(--gold); }
   .sp-rank { font-size:11px; font-weight:800; color:var(--accent3); margin-top:1px; letter-spacing:0.3px; }
+  .score-pill.team .sp-rank { color:var(--accent); }
+  .score-pill.bbq  .sp-rank { color:var(--gold); }
   .team-badge.bbq-badge { background:rgba(224,139,0,0.12); color:var(--gold); }
 
   /* ── 탭 콘텐츠 영역 ── */
@@ -422,7 +424,7 @@
 <div id="loginScreen">
   <div class="login-logo">
     <span class="logo-icon">🏆</span>
-    <h1>2026 오롬주식회사 워크샵 스코어</h1>
+    <h1>2026 오롬주식회사<br>워크샵 페이지</h1>
     <p>실시간 점수 현황판</p>
   </div>
   <div class="login-card">
@@ -458,12 +460,14 @@
         <div class="sp-rank" id="personalRankDisplay">–위</div>
       </div>
       <div class="score-pill team">
-        <div class="sp-label">피지컬47</div>
+        <div class="sp-label">피지컬47 팀</div>
         <div class="sp-value" id="teamScoreDisplay">0</div>
+        <div class="sp-rank" id="teamRankDisplay">–위</div>
       </div>
       <div class="score-pill bbq">
-        <div class="sp-label">바베큐</div>
+        <div class="sp-label">바베큐 팀</div>
         <div class="sp-value" id="bbqScoreDisplay">0</div>
+        <div class="sp-rank" id="bbqRankDisplay">–위</div>
       </div>
     </div>
   </div>
@@ -711,6 +715,8 @@
     document.getElementById('navHome').classList.toggle('active',      name === 'home');
     document.getElementById('navRanking').classList.toggle('active',   name === 'ranking');
     document.getElementById('navCommunity').classList.toggle('active', name === 'community');
+    // 탭 전환 시 항상 최상단으로
+    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   // ── 팀 색상 ───────────────────────────────────────────
@@ -856,14 +862,26 @@
     }
   }
 
+  // 점수 내림차순 정렬 후 key가 있는 위치(1-based)를 반환. 미포함/없음이면 0.
+  function computeRank(entries, myKey) {
+    const sorted = entries.slice().sort((a,b) => (b[1].score||0) - (a[1].score||0));
+    return sorted.findIndex(([k]) => k === myKey) + 1;
+  }
+
   function updateMyTeamScore() {
     const me = allParticipants[currentUser.uid]; if (!me) return;
-    const td = allTeams[me.team]; if (!td) return;
+    const td = allTeams[me.team];
     const ts = document.getElementById('teamScoreDisplay');
-    if (ts.textContent !== String(td.score || 0)) {
-      ts.textContent = td.score || 0;
+    const newScore = td?.score || 0;
+    if (ts.textContent !== String(newScore)) {
+      ts.textContent = newScore;
       ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
     }
+    // 순위 (MC 제외)
+    const ptEntries = Object.entries(allTeams).filter(([k]) => k !== 'MC');
+    const rank = computeRank(ptEntries, me.team);
+    const rankEl = document.getElementById('teamRankDisplay');
+    if (rankEl) rankEl.textContent = rank > 0 ? `${rank}위` : '–위';
   }
 
   function updateMyBbqTeamScore() {
@@ -874,6 +892,12 @@
       ts.textContent = score;
       ts.classList.remove('score-flash'); void ts.offsetWidth; ts.classList.add('score-flash');
     }
+    // 순위 (바베큐 미배정자는 –)
+    const rankEl = document.getElementById('bbqRankDisplay');
+    if (!rankEl) return;
+    if (!me.bbqTeam) { rankEl.textContent = '–위'; return; }
+    const rank = computeRank(Object.entries(allBbqTeams), me.bbqTeam);
+    rankEl.textContent = rank > 0 ? `${rank}위` : '–위';
   }
 
   // ── 내 숙소 카드 (😴 호실: 인원) ──────────────────────
