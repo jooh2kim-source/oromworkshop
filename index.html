@@ -764,11 +764,13 @@
     }).join('');
   }
 
-  // 팀 소속 참가자 이름 리스트 반환 (피지컬47 / 바베큐 공용)
+  // 팀 소속 참가자 이름 리스트 반환 (피지컬47 / 바베큐 공용). 팀장 앞에 👑 prefix.
   function getMemberNames(teamKey, field) {
-    return Object.values(allParticipants)
-      .filter(p => p[field] === teamKey)
-      .map(p => p.name)
+    const teamDict  = field === 'team' ? allTeams : allBbqTeams;
+    const captainId = teamDict[teamKey]?.captainId;
+    return Object.entries(allParticipants)
+      .filter(([uid,p]) => p[field] === teamKey)
+      .map(([uid,p]) => (uid === captainId ? '👑 ' : '') + p.name)
       .join(', ');
   }
 
