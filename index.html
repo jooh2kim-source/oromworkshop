@@ -1368,20 +1368,20 @@
         }
       }
 
-      // item 노드 transaction (재고·동일 아이템 중복 atomic 검증)
+      // 1) 매점 transaction (재고·동일 아이템 중복 atomic 검증)
       const itemRef = ref(db, `shop/items/${itemId}`);
+      const bkey = `b_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
       const txResult = await runTransaction(itemRef, (item) => {
         if (!item) return;
         const stock = item.maxStock || 0;
         const sold = item.sold || 0;
-        if (sold >= stock) return; // 매진 → 트랜잭션 abort
+        if (sold >= stock) return;
         if (item.timeSlot) {
           const dup = Object.values(item.buyers || {}).some(b => b.uid === myUid);
           if (dup) return;
         }
         item.sold = sold + 1;
         item.buyers = item.buyers || {};
-        const bkey = `b_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
         item.buyers[bkey] = { uid: myUid, displayName: myDisp, timestamp: Date.now() };
         return item;
       });
@@ -1391,11 +1391,29 @@
         return;
       }
 
-      // 점수 차감 + 구매 로그
       const item = txResult.snapshot.val();
-      await update(ref(db), {
-        [`participants/${myUid}/score`]: (me.score || 0) - item.price
+
+      // 2) 점수 차감 transaction (atomic 잔액 검증)
+      const scoreRef = ref(db, `participants/${myUid}/score`);
+      const scoreTx = await runTransaction(scoreRef, (cur) => {
+        const c = cur || 0;
+        if (c < item.price) return; // 잔액 부족 → abort
+        return c - item.price;
       });
+
+      if (!scoreTx.committed) {
+        // 매점 rollback (sold 감소 + 본인 buyer 항목 제거)
+        await runTransaction(itemRef, (it) => {
+          if (!it) return;
+          it.sold = Math.max(0, (it.sold || 0) - 1);
+          if (it.buyers && it.buyers[bkey]) delete it.buyers[bkey];
+          return it;
+        });
+        alert('잔액이 부족해서 구매가 취소됐습니다.');
+        return;
+      }
+
+      // 3) 구매 로그
       await push(ref(db, 'purchaseLogs'), {
         itemId, itemTitle: item.title, uid: myUid,
         displayName: myDisp, price: item.price, timestamp: Date.now()
@@ -1470,10 +1488,29 @@
 
     transferProcessing = true;
     try {
-      await update(ref(db), {
-        [`participants/${currentUser.uid}/score`]: myScore - amount,
-        [`participants/${toUid}/score`]: (recipient.score || 0) + amount
+      // 1) 보내는 사람 차감 transaction (atomic 잔액 검증)
+      const fromRef = ref(db, `participants/${currentUser.uid}/score`);
+      const fromTx = await runTransaction(fromRef, (cur) => {
+        const c = cur || 0;
+        if (c < amount) return; // 잔액 부족 → abort
+        return c - amount;
       });
+      if (!fromTx.committed) {
+        alert('잔액이 부족합니다.');
+        transferProcessing = false; return;
+      }
+
+      // 2) 받는 사람 추가 transaction
+      const toRef = ref(db, `participants/${toUid}/score`);
+      const toTx = await runTransaction(toRef, (cur) => (cur || 0) + amount);
+      if (!toTx.committed) {
+        // rollback 보내는 사람
+        await runTransaction(fromRef, (cur) => (cur || 0) + amount);
+        alert('전송 실패. 다시 시도해주세요.');
+        transferProcessing = false; return;
+      }
+
+      // 3) 로그
       await push(ref(db, 'transferLogs'), {
         fromUid: currentUser.uid, toUid,
         fromName: dispName(me), toName: dispName(recipient),

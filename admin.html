@@ -485,7 +485,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push, remove }
+  import { getDatabase, ref, onValue, update, push, remove, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
@@ -783,19 +783,21 @@
     const path    = getCurrentTeamsPath();
     const typeLbl = getCurrentTypeLabel();
     const memberField = currentTeamType === 'pt' ? 'team' : 'bbqTeam';
-    const newScore    = (dict[k]?.score||0)+delta;
-    const name        = dict[k]?.teamName||k;
+    const name    = dict[k]?.teamName || k;
 
-    // 팀 소속 참가자 전원의 개인 점수에도 동일한 값 반영
+    // 팀 소속 참가자 전원
     const memberUids = Object.entries(allParticipants)
       .filter(([uid,p]) => p[memberField] === k)
       .map(([uid]) => uid);
 
-    const updates = { [`${path}/${k}/score`]: newScore };
-    memberUids.forEach(uid => {
-      updates[`participants/${uid}/score`] = (allParticipants[uid]?.score||0) + delta;
-    });
-    await update(ref(db), updates);
+    // 1) 팀 점수 transaction
+    await runTransaction(ref(db, `${path}/${k}/score`), (cur) => (cur || 0) + delta);
+
+    // 2) 각 팀원 개인 점수 transaction (병렬 처리)
+    await Promise.all(memberUids.map(uid =>
+      runTransaction(ref(db, `participants/${uid}/score`), (cur) => (cur || 0) + delta)
+    ));
+
     await logScore(`${typeLbl} 팀: ${name} (팀원 ${memberUids.length}명 개인 점수 동반)`, delta);
     showToast(`[${typeLbl}] ${name} ${delta>0?'+':''}${delta}점 · 팀원 ${memberUids.length}명 반영`,'success');
   }
@@ -803,8 +805,10 @@
   window.applyPersonalScore  = async d => { const uid=document.getElementById('selectParticipant').value; if(!uid){showToast('참가자를 선택하세요','error');return;} await changePersonalScore(uid,d); };
   window.applyPersonalCustom = async () => { const uid=document.getElementById('selectParticipant').value, v=parseInt(document.getElementById('personalCustomVal').value); if(!uid){showToast('참가자를 선택하세요','error');return;} if(isNaN(v)){showToast('점수를 입력하세요','error');return;} await changePersonalScore(uid,v); document.getElementById('personalCustomVal').value=''; };
   async function changePersonalScore(uid,delta) {
-    const p=allParticipants[uid], newScore=(p?.score||0)+delta;
-    await update(ref(db,`participants/${uid}`),{score:newScore});
+    const p = allParticipants[uid];
+    // 점수 transaction (race 안전: read-modify-write atomic)
+    const tx = await runTransaction(ref(db, `participants/${uid}/score`), (cur) => (cur || 0) + delta);
+    const newScore = tx.snapshot?.val() ?? ((p?.score||0) + delta);
     await logScore(`${p?.team||''} ${p?.name||uid}`,delta);
     showToast(`${p?.name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
   }
