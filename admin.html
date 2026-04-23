@@ -461,8 +461,8 @@
         <div class="section-body">
           <div class="shop-form">
             <select id="newItemCat" class="admin-select">
-              <option value="experience">🎫 체험형 (1인 1품목 통합 한도)</option>
-              <option value="goods">🛍 소비재 (구매 제한 없음)</option>
+              <option value="experience">🎫 체험형 (표시용 라벨)</option>
+              <option value="goods">🛍 소비재 (표시용 라벨)</option>
             </select>
             <input id="newItemTitle" type="text" class="custom-input" placeholder="아이템 이름 *" maxlength="30" style="font-family:'Noto Sans KR',sans-serif">
             <input id="newItemDesc" type="text" class="custom-input" placeholder="설명 (선택)" maxlength="60" style="font-family:'Noto Sans KR',sans-serif">
@@ -470,10 +470,12 @@
               <input id="newItemPrice" type="number" class="custom-input" placeholder="가격 *" min="1">
               <input id="newItemStock" type="number" class="custom-input" placeholder="수량 *" min="1">
             </div>
+            <input id="newItemTimeSlot" type="text" class="custom-input" placeholder="⏰ 시간슬롯 (선택, 예: 3시 1차) — 같은 슬롯끼리 1인 1개" maxlength="30" style="font-family:'Noto Sans KR',sans-serif">
             <div class="shop-form-row">
               <input id="newItemPickupTime" type="text" class="custom-input" placeholder="픽업 시간 (선택)" maxlength="20" style="font-family:'Noto Sans KR',sans-serif">
               <input id="newItemPickupPlace" type="text" class="custom-input" placeholder="픽업 장소 (선택)" maxlength="20" style="font-family:'Noto Sans KR',sans-serif">
             </div>
+            <p style="font-size:11px;color:var(--text2);line-height:1.5;margin:2px 4px">💡 시간슬롯: 같은 텍스트로 등록된 아이템들끼리 <strong>1인 1개만</strong> 구매 가능. 비워두면 제한 없음.</p>
             <button class="btn-apply" onclick="addShopItem()" style="width:100%;padding:13px">＋ 아이템 추가</button>
           </div>
           <div id="shopAdminList" style="margin-top:14px"></div>
@@ -569,6 +571,7 @@
     const price = parseInt(document.getElementById('newItemPrice').value);
     const stock = parseInt(document.getElementById('newItemStock').value);
     const cat   = document.getElementById('newItemCat').value;
+    const slot  = document.getElementById('newItemTimeSlot').value.trim();
     const ptime = document.getElementById('newItemPickupTime').value.trim();
     const pplace= document.getElementById('newItemPickupPlace').value.trim();
     if (!title || !price || !stock) { showToast('이름·가격·수량 필수','error'); return; }
@@ -577,10 +580,11 @@
         title, description: desc || null,
         price, maxStock: stock, sold: 0,
         category: cat,
+        timeSlot: slot || null,
         pickupTime: ptime || null, pickupPlace: pplace || null,
         createdAt: Date.now()
       });
-      ['newItemTitle','newItemDesc','newItemPrice','newItemStock','newItemPickupTime','newItemPickupPlace']
+      ['newItemTitle','newItemDesc','newItemPrice','newItemStock','newItemTimeSlot','newItemPickupTime','newItemPickupPlace']
         .forEach(id => document.getElementById(id).value = '');
       showToast(`✓ ${title} 추가됨`, 'success');
     } catch(e) { showToast('오류: ' + e.message,'error'); }
@@ -611,7 +615,7 @@
           <strong class="shop-admin-title">${escHtml(item.title)}</strong>
           <span class="shop-admin-price">${item.price}점</span>
         </div>
-        <div class="shop-admin-meta">${item.sold||0}/${item.maxStock} 판매${item.pickupTime?` · 🕐${escHtml(item.pickupTime)}`:''}${item.pickupPlace?` · 📍${escHtml(item.pickupPlace)}`:''}</div>
+        <div class="shop-admin-meta">${item.sold||0}/${item.maxStock} 판매${item.timeSlot?` · ⏰${escHtml(item.timeSlot)}`:''}${item.pickupTime?` · 🕐${escHtml(item.pickupTime)}`:''}${item.pickupPlace?` · 📍${escHtml(item.pickupPlace)}`:''}</div>
         ${Object.keys(item.buyers||{}).length ? `<div class="shop-admin-buyers">구매자: ${escHtml(Object.values(item.buyers).map(b => b.displayName).join(', '))}</div>` : ''}
         <button class="btn-danger-sm" onclick="deleteShopItem('${id}')">🗑 삭제</button>
       </div>
