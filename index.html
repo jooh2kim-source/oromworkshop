@@ -129,8 +129,20 @@
   }
   .nav-btn.ranking-tab.active   { color:var(--accent2); }
   .nav-btn.ranking-tab.active::after   { background:var(--accent2); }
-  .nav-btn.community-tab.active { color:var(--accent3); }
-  .nav-btn.community-tab.active::after { background:var(--accent3); }
+  .nav-btn.shop-tab.active { color:var(--accent3); }
+  .nav-btn.shop-tab.active::after { background:var(--accent3); }
+
+  /* ── 매점 상태 배너 ── */
+  .shop-status-banner {
+    background:linear-gradient(135deg,#fffbf0,#fff8e8);
+    border:1.5px solid rgba(224,139,0,0.25);
+    border-radius:14px; padding:18px;
+    text-align:center; font-size:15px; font-weight:700;
+    color:var(--gold); box-shadow:var(--shadow);
+  }
+  .shop-status-banner.open    { background:linear-gradient(135deg,#f0fdf6,#e6fbef); border-color:rgba(22,184,100,0.3); color:var(--accent3); }
+  .shop-status-banner.closed  { background:#f5f5f5; border-color:#d0d0d0; color:var(--text2); }
+  .empty-msg { padding:18px; color:var(--text2); text-align:center; font-size:14px; }
 
   /* ── 섹션 카드 ── */
   /* ── 내 숙소 카드 (홈, 공지 위) ── */
@@ -215,28 +227,6 @@
   .dot-C{background:var(--team-c);} .dot-D{background:var(--team-d);} .dot-E{background:var(--team-e);} .dot-F{background:#9b59b6;}
   .score-A{color:var(--team-a);} .score-B{color:var(--team-b);}
   .score-C{color:var(--team-c);} .score-D{color:var(--team-d);} .score-E{color:var(--team-e);} .score-F{color:#9b59b6;}
-
-  /* ── 별점 이벤트 ── */
-  .review-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
-  .review-desc { font-size:14px; color:var(--text2); line-height:1.6; }
-  .review-desc strong { color:var(--text); }
-  .review-prompt-label { font-size:14px; color:var(--text); background:var(--surface2); border-left:3px solid var(--gold); border-radius:8px; padding:10px 14px; line-height:1.5; }
-  .star-row { display:flex; justify-content:center; gap:6px; padding:4px 0; }
-  .star-btn { background:none; border:none; font-size:38px; cursor:pointer; line-height:1; padding:4px; transition:transform 0.1s; filter:grayscale(1) opacity(0.35); }
-  .star-btn.active { filter:none; }
-  .star-btn:active { transform:scale(0.82); }
-  .review-input { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:14px 16px; font-size:15px; font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none; transition:border-color 0.2s; resize:none; }
-  .review-input:focus { border-color:var(--gold); }
-  .review-input::placeholder { color:var(--text2); }
-  .review-input:disabled { opacity:0.5; cursor:not-allowed; }
-  .review-error { display:none; background:#fff0f3; border:1px solid #ffc0cc; border-radius:10px; padding:11px 14px; font-size:14px; color:#c0003c; text-align:center; }
-  .btn-review-submit { width:100%; background:linear-gradient(135deg,var(--gold),#b86a00); color:#fff; border:none; border-radius:14px; padding:15px; font-size:16px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 14px rgba(224,139,0,0.3); }
-  .btn-review-submit:active { opacity:0.85; }
-  .btn-review-submit:disabled { background:var(--surface2); color:var(--text2); box-shadow:none; cursor:not-allowed; }
-  .review-complete-box { padding:24px 18px; text-align:center; }
-  .review-complete-emoji { font-size:52px; display:block; margin-bottom:12px; animation:bounceIn 0.45s; }
-  .review-complete-title { font-size:22px; font-weight:900; color:var(--accent3); margin-bottom:6px; }
-  .review-complete-desc  { font-size:14px; color:var(--text2); line-height:1.6; }
 
   /* ── 뽑기 게임 ── */
   .game-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
@@ -354,68 +344,6 @@
 
   @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0;} 60%{transform:scale(1.18);} 100%{transform:scale(1);opacity:1;} }
 
-  /* ── 동아리 탭 ── */
-  .club-notice-card { background:linear-gradient(135deg,#fffbf0,#fff8e8); border:1.5px solid rgba(224,139,0,0.25); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
-  .club-notice-header { display:flex; align-items:center; gap:8px; padding:14px 18px 12px; border-bottom:1px solid rgba(224,139,0,0.2); }
-  .club-notice-badge { font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--gold),#b86a00); color:#fff; padding:3px 8px; border-radius:20px; margin-left:auto; }
-  .club-notice-list { padding:4px 0; }
-  .club-notice-item { padding:14px 18px; border-bottom:1px solid rgba(224,139,0,0.12); }
-  .club-notice-item:last-child { border-bottom:none; }
-  .club-notice-title { font-size:15px; font-weight:700; margin-bottom:4px; color:var(--text); }
-  .club-notice-place { font-size:12px; color:var(--gold); font-weight:600; margin-bottom:4px; }
-  .club-notice-desc  { font-size:13px; color:var(--text2); line-height:1.55; }
-
-  .btn-club-create {
-    width:100%; background:var(--surface); border:1.5px dashed var(--accent);
-    color:var(--accent); border-radius:14px; padding:14px;
-    font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
-    cursor:pointer; transition:all 0.15s;
-  }
-  .btn-club-create:active { background:rgba(91,80,240,0.05); }
-
-  .club-form-card { background:var(--surface); border:1.5px solid var(--accent); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-lg); }
-  .club-form-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:12px; }
-  .club-form-label { font-size:12px; font-weight:700; color:var(--text2); letter-spacing:0.8px; text-transform:uppercase; margin-bottom:4px; display:block; }
-  .club-form-input {
-    width:100%; background:var(--surface2); border:1.5px solid var(--border);
-    border-radius:12px; padding:12px 14px; font-size:15px;
-    font-family:'Noto Sans KR',sans-serif; color:var(--text); outline:none;
-    transition:border-color 0.2s;
-  }
-  .club-form-input:focus { border-color:var(--accent); }
-  .club-form-input::placeholder { color:var(--text2); }
-  .club-form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .btn-club-submit {
-    width:100%; background:linear-gradient(135deg,var(--accent),#3d32cc);
-    color:#fff; border:none; border-radius:12px; padding:14px;
-    font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
-    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 14px rgba(91,80,240,0.25);
-  }
-  .btn-club-submit:active { opacity:0.85; }
-  .btn-club-cancel { width:100%; background:none; border:1.5px solid var(--border); color:var(--text2); border-radius:12px; padding:12px; font-size:14px; font-family:'Noto Sans KR',sans-serif; cursor:pointer; }
-
-  .club-list-empty { text-align:center; color:var(--text2); font-size:14px; padding:28px 18px; line-height:1.7; }
-  .club-card { background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); }
-  .club-card-header { padding:14px 18px 10px; border-bottom:1px solid var(--border); }
-  .club-card-title { font-size:16px; font-weight:700; margin-bottom:6px; }
-  .club-card-meta { display:flex; flex-wrap:wrap; gap:8px; }
-  .club-meta-chip { font-size:12px; color:var(--text2); display:flex; align-items:center; gap:3px; }
-  .club-card-body { padding:12px 18px 14px; display:flex; flex-direction:column; gap:10px; }
-  .club-card-desc { font-size:14px; color:var(--text2); line-height:1.55; }
-  .club-members-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-  .club-members-label { font-size:12px; color:var(--text2); font-weight:600; }
-  .club-members-list { font-size:13px; color:var(--text); font-weight:600; flex:1; }
-  .club-count-badge { font-size:12px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--surface2); color:var(--text2); white-space:nowrap; }
-  .club-count-badge.full { background:rgba(224,32,64,0.08); color:var(--danger); }
-  .btn-club-join {
-    width:100%; background:linear-gradient(135deg,var(--accent3),#0e8a4a);
-    color:#fff; border:none; border-radius:12px; padding:13px;
-    font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif;
-    cursor:pointer; transition:opacity 0.15s; box-shadow:0 4px 12px rgba(22,184,100,0.25);
-  }
-  .btn-club-join:active { opacity:0.85; }
-  .btn-club-join:disabled { background:var(--surface2); color:var(--text2); box-shadow:none; cursor:default; }
-  .btn-club-joined { width:100%; background:rgba(22,184,100,0.1); border:1.5px solid rgba(22,184,100,0.3); color:var(--accent3); border-radius:12px; padding:13px; font-size:15px; font-weight:700; font-family:'Noto Sans KR',sans-serif; cursor:default; }
 </style>
 </head>
 <body>
@@ -537,82 +465,51 @@
     </div>
 
     <!-- ── 커뮤니티 탭 (게임 + 동아리) ── -->
-    <div class="tab-panel" id="tab-community">
+    <!-- ── 매점 탭 (점수 활용 모음) ── -->
+    <div class="tab-panel" id="tab-shop">
 
-      <!-- 첫 참여 이벤트 -->
-      <div class="section-card">
-        <div class="section-header">
-          <span class="sh-icon">🌟</span>
-          <span class="sh-title">첫 참여 이벤트</span>
-          <span class="sh-badge-gold" id="reviewEventBadge">+100점</span>
-        </div>
-        <div id="reviewContent">
-          <div class="loading-dots"><span></span><span></span><span></span></div>
-        </div>
+      <!-- 매점 상태 안내 (준비중 / 운영중 / 마감) -->
+      <div class="shop-status-banner" id="shopStatusBanner">
+        <span class="loading-dots"><span></span><span></span><span></span></span>
       </div>
 
-      <!-- 뽑기 게임 -->
-      <div class="section-card">
-        <div class="section-header">
-          <span class="sh-icon">🎮</span>
-          <span class="sh-title">뽑기 게임</span>
-          <span class="sh-badge" id="gameCountBadge">0/3</span>
-        </div>
-        <div id="gameContent">
-          <div class="loading-dots"><span></span><span></span><span></span></div>
-        </div>
-      </div>
+      <!-- 매점 본문 (운영중일 때만 보임) -->
+      <div id="shopBody" style="display:none">
 
-      <!-- TF 추천 공지 -->
-      <div class="club-notice-card">
-        <div class="club-notice-header">
-          <span class="sh-icon">📌</span>
-          <span class="sh-title">TF 추천 활동</span>
-          <span class="club-notice-badge">공지</span>
+        <!-- 1. 아이템 목록 -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="sh-icon">🏪</span>
+            <span class="sh-title">매점 아이템</span>
+          </div>
+          <div id="shopItemList">
+            <p class="empty-msg">곧 아이템이 등록됩니다.</p>
+          </div>
         </div>
-        <div class="club-notice-list" id="clubNoticeList"></div>
-      </div>
 
-      <!-- 동아리 만들기 버튼 -->
-      <button class="btn-club-create" onclick="window.toggleClubForm()">＋ 동아리 만들기</button>
-
-      <!-- 생성 폼 (기본 숨김) -->
-      <div class="club-form-card" id="clubFormCard" style="display:none">
-        <div class="section-header">
-          <span class="sh-icon">✏️</span>
-          <span class="sh-title">새 동아리</span>
+        <!-- 2. 점수 주기 (더치페이) -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="sh-icon">💝</span>
+            <span class="sh-title">점수 주기 · 더치페이</span>
+          </div>
+          <div id="transferContent">
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+          </div>
         </div>
-        <div class="club-form-body">
-          <div>
-            <label class="club-form-label">제목 *</label>
-            <input class="club-form-input" id="clubTitle" placeholder="예: 산책 같이 해요" maxlength="30">
-          </div>
-          <div>
-            <label class="club-form-label">설명 *</label>
-            <input class="club-form-input" id="clubDesc" placeholder="간단하게 소개해주세요" maxlength="60">
-          </div>
-          <div class="club-form-row">
-            <div>
-              <label class="club-form-label">장소</label>
-              <input class="club-form-input" id="clubPlace" placeholder="예: 로비" maxlength="20">
-            </div>
-            <div>
-              <label class="club-form-label">시간</label>
-              <input class="club-form-input" id="clubTime" placeholder="예: 9시" maxlength="20">
-            </div>
-          </div>
-          <div>
-            <label class="club-form-label">최대 인원 (없으면 무제한)</label>
-            <input class="club-form-input" id="clubMax" type="number" placeholder="숫자 입력" min="1" max="50">
-          </div>
-          <button class="btn-club-submit" onclick="window.submitClub()">동아리 개설하기</button>
-          <button class="btn-club-cancel" onclick="window.toggleClubForm()">취소</button>
-        </div>
-      </div>
 
-      <!-- 동아리 목록 -->
-      <div id="clubList">
-        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <!-- 3. 뽑기 게임 -->
+        <div class="section-card">
+          <div class="section-header">
+            <span class="sh-icon">🎮</span>
+            <span class="sh-title">뽑기 게임</span>
+            <span class="sh-badge" id="gameCountBadge">0/3</span>
+          </div>
+          <div id="gameContent">
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -630,9 +527,9 @@
     <span class="nav-icon">🏆</span>
     <span class="nav-label">전체순위</span>
   </button>
-  <button class="nav-btn community-tab" id="navCommunity" onclick="switchTab('community')">
-    <span class="nav-icon">🤝</span>
-    <span class="nav-label">커뮤니티</span>
+  <button class="nav-btn shop-tab" id="navShop" onclick="switchTab('shop')">
+    <span class="nav-icon">🏪</span>
+    <span class="nav-label">매점</span>
   </button>
 </nav>
 
@@ -656,11 +553,6 @@
   const BET_OPTIONS = [10, 30, 50, 100];
   const MAX_PLAYS   = 3;
   const PRIZE_POOL  = ['fail','fail','keep','keep','x1.5','x1.5','x1.5','x2','x2','x2.5'];
-
-  // ── 별점 이벤트 설정 ──────────────────────────────────
-  const REVIEW_REQUIRED_TEXT  = '오롬 워크샵 너무 재미있어요!';
-  const REVIEW_REQUIRED_STARS = 5;
-  const REVIEW_REWARD         = 100;
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
@@ -698,15 +590,9 @@
   let selectedBet    = null;
   let lastResult     = null;
   let gameProcessing = false;
-  // 글로벌 설정 (Firebase settings/)
-  let drawGameOpen    = false;
-  let reviewPromptText = REVIEW_REQUIRED_TEXT;
 
-  // 별점 이벤트 상태
-  let selectedStars        = 0;
-  let reviewProcessing     = false;
-  let reviewInitialized    = false;
-  let reviewCompletedCache = false;
+  // 글로벌 설정 (Firebase settings/)
+  let shopState = 'preparing'; // 'preparing' | 'open' | 'closed'
 
   // ── 탭 전환 ───────────────────────────────────────────
   window.switchTab = function(name) {
@@ -714,7 +600,7 @@
     document.getElementById('tab-' + name).classList.add('active');
     document.getElementById('navHome').classList.toggle('active',      name === 'home');
     document.getElementById('navRanking').classList.toggle('active',   name === 'ranking');
-    document.getElementById('navCommunity').classList.toggle('active', name === 'community');
+    document.getElementById('navShop').classList.toggle('active', name === 'shop');
     // 탭 전환 시 항상 최상단으로
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
@@ -779,16 +665,31 @@
     onValue(ref(db,'teams'),   snap => { allTeams = snap.val() || {}; renderTeamRanking(); updateMyTeamScore(); });
     onValue(ref(db,'bbqTeams'),snap => { allBbqTeams = snap.val() || {}; renderBbqTeamRanking(); updateMyBbqTeamScore(); });
     onValue(ref(db,'notices'),  snap => { renderNotice(snap.val()); });
-    onValue(ref(db,'clubs'),    snap => { allClubs = snap.val() || {}; renderClubList(); });
     onValue(ref(db,'settings'), snap => {
       const s = snap.val() || {};
-      drawGameOpen    = !!s.drawGameOpen;
-      reviewPromptText = s.reviewPrompt || REVIEW_REQUIRED_TEXT;
-      // 게임 탭이 보이는 상태면 즉시 갱신
+      shopState = s.shopState || 'preparing';
+      renderShopBanner();
       const me = allParticipants[currentUser?.uid];
       renderGame(me?.drawGameCount ?? 0);
     });
-    renderClubNotices();
+  }
+
+  // ── 매점 상태 배너 ────────────────────────────────────
+  function renderShopBanner() {
+    const banner = document.getElementById('shopStatusBanner');
+    const body   = document.getElementById('shopBody');
+    if (!banner || !body) return;
+    banner.className = 'shop-status-banner ' + shopState;
+    if (shopState === 'open') {
+      banner.innerHTML = '🛒 <strong>매점 운영중!</strong> 점수 주기·뽑기·아이템 구매 가능';
+      body.style.display = 'block';
+    } else if (shopState === 'closed') {
+      banner.innerHTML = '🔒 <strong>매점 마감되었습니다</strong>';
+      body.style.display = 'none';
+    } else {
+      banner.innerHTML = '🛒 <strong>매점 준비중입니다</strong> · 곧 오픈됩니다!';
+      body.style.display = 'none';
+    }
   }
 
   // ── 내 점수 업데이트 ──────────────────────────────────
@@ -843,14 +744,6 @@
       bbqBadge.style.display = '';
     } else {
       bbqBadge.style.display = 'none';
-    }
-
-    // 별점 이벤트 동기화
-    const serverCompleted = !!me.reviewEventCompleted;
-    if (!reviewInitialized || (serverCompleted && !reviewCompletedCache)) {
-      reviewInitialized    = true;
-      reviewCompletedCache = serverCompleted;
-      renderReviewEvent(serverCompleted);
     }
 
     // 뽑기 게임 동기화 (결과 화면 중엔 뱃지만 갱신)
@@ -1066,77 +959,6 @@
   }
 
   // ══════════════════════════════════════════════════════
-  // ── 별점 이벤트 ──────────────────────────────────────
-  // ══════════════════════════════════════════════════════
-
-  function renderReviewEvent(completed) {
-    const el = document.getElementById('reviewContent');
-    if (completed) {
-      document.getElementById('reviewEventBadge').textContent = '참여완료 ✓';
-      el.innerHTML = `
-        <div class="review-complete-box">
-          <span class="review-complete-emoji">🎉</span>
-          <div class="review-complete-title">참여 완료! +${REVIEW_REWARD}점</div>
-          <div class="review-complete-desc">리뷰 이벤트에 참여해주셔서 감사합니다 😊</div>
-        </div>`;
-      return;
-    }
-    const starsHtml = Array.from({length: REVIEW_REQUIRED_STARS}, (_,i) =>
-      `<button class="star-btn${i < selectedStars ? ' active' : ''}" onclick="window.selectStar(${i+1})">⭐</button>`
-    ).join('');
-    el.innerHTML = `
-      <div class="review-body">
-        <div class="review-desc">
-          별 <strong>5개</strong>를 선택하고 아래 문구 그대로 제출하면 <strong>+${REVIEW_REWARD}점</strong>을 드려요!
-        </div>
-        <div class="review-prompt-label">📝 제시 문구: <strong>${escHtml(reviewPromptText)}</strong></div>
-        <div class="star-row">${starsHtml}</div>
-        <textarea class="review-input" id="reviewInput" rows="2" placeholder="위 제시 문구를 그대로 입력하세요"></textarea>
-        <div class="review-error" id="reviewError"></div>
-        <button class="btn-review-submit" onclick="window.submitReview()">✍️ 제출하기</button>
-      </div>`;
-  }
-
-  window.selectStar = function(n) {
-    selectedStars = n;
-    document.querySelectorAll('.star-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', i < n);
-    });
-  };
-
-  window.submitReview = async function() {
-    if (reviewProcessing) return;
-    const me = allParticipants[currentUser.uid];
-    if (me?.reviewEventCompleted) { renderReviewEvent(true); return; }
-    const inputEl   = document.getElementById('reviewInput');
-    const inputText = (inputEl?.value || '').trim();
-    if (selectedStars < REVIEW_REQUIRED_STARS) { showReviewError('별 5개를 모두 선택해주세요 ⭐'); return; }
-    if (inputText !== reviewPromptText)        { showReviewError('문구를 정확히 입력해주세요'); return; }
-    reviewProcessing = true;
-    const btn = document.querySelector('.btn-review-submit');
-    if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
-    try {
-      const currentScore = me?.score ?? 0;
-      await update(ref(db, `participants/${currentUser.uid}`), {
-        score: currentScore + REVIEW_REWARD, reviewEventCompleted: true
-      });
-      reviewCompletedCache = true;
-      renderReviewEvent(true);
-    } catch(e) {
-      console.error('별점 이벤트 저장 실패', e);
-      showReviewError('오류가 발생했습니다. 다시 시도해주세요.');
-    }
-    reviewProcessing = false;
-  };
-
-  function showReviewError(msg) {
-    const el = document.getElementById('reviewError');
-    if (!el) return;
-    el.textContent = msg; el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 3000);
-  }
-
-  // ══════════════════════════════════════════════════════
   // ── 뽑기 게임 ────────────────────────────────────────
   // ══════════════════════════════════════════════════════
 
@@ -1148,12 +970,7 @@
 
     document.getElementById('gameCountBadge').textContent = `${count}/${MAX_PLAYS}`;
 
-    // 관리자가 클로즈한 상태
-    if (!drawGameOpen) {
-      el.innerHTML = `<div class="game-done-msg" style="font-size:44px;padding:32px 16px">🍀<br><span style="font-size:16px;margin-top:10px;display:block;font-weight:700">🌟점수 일확천금의 기회 개봉박두🌟</span></div>`;
-      return;
-    }
-
+    // 매점이 운영중일 때만 뽑기 가능 (shopState !== 'open' 인 경우는 shopBody가 숨겨져서 여기 오지 않음)
     if (count >= MAX_PLAYS) {
       el.innerHTML = `<div class="game-done-msg">🎉 3회 모두 참여했어요!<br><span style="font-size:13px">수고하셨습니다 😊</span></div>`;
       return;
@@ -1317,243 +1134,6 @@
     const me    = allParticipants[currentUser.uid];
     renderGame(me?.drawGameCount ?? 0);
   };
-
-  // ══════════════════════════════════════════════════════
-  // ── 동아리 기능 ──────────────────────────────────────
-  // ══════════════════════════════════════════════════════
-
-  const CLUB_NOTICE_POSTS = [
-    { title: "글로우펏 (블랙 라이트 미니 골프)", place: "리조트 지하 2층",  description: "형광 조명 아래에서 즐기는 미니 골프. 가볍게 놀기 좋음" },
-    { title: "인스파이어 리조트",                place: "차량 약 10분",     description: "고래 미디어아트, 대형 오락실 등 볼거리/즐길거리 다양" },
-    { title: "카페 오라",                        place: "도보 약 5분",      description: "가까운 거리에서 편하게 쉬기 좋은 카페" },
-    { title: "카페 블랑",                        place: "도보 약 10분",     description: "여유롭게 쉬기 좋은 카페 (저녁 식사 건물 3층)" },
-    { title: "자유 주제",                        place: "",                description: "원하는 활동 자유롭게 모집 (산책, 간식, 수다 등)" }
-  ];
-
-  let allClubs       = {};
-  let clubFormOpen   = false;
-  let clubSubmitting = false;
-  let editingClubId  = null;
-
-  // 공지 렌더
-  function renderClubNotices() {
-    const el = document.getElementById('clubNoticeList');
-    el.innerHTML = CLUB_NOTICE_POSTS.map(p => `
-      <div class="club-notice-item">
-        <div class="club-notice-title">${escHtml(p.title)}</div>
-        ${p.place ? `<div class="club-notice-place">📍 ${escHtml(p.place)}</div>` : ''}
-        <div class="club-notice-desc">${escHtml(p.description)}</div>
-      </div>`).join('');
-  }
-
-  // 폼 토글
-  window.toggleClubForm = function() {
-    clubFormOpen = !clubFormOpen;
-    document.getElementById('clubFormCard').style.display = clubFormOpen ? 'block' : 'none';
-    if (!clubFormOpen) {
-      ['clubTitle','clubDesc','clubPlace','clubTime','clubMax'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-    }
-  };
-
-  // 동아리 생성
-  window.submitClub = async function() {
-    if (clubSubmitting) return;
-    const title = document.getElementById('clubTitle').value.trim();
-    const desc  = document.getElementById('clubDesc').value.trim();
-    if (!title || !desc) { alert('제목과 설명은 필수입니다.'); return; }
-
-    const place    = document.getElementById('clubPlace').value.trim();
-    const time     = document.getElementById('clubTime').value.trim();
-    const maxRaw   = document.getElementById('clubMax').value.trim();
-    const maxVal   = maxRaw ? parseInt(maxRaw) : null;
-
-    clubSubmitting = true;
-    const btn = document.querySelector('.btn-club-submit');
-    if (btn) { btn.disabled = true; btn.textContent = '생성 중...'; }
-
-    try {
-      const newClub = {
-        title, description: desc,
-        place: place || null, time: time || null,
-        maxMembers: maxVal || null,
-        creatorId:   currentUser.uid,
-        creatorName: dispName(currentUser),
-        participants: { [currentUser.uid]: true },
-        createdAt: Date.now()
-      };
-      await push(ref(db, 'clubs'), newClub);
-      window.toggleClubForm();
-    } catch(e) {
-      console.error('동아리 생성 실패', e);
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
-    }
-
-    if (btn) { btn.disabled = false; btn.textContent = '동아리 개설하기'; }
-    clubSubmitting = false;
-  };
-
-  // 동아리 참여
-  window.joinClub = async function(clubId) {
-    try {
-      await update(ref(db, `clubs/${clubId}/participants`), { [currentUser.uid]: true });
-    } catch(e) {
-      console.error('참여 실패', e);
-    }
-  };
-
-  // 참여 취소
-  window.leaveClub = async function(clubId) {
-    if (!confirm('참여를 취소할까요?')) return;
-    try {
-      await remove(ref(db, `clubs/${clubId}/participants/${currentUser.uid}`));
-    } catch(e) {
-      console.error('참여 취소 실패', e);
-    }
-  };
-
-  // 동아리 삭제
-  window.deleteClub = async function(clubId) {
-    if (!confirm('동아리를 삭제할까요? 되돌릴 수 없습니다.')) return;
-    try {
-      await remove(ref(db, `clubs/${clubId}`));
-    } catch(e) {
-      console.error('삭제 실패', e);
-    }
-  };
-
-  // 수정 폼 열기
-  window.openEditForm = function(clubId) {
-    editingClubId = clubId;
-    renderClubList(); // 수정 폼 포함해서 다시 렌더
-  };
-
-  // 수정 취소
-  window.cancelEditClub = function() {
-    editingClubId = null;
-    renderClubList();
-  };
-
-  // 수정 저장
-  window.submitEditClub = async function(clubId) {
-    const title = document.getElementById(`editTitle_${clubId}`).value.trim();
-    const desc  = document.getElementById(`editDesc_${clubId}`).value.trim();
-    if (!title || !desc) { alert('제목과 설명은 필수입니다.'); return; }
-    const place  = document.getElementById(`editPlace_${clubId}`).value.trim();
-    const time   = document.getElementById(`editTime_${clubId}`).value.trim();
-    const maxRaw = document.getElementById(`editMax_${clubId}`).value.trim();
-    const maxVal = maxRaw ? parseInt(maxRaw) : null;
-    try {
-      await update(ref(db, `clubs/${clubId}`), {
-        title, description: desc,
-        place: place || null, time: time || null,
-        maxMembers: maxVal || null
-      });
-      editingClubId = null;
-    } catch(e) {
-      console.error('수정 실패', e);
-      alert('오류가 발생했습니다.');
-    }
-  };
-
-  // 동아리 목록 렌더
-  function renderClubList() {
-    const el = document.getElementById('clubList');
-    const list = Object.entries(allClubs).sort((a,b) => (a[1].createdAt||0)-(b[1].createdAt||0));
-
-    if (!list.length) {
-      el.innerHTML = `<div class="club-list-empty">아직 개설된 동아리가 없어요 😊<br>첫 번째 동아리를 만들어보세요!</div>`;
-      return;
-    }
-
-    el.innerHTML = list.map(([cid, c]) => {
-      const members     = Object.keys(c.participants || {});
-      const memberCount = members.length;
-      const maxM        = c.maxMembers;
-      const isFull      = maxM && memberCount >= maxM;
-      const isJoined    = members.includes(currentUser.uid);
-      const isCreator   = c.creatorId === currentUser.uid;
-      const isEditing   = editingClubId === cid;
-
-      // 참여자 이름 표시 (최대 5명 + 나머지 수)
-      const nameList = members.map(uid => {
-        const p = allParticipants[uid];
-        return p ? dispName(p) : '?';
-      });
-      const showNames = nameList.slice(0,5).join(', ') + (nameList.length > 5 ? ` 외 ${nameList.length-5}명` : '');
-
-      const countBadge = maxM
-        ? `<span class="club-count-badge${isFull?' full':''}">${memberCount}/${maxM}명</span>`
-        : `<span class="club-count-badge">${memberCount}명</span>`;
-
-      // 참여/취소/마감 버튼
-      let joinBtn = '';
-      if (isCreator) {
-        joinBtn = `<button class="btn-club-joined">👑 내가 만든 동아리</button>`;
-      } else if (isJoined) {
-        joinBtn = `<button class="btn-club-join" style="background:linear-gradient(135deg,#e02040,#a0001a);box-shadow:0 4px 12px rgba(224,32,64,0.25)" onclick="window.leaveClub('${cid}')">참여 취소</button>`;
-      } else if (isFull) {
-        joinBtn = `<button class="btn-club-join" disabled>인원 마감</button>`;
-      } else {
-        joinBtn = `<button class="btn-club-join" onclick="window.joinClub('${cid}')">참여하기</button>`;
-      }
-
-      // 개설자 전용 관리 버튼
-      const creatorBtns = isCreator ? `
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button onclick="window.openEditForm('${cid}')"
-            style="flex:1;background:none;border:1.5px solid var(--border);color:var(--text2);border-radius:10px;padding:9px;font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer">
-            ✏️ 수정
-          </button>
-          <button onclick="window.deleteClub('${cid}')"
-            style="flex:1;background:none;border:1.5px solid rgba(224,32,64,0.3);color:var(--danger);border-radius:10px;padding:9px;font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer">
-            🗑 삭제
-          </button>
-        </div>` : '';
-
-      // 수정 폼 (수정 중일 때만 표시)
-      const editForm = isEditing ? `
-        <div style="display:flex;flex-direction:column;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--surface2)">
-          <input class="club-form-input" id="editTitle_${cid}" value="${escHtml(c.title)}" placeholder="제목 *">
-          <input class="club-form-input" id="editDesc_${cid}"  value="${escHtml(c.description)}" placeholder="설명 *">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <input class="club-form-input" id="editPlace_${cid}" value="${escHtml(c.place||'')}" placeholder="장소">
-            <input class="club-form-input" id="editTime_${cid}"  value="${escHtml(c.time||'')}"  placeholder="시간">
-          </div>
-          <input class="club-form-input" id="editMax_${cid}" type="number" value="${c.maxMembers||''}" placeholder="최대 인원 (없으면 무제한)">
-          <div style="display:flex;gap:8px">
-            <button class="btn-club-submit" style="flex:1;padding:11px;font-size:14px" onclick="window.submitEditClub('${cid}')">저장</button>
-            <button class="btn-club-cancel" style="flex:1" onclick="window.cancelEditClub()">취소</button>
-          </div>
-        </div>` : '';
-
-      return `
-        <div class="club-card">
-          <div class="club-card-header">
-            <div class="club-card-title">${escHtml(c.title)}</div>
-            <div class="club-card-meta">
-              ${c.place ? `<span class="club-meta-chip">📍 ${escHtml(c.place)}</span>` : ''}
-              ${c.time  ? `<span class="club-meta-chip">🕐 ${escHtml(c.time)}</span>`  : ''}
-              <span class="club-meta-chip">👤 ${escHtml(c.creatorName)}</span>
-            </div>
-          </div>
-          <div class="club-card-body">
-            <div class="club-card-desc">${escHtml(c.description)}</div>
-            <div class="club-members-row">
-              <div style="flex:1;min-width:0">
-                <div class="club-members-label">참여자</div>
-                <div class="club-members-list">${escHtml(showNames)}</div>
-              </div>
-              ${countBadge}
-            </div>
-            ${joinBtn}
-            ${creatorBtns}
-          </div>
-          ${editForm}
-        </div>`;
-    }).join('');
-  }
 
   // ── 유틸 ─────────────────────────────────────────────
   function escHtml(s) {
