@@ -74,5 +74,13 @@
       "timestamp": 1700000000000
     }
   },
-  "scoreLogs": {}
+  "settings": {
+    "shopState": "preparing"
+  },
+  "shop": {
+    "items": {}
+  },
+  "scoreLogs": {},
+  "transferLogs": {},
+  "purchaseLogs": {}
 }

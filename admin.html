@@ -237,6 +237,40 @@
   }
   .btn-danger:active { opacity:0.8; }
   .danger-desc { font-size:13px; color:var(--text2); text-align:center; margin-bottom:14px; line-height:1.6; }
+
+  /* ── 매점 상태 (3단계) ── */
+  .shop-state-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .shop-state-btn {
+    background:var(--surface2); border:1.5px solid var(--border);
+    color:var(--text2); border-radius:10px; padding:14px 8px;
+    font-size:14px; font-weight:700; font-family:inherit; cursor:pointer;
+    transition:all 0.15s;
+  }
+  .shop-state-btn.active#ssPreparing { background:var(--accent4); border-color:var(--accent4); color:#fff; }
+  .shop-state-btn.active#ssOpen      { background:var(--accent3); border-color:var(--accent3); color:#fff; box-shadow:0 4px 12px rgba(22,184,100,0.25); }
+  .shop-state-btn.active#ssClosed    { background:#7a7a9a; border-color:#7a7a9a; color:#fff; }
+
+  /* ── 매점 아이템 폼·리스트 ── */
+  .shop-form { display:flex; flex-direction:column; gap:8px; padding:12px; background:var(--surface2); border-radius:12px; border:1px solid var(--border); }
+  .shop-form .admin-select { margin-bottom:0; padding:11px 14px; font-size:14px; }
+  .shop-form .custom-input { padding:11px 14px; font-size:14px; }
+  .shop-form-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+  .shop-admin-item { padding:12px 14px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:5px; }
+  .shop-admin-item:last-child { border-bottom:none; }
+  .shop-admin-row { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .shop-admin-cat { font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px; }
+  .shop-admin-cat.experience { background:rgba(224,139,0,0.12); color:var(--accent4); }
+  .shop-admin-cat.goods      { background:rgba(91,80,240,0.10); color:var(--accent); }
+  .shop-admin-title { font-size:15px; }
+  .shop-admin-price { font-size:13px; color:var(--accent); font-weight:800; font-family:'Space Mono',monospace; margin-left:auto; }
+  .shop-admin-meta  { font-size:12px; color:var(--text2); }
+  .shop-admin-buyers{ font-size:11px; color:var(--text2); padding:4px 0 0; border-top:1px dashed var(--border); margin-top:4px; }
+  .btn-danger-sm {
+    align-self:flex-end; background:none; border:1.5px solid rgba(224,32,64,0.3);
+    color:var(--danger); border-radius:8px; padding:5px 12px;
+    font-size:12px; font-weight:700; font-family:inherit; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -408,15 +442,41 @@
           </div>
         </div>
       </div>
-      <!-- 뽑기 게임 오픈/클로즈 -->
+      <!-- 매점 상태 (3단계: 준비중 / 운영중 / 마감) -->
       <div class="section-card">
-        <div class="section-header"><span class="sh-icon">🎰</span><span class="sh-title">뽑기 게임 오픈 설정</span></div>
+        <div class="section-header"><span class="sh-icon">🛒</span><span class="sh-title">매점 상태</span></div>
         <div class="section-body">
-          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">참가자 페이지의 뽑기 게임 활성화 여부를 설정합니다.<br>클로즈 시 <strong>🍀 + 🌟점수 일확천금의 기회 개봉박두🌟</strong> 안내 표시.</p>
-          <div style="display:flex;align-items:center;gap:16px">
-            <div id="drawGameStatus" style="font-size:15px;font-weight:700">상태 확인 중...</div>
-            <button class="btn-apply" id="drawGameToggleBtn" onclick="toggleDrawGame()" style="min-width:80px">로딩 중</button>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.55">매점 · 점수 주기 · 뽑기 게임 모두 함께 제어됩니다.</p>
+          <div class="shop-state-row">
+            <button class="shop-state-btn" id="ssPreparing" onclick="setShopState('preparing')">🛒 준비중</button>
+            <button class="shop-state-btn" id="ssOpen" onclick="setShopState('open')">✅ 운영중</button>
+            <button class="shop-state-btn" id="ssClosed" onclick="setShopState('closed')">🔒 마감</button>
           </div>
+        </div>
+      </div>
+
+      <!-- 매점 아이템 관리 -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🏪</span><span class="sh-title">매점 아이템 관리</span></div>
+        <div class="section-body">
+          <div class="shop-form">
+            <select id="newItemCat" class="admin-select">
+              <option value="experience">🎫 체험형 (1인 1품목 통합 한도)</option>
+              <option value="goods">🛍 소비재 (구매 제한 없음)</option>
+            </select>
+            <input id="newItemTitle" type="text" class="custom-input" placeholder="아이템 이름 *" maxlength="30" style="font-family:'Noto Sans KR',sans-serif">
+            <input id="newItemDesc" type="text" class="custom-input" placeholder="설명 (선택)" maxlength="60" style="font-family:'Noto Sans KR',sans-serif">
+            <div class="shop-form-row">
+              <input id="newItemPrice" type="number" class="custom-input" placeholder="가격 *" min="1">
+              <input id="newItemStock" type="number" class="custom-input" placeholder="수량 *" min="1">
+            </div>
+            <div class="shop-form-row">
+              <input id="newItemPickupTime" type="text" class="custom-input" placeholder="픽업 시간 (선택)" maxlength="20" style="font-family:'Noto Sans KR',sans-serif">
+              <input id="newItemPickupPlace" type="text" class="custom-input" placeholder="픽업 장소 (선택)" maxlength="20" style="font-family:'Noto Sans KR',sans-serif">
+            </div>
+            <button class="btn-apply" onclick="addShopItem()" style="width:100%;padding:13px">＋ 아이템 추가</button>
+          </div>
+          <div id="shopAdminList" style="margin-top:14px"></div>
         </div>
       </div>
     </div>
@@ -427,7 +487,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push }
+  import { getDatabase, ref, onValue, update, push, remove }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
@@ -450,6 +510,7 @@
   let allParticipants = {};
   let currentTeamType = 'pt'; // 'pt' | 'bbq'
   let currentSettings = {};
+  let allShopItems    = {};
 
   window.switchTab = function(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -481,32 +542,81 @@
     onValue(ref(db,'participants'), snap => { allParticipants = snap.val()||{}; populateParticipantSelect(); renderPersonalScores(); syncBbqAssignRow(); stgRefreshIfVisible(); });
     onValue(ref(db,'scoreLogs'),    snap => { renderLogs(snap.val()); });
     onValue(ref(db,'settings'),     snap => { currentSettings = snap.val()||{}; renderSettingsPanel(); });
+    onValue(ref(db,'shop/items'),   snap => { allShopItems = snap.val()||{}; renderShopAdminList(); });
   }
 
   function renderSettingsPanel() {
-    const open   = !!currentSettings.drawGameOpen;
-    const status = document.getElementById('drawGameStatus');
-    const btn    = document.getElementById('drawGameToggleBtn');
-    if (status) status.innerHTML = open
-      ? '<span style="color:var(--accent3)">✅ 오픈 중</span>'
-      : '<span style="color:var(--danger)">🚧 클로즈</span>';
-    if (btn) {
-      btn.textContent = open ? '클로즈' : '오픈';
-      btn.style.background = open ? 'var(--danger)' : 'var(--accent3)';
-    }
-    const promptEl = document.getElementById('reviewPromptInput');
-    if (promptEl && !promptEl.dataset.dirty) {
-      promptEl.value = currentSettings.reviewPrompt || '';
-    }
+    const state = currentSettings.shopState || 'preparing';
+    ['Preparing','Open','Closed'].forEach(s => {
+      const btn = document.getElementById('ss'+s);
+      if (!btn) return;
+      btn.classList.toggle('active', state === s.toLowerCase());
+    });
   }
 
-  window.toggleDrawGame = async function() {
-    const newVal = !currentSettings.drawGameOpen;
+  window.setShopState = async function(state) {
     try {
-      await update(ref(db,'settings'), { drawGameOpen: newVal });
-      showToast(newVal ? '뽑기 게임 오픈!' : '뽑기 게임 클로즈');
-    } catch(e) { showToast('오류: ' + e.message); }
+      await update(ref(db,'settings'), { shopState: state });
+      const label = state === 'preparing' ? '준비중' : state === 'open' ? '운영중' : '마감';
+      showToast(`매점 상태 → ${label}`, 'success');
+    } catch(e) { showToast('오류: ' + e.message, 'error'); }
   };
+
+  // ── 매점 아이템 관리 ─────────────────────────────────
+  window.addShopItem = async function() {
+    const title = document.getElementById('newItemTitle').value.trim();
+    const desc  = document.getElementById('newItemDesc').value.trim();
+    const price = parseInt(document.getElementById('newItemPrice').value);
+    const stock = parseInt(document.getElementById('newItemStock').value);
+    const cat   = document.getElementById('newItemCat').value;
+    const ptime = document.getElementById('newItemPickupTime').value.trim();
+    const pplace= document.getElementById('newItemPickupPlace').value.trim();
+    if (!title || !price || !stock) { showToast('이름·가격·수량 필수','error'); return; }
+    try {
+      await push(ref(db,'shop/items'), {
+        title, description: desc || null,
+        price, maxStock: stock, sold: 0,
+        category: cat,
+        pickupTime: ptime || null, pickupPlace: pplace || null,
+        createdAt: Date.now()
+      });
+      ['newItemTitle','newItemDesc','newItemPrice','newItemStock','newItemPickupTime','newItemPickupPlace']
+        .forEach(id => document.getElementById(id).value = '');
+      showToast(`✓ ${title} 추가됨`, 'success');
+    } catch(e) { showToast('오류: ' + e.message,'error'); }
+  };
+
+  window.deleteShopItem = async function(itemId) {
+    const item = allShopItems[itemId]; if (!item) return;
+    const buyerCount = Object.keys(item.buyers || {}).length;
+    if (buyerCount > 0) {
+      if (!confirm(`【${item.title}】\n이미 ${buyerCount}명이 구매했습니다. 정말 삭제하시겠습니까?`)) return;
+    } else {
+      if (!confirm(`【${item.title}】 삭제할까요?`)) return;
+    }
+    try {
+      await remove(ref(db, `shop/items/${itemId}`));
+      showToast('삭제됨', 'success');
+    } catch(e) { showToast('오류: ' + e.message,'error'); }
+  };
+
+  function renderShopAdminList() {
+    const el = document.getElementById('shopAdminList'); if (!el) return;
+    const items = Object.entries(allShopItems).sort((a,b) => (a[1].createdAt||0)-(b[1].createdAt||0));
+    if (!items.length) { el.innerHTML = '<p style="color:var(--text2);text-align:center;padding:18px;font-size:13px">등록된 아이템 없음</p>'; return; }
+    el.innerHTML = items.map(([id, item]) => `
+      <div class="shop-admin-item">
+        <div class="shop-admin-row">
+          <span class="shop-admin-cat ${item.category}">${item.category === 'experience' ? '체험' : '소비재'}</span>
+          <strong class="shop-admin-title">${escHtml(item.title)}</strong>
+          <span class="shop-admin-price">${item.price}점</span>
+        </div>
+        <div class="shop-admin-meta">${item.sold||0}/${item.maxStock} 판매${item.pickupTime?` · 🕐${escHtml(item.pickupTime)}`:''}${item.pickupPlace?` · 📍${escHtml(item.pickupPlace)}`:''}</div>
+        ${Object.keys(item.buyers||{}).length ? `<div class="shop-admin-buyers">구매자: ${escHtml(Object.values(item.buyers).map(b => b.displayName).join(', '))}</div>` : ''}
+        <button class="btn-danger-sm" onclick="deleteShopItem('${id}')">🗑 삭제</button>
+      </div>
+    `).join('');
+  }
 
 
   function getCurrentTeamsDict() {
@@ -751,7 +861,7 @@
   }
 
   window.resetAllScores = async function() {
-    if (!confirm('정말로 모든 점수와 게임 기록을 초기화하시겠습니까?\n\n• 피지컬47 팀 점수 → 0\n• 바베큐 팀 점수 → 0\n• 모든 개인 점수 → 0\n• 뽑기 게임 참여 횟수 → 초기화\n• 첫 참여 이벤트 완료 여부 → 초기화\n\n이 작업은 되돌릴 수 없습니다.')) return;
+    if (!confirm('정말로 모든 점수와 게임·매점 기록을 초기화하시겠습니까?\n\n• 피지컬47/바베큐 팀 점수 → 0\n• 모든 개인 점수 → 0\n• 뽑기 게임 참여 횟수 → 초기화\n• 체험형 구매 플래그 → 초기화\n• 매점 아이템 sold/buyers → 초기화\n• 점수 주기·구매 로그는 보존\n\n이 작업은 되돌릴 수 없습니다.')) return;
     const updates = {};
     Object.keys(allTeams).forEach(k => {
       updates[`teams/${k}/score`] = 0;
@@ -764,10 +874,15 @@
       updates[`participants/${k}/drawGameCount`]        = null;
       updates[`participants/${k}/reviewEventCompleted`] = null;
       updates[`participants/${k}/reviewEvent`]          = null;
+      updates[`participants/${k}/experiencePurchased`]  = null;
+    });
+    Object.keys(allShopItems).forEach(id => {
+      updates[`shop/items/${id}/sold`]    = 0;
+      updates[`shop/items/${id}/buyers`]  = null;
     });
     await update(ref(db), updates);
-    await logScore('전체 점수 및 게임 기록 초기화', 0);
-    showToast('점수와 게임 기록이 모두 초기화됐습니다', 'success');
+    await logScore('전체 점수 및 게임·매점 기록 초기화', 0);
+    showToast('초기화 완료', 'success');
   };
 
   function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

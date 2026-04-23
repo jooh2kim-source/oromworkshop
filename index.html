@@ -144,6 +144,60 @@
   .shop-status-banner.closed  { background:#f5f5f5; border-color:#d0d0d0; color:var(--text2); }
   .empty-msg { padding:18px; color:var(--text2); text-align:center; font-size:14px; }
 
+  /* ── 매점 아이템 카드 ── */
+  .shop-item { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+  .shop-item:last-child { border-bottom:none; }
+  .shop-item.soldout { opacity:0.55; }
+  .shop-item-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .shop-item-cat { font-size:10px; font-weight:800; padding:3px 9px; border-radius:20px; letter-spacing:0.3px; }
+  .shop-item-cat.exp   { background:rgba(224,139,0,0.12);  color:var(--gold); }
+  .shop-item-cat.goods { background:rgba(91,80,240,0.10); color:var(--accent); }
+  .shop-item-stock { font-size:12px; color:var(--text2); }
+  .shop-item-stock strong { color:var(--text); font-weight:700; }
+  .shop-item-badge.soldout { font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; background:var(--danger); color:#fff; }
+  .shop-item-title { font-size:16px; font-weight:700; display:flex; align-items:baseline; gap:8px; }
+  .shop-item-price { font-size:14px; font-weight:800; color:var(--accent); font-family:'Space Mono',monospace; margin-left:auto; }
+  .shop-item-desc { font-size:13px; color:var(--text2); line-height:1.5; }
+  .shop-item-pickup { font-size:12px; color:var(--gold); font-weight:600; }
+  .shop-item-buyers { font-size:12px; color:var(--text2); padding-top:4px; border-top:1px dashed var(--border); margin-top:2px; }
+  .shop-buy-btn {
+    margin-top:6px; padding:12px; border:none; border-radius:12px;
+    font-size:15px; font-weight:700; font-family:inherit;
+    background:linear-gradient(135deg,var(--accent3),#0e8a4a); color:#fff;
+    box-shadow:0 4px 12px rgba(22,184,100,0.25); cursor:pointer;
+  }
+  .shop-buy-btn.active:active { opacity:0.85; }
+  .shop-buy-btn:disabled { background:var(--surface2); color:var(--text2); box-shadow:none; cursor:not-allowed; }
+  .shop-buy-btn.done    { background:rgba(22,184,100,0.1); color:var(--accent3); border:1.5px solid rgba(22,184,100,0.3); }
+  .shop-buy-btn.soldout { background:rgba(224,32,64,0.1); color:var(--danger); }
+  .shop-buy-btn.blocked { background:#fff8e8; color:var(--gold); }
+  .shop-buy-btn.low     { background:#fff5f7; color:var(--danger); }
+
+  /* ── 점수 주기 ── */
+  .transfer-body { padding:14px 18px 18px; display:flex; flex-direction:column; gap:12px; }
+  .transfer-desc { font-size:13px; color:var(--text2); line-height:1.5; }
+  .transfer-row { display:flex; flex-direction:column; gap:6px; }
+  .transfer-label { font-size:12px; font-weight:700; color:var(--text2); letter-spacing:0.3px; text-transform:uppercase; }
+  .transfer-amount-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:6px; }
+  .transfer-amount-grid button {
+    padding:11px 0; border:1.5px solid var(--border); background:var(--surface2);
+    border-radius:10px; font-size:14px; font-weight:700; font-family:'Space Mono',monospace;
+    color:var(--text); cursor:pointer;
+  }
+  .transfer-amount-grid button:active { background:var(--accent); color:#fff; }
+  .transfer-send-btn {
+    width:100%; background:linear-gradient(135deg,#f05070,#c8395a);
+    color:#fff; border:none; border-radius:14px; padding:14px;
+    font-size:15px; font-weight:700; font-family:inherit; cursor:pointer;
+    box-shadow:0 4px 14px rgba(240,80,112,0.3);
+  }
+  .transfer-send-btn:active { opacity:0.85; }
+
+  /* index.html에서 admin-select·custom-input 사용 (간단 변형) */
+  .admin-select { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; font-size:15px; color:var(--text); outline:none; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; font-family:inherit; }
+  .custom-input { width:100%; background:var(--surface2); border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; font-size:15px; color:var(--text); outline:none; font-family:inherit; }
+  .custom-input::placeholder { color:var(--text2); }
+
   /* ── 섹션 카드 ── */
   /* ── 내 숙소 카드 (홈, 공지 위) ── */
   .room-card {
@@ -535,7 +589,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline }
+  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   // ── Firebase 설정 ──────────────────────────────────────
@@ -593,6 +647,9 @@
 
   // 글로벌 설정 (Firebase settings/)
   let shopState = 'preparing'; // 'preparing' | 'open' | 'closed'
+  let allShopItems = {};
+  let buyProcessing = false;
+  let transferProcessing = false;
 
   // ── 탭 전환 ───────────────────────────────────────────
   window.switchTab = function(name) {
@@ -671,6 +728,12 @@
       renderShopBanner();
       const me = allParticipants[currentUser?.uid];
       renderGame(me?.drawGameCount ?? 0);
+      renderShopItems();
+      renderTransfer();
+    });
+    onValue(ref(db,'shop/items'), snap => {
+      allShopItems = snap.val() || {};
+      renderShopItems();
     });
   }
 
@@ -1133,6 +1196,211 @@
     lastResult  = null;
     const me    = allParticipants[currentUser.uid];
     renderGame(me?.drawGameCount ?? 0);
+  };
+
+  // ══════════════════════════════════════════════════════
+  // ── 매점 아이템 ──────────────────────────────────────
+  // ══════════════════════════════════════════════════════
+
+  function renderShopItems() {
+    const el = document.getElementById('shopItemList');
+    if (!el) return;
+    const me = allParticipants[currentUser?.uid];
+    if (!me) return;
+    const myScore = me.score || 0;
+    const expDone = !!me.experiencePurchased;
+
+    const items = Object.entries(allShopItems)
+      .sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-msg">곧 아이템이 등록됩니다.</p>';
+      return;
+    }
+
+    el.innerHTML = items.map(([id, item]) => {
+      const sold = item.sold || 0;
+      const stock = item.maxStock || 0;
+      const left = Math.max(0, stock - sold);
+      const isExp = item.category === 'experience';
+      const buyersArr = Object.values(item.buyers || {});
+      const alreadyBoughtThis = buyersArr.some(b => b.uid === currentUser.uid);
+      const isSoldOut = left <= 0;
+      const blockedExp = isExp && expDone && !alreadyBoughtThis;
+      const insufficient = myScore < (item.price || 0);
+
+      let btnState, btnLabel;
+      if (alreadyBoughtThis && isExp) { btnState = 'done'; btnLabel = '✓ 구매 완료'; }
+      else if (isSoldOut)             { btnState = 'soldout'; btnLabel = '🚫 매진'; }
+      else if (blockedExp)            { btnState = 'blocked'; btnLabel = '체험형 1품목만 가능'; }
+      else if (insufficient)          { btnState = 'low'; btnLabel = '잔액 부족'; }
+      else                            { btnState = 'active'; btnLabel = `구매 (${item.price}점)`; }
+
+      const buyerNames = buyersArr.map(b => b.displayName).slice(0,8).join(', ')
+        + (buyersArr.length > 8 ? ` 외 ${buyersArr.length-8}명` : '');
+
+      return `<div class="shop-item ${isExp?'exp':'goods'}${isSoldOut?' soldout':''}">
+        <div class="shop-item-head">
+          <span class="shop-item-cat ${isExp?'exp':'goods'}">${isExp ? '🎫 체험형 · 1인 1품목' : '🛍 소비재'}</span>
+          ${isSoldOut ? '<span class="shop-item-badge soldout">매진</span>' : `<span class="shop-item-stock">남음 <strong>${left}</strong>/${stock}</span>`}
+        </div>
+        <div class="shop-item-title">${escHtml(item.title)} <span class="shop-item-price">${item.price}점</span></div>
+        ${item.description ? `<div class="shop-item-desc">${escHtml(item.description)}</div>` : ''}
+        ${(item.pickupTime||item.pickupPlace) ? `<div class="shop-item-pickup">${item.pickupTime?`🕐 ${escHtml(item.pickupTime)}`:''} ${item.pickupPlace?`📍 ${escHtml(item.pickupPlace)}`:''}</div>` : ''}
+        ${buyerNames ? `<div class="shop-item-buyers">구매: ${escHtml(buyerNames)}</div>` : ''}
+        <button class="shop-buy-btn ${btnState}" ${btnState !== 'active' ? 'disabled' : ''} onclick="window.startBuy('${id}')">${btnLabel}</button>
+      </div>`;
+    }).join('');
+  }
+
+  window.startBuy = function(itemId) {
+    if (buyProcessing) return;
+    const item = allShopItems[itemId]; if (!item) return;
+    const me = allParticipants[currentUser.uid]; if (!me) return;
+    const myScore = me.score || 0;
+    if (myScore < item.price) { alert('잔액이 부족합니다.'); return; }
+
+    // 1단계 확인
+    const ok1 = confirm(`【${item.title}】\n\n가격: ${item.price}점\n현재 잔액: ${myScore}점\n구매 후 잔액: ${myScore - item.price}점\n\n구매하시겠습니까?`);
+    if (!ok1) return;
+
+    // 2단계 확인 (취소 불가 강조)
+    const ok2 = confirm(`⚠️ 한 번 더 확인해주세요.\n\n구매 후 취소·환불은 불가능합니다.\n\n정말 구매할까요?`);
+    if (!ok2) return;
+
+    performBuy(itemId);
+  };
+
+  async function performBuy(itemId) {
+    buyProcessing = true;
+    try {
+      const me = allParticipants[currentUser.uid];
+      const myUid = currentUser.uid;
+      const myDisp = dispName(me);
+
+      // Step 1: item 노드 transaction (재고·체험형 중복 검증 atomic)
+      const itemRef = ref(db, `shop/items/${itemId}`);
+      const txResult = await runTransaction(itemRef, (item) => {
+        if (!item) return;
+        const stock = item.maxStock || 0;
+        const sold = item.sold || 0;
+        if (sold >= stock) return; // 매진 → 트랜잭션 abort
+        if (item.category === 'experience') {
+          const dup = Object.values(item.buyers || {}).some(b => b.uid === myUid);
+          if (dup) return;
+        }
+        item.sold = sold + 1;
+        item.buyers = item.buyers || {};
+        const bkey = `b_${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+        item.buyers[bkey] = { uid: myUid, displayName: myDisp, timestamp: Date.now() };
+        return item;
+      });
+
+      if (!txResult.committed) {
+        alert('구매 실패: 매진되었거나 이미 구매한 체험형 아이템입니다.');
+        return;
+      }
+
+      // Step 2: 점수 차감 + 체험형 플래그 + 구매 로그
+      const item = txResult.snapshot.val();
+      const updates = {
+        [`participants/${myUid}/score`]: (me.score || 0) - item.price
+      };
+      if (item.category === 'experience') {
+        updates[`participants/${myUid}/experiencePurchased`] = true;
+      }
+      await update(ref(db), updates);
+      await push(ref(db, 'purchaseLogs'), {
+        itemId, itemTitle: item.title, uid: myUid,
+        displayName: myDisp, price: item.price, timestamp: Date.now()
+      });
+
+      alert(`✓ 구매 완료!\n${item.title}\n${item.pickupTime ? '\n🕐 ' + item.pickupTime : ''}${item.pickupPlace ? '\n📍 ' + item.pickupPlace : ''}`);
+    } catch (e) {
+      console.error('purchase error', e);
+      alert('오류 발생: ' + e.message);
+    }
+    buyProcessing = false;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // ── 점수 주기 (더치페이) ──────────────────────────────
+  // ══════════════════════════════════════════════════════
+
+  function renderTransfer() {
+    const el = document.getElementById('transferContent');
+    if (!el) return;
+    const me = allParticipants[currentUser?.uid]; if (!me) return;
+
+    const others = Object.entries(allParticipants)
+      .filter(([uid]) => uid !== currentUser.uid)
+      .map(([uid, p]) => ({ uid, name: dispName(p) }))
+      .sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+
+    el.innerHTML = `
+      <div class="transfer-body">
+        <p class="transfer-desc">친한 동료에게 점수를 보낼 수 있어요. 매점에서 더치페이도 가능!</p>
+        <div class="transfer-row">
+          <label class="transfer-label">받을 사람</label>
+          <select class="admin-select" id="transferTo">
+            <option value="">선택...</option>
+            ${others.map(o => `<option value="${o.uid}">${escHtml(o.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="transfer-row">
+          <label class="transfer-label">금액 (내 잔액 ${me.score||0}점)</label>
+          <div class="transfer-amount-grid">
+            <button type="button" onclick="window.setTransferAmount(10)">10</button>
+            <button type="button" onclick="window.setTransferAmount(30)">30</button>
+            <button type="button" onclick="window.setTransferAmount(50)">50</button>
+            <button type="button" onclick="window.setTransferAmount(100)">100</button>
+          </div>
+          <input type="number" id="transferAmount" class="custom-input" placeholder="직접 입력" min="1">
+        </div>
+        <button class="transfer-send-btn" onclick="window.sendTransfer()">💝 보내기</button>
+      </div>
+    `;
+  }
+
+  window.setTransferAmount = function(n) {
+    const el = document.getElementById('transferAmount');
+    if (el) el.value = n;
+  };
+
+  window.sendTransfer = async function() {
+    if (transferProcessing) return;
+    const toUid = document.getElementById('transferTo')?.value;
+    const amount = parseInt(document.getElementById('transferAmount')?.value || '0');
+    if (!toUid) { alert('받을 사람을 선택해주세요.'); return; }
+    if (!amount || amount < 1) { alert('금액을 정확히 입력해주세요.'); return; }
+    const me = allParticipants[currentUser.uid];
+    const myScore = me.score || 0;
+    if (myScore < amount) { alert('잔액이 부족합니다.'); return; }
+    const recipient = allParticipants[toUid];
+    if (!recipient) { alert('받을 사람을 찾을 수 없습니다.'); return; }
+
+    const ok = confirm(`【점수 주기】\n\n${dispName(recipient)}님께 ${amount}점 보낼까요?\n\n구매 후 잔액: ${myScore - amount}점`);
+    if (!ok) return;
+
+    transferProcessing = true;
+    try {
+      await update(ref(db), {
+        [`participants/${currentUser.uid}/score`]: myScore - amount,
+        [`participants/${toUid}/score`]: (recipient.score || 0) + amount
+      });
+      await push(ref(db, 'transferLogs'), {
+        fromUid: currentUser.uid, toUid,
+        fromName: dispName(me), toName: dispName(recipient),
+        amount, timestamp: Date.now()
+      });
+      alert(`✓ ${dispName(recipient)}님께 ${amount}점 전달 완료!`);
+      const aEl = document.getElementById('transferAmount'); if (aEl) aEl.value = '';
+      const tEl = document.getElementById('transferTo');     if (tEl) tEl.value = '';
+    } catch (e) {
+      console.error('transfer error', e);
+      alert('오류 발생: ' + e.message);
+    }
+    transferProcessing = false;
   };
 
   // ── 유틸 ─────────────────────────────────────────────
