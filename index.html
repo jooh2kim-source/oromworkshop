@@ -628,7 +628,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline, runTransaction }
+  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline, runTransaction, get }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   // ── Firebase 설정 ──────────────────────────────────────
@@ -1356,7 +1356,23 @@
       const myUid = currentUser.uid;
       const myDisp = dispName(me);
 
-      // item 노드 transaction (재고·timeSlot 중복 atomic 검증)
+      // 시간슬롯 충돌 fresh read 재검사 (캐시 race 방지)
+      const target = allShopItems[itemId];
+      if (target?.timeSlot) {
+        const freshSnap = await get(ref(db, 'shop/items'));
+        const freshItems = freshSnap.val() || {};
+        for (const [oid, oitem] of Object.entries(freshItems)) {
+          if (oid === itemId) continue;
+          if (oitem.timeSlot !== target.timeSlot) continue;
+          if (Object.values(oitem.buyers || {}).some(b => b.uid === myUid)) {
+            alert(`⏰ 시간이 겹칩니다.\n\n이미 같은 시간(${target.timeSlot})에 【${oitem.title}】을(를) 신청하셨어요.`);
+            buyProcessing = false;
+            return;
+          }
+        }
+      }
+
+      // item 노드 transaction (재고·동일 아이템 중복 atomic 검증)
       const itemRef = ref(db, `shop/items/${itemId}`);
       const txResult = await runTransaction(itemRef, (item) => {
         if (!item) return;
