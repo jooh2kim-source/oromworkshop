@@ -1290,7 +1290,6 @@
       const sold = item.sold || 0;
       const stock = item.maxStock || 0;
       const left = Math.max(0, stock - sold);
-      const isExp = item.category === 'experience';
       const hasSlot = !!item.timeSlot;
       const buyersArr = Object.values(item.buyers || {});
       const alreadyBoughtThis = buyersArr.some(b => b.uid === currentUser.uid);
@@ -1301,17 +1300,15 @@
       let btnState, btnLabel;
       if (alreadyBoughtThis && hasSlot)  { btnState = 'done'; btnLabel = '✓ 신청 완료'; }
       else if (isSoldOut)                { btnState = 'soldout'; btnLabel = '🚫 매진'; }
-      else if (slotConflictWith)         { btnState = 'blocked'; btnLabel = `⏰ '${slotConflictWith}'와 시간 겹침`; }
+      else if (slotConflictWith)         { btnState = 'blocked'; btnLabel = `✋ '${slotConflictWith}' 이미 신청함`; }
       else if (insufficient)             { btnState = 'low'; btnLabel = '잔액 부족'; }
       else                               { btnState = 'active'; btnLabel = `구매 (${item.price}점)`; }
 
       const buyerNames = buyersArr.map(b => b.displayName).slice(0,8).join(', ')
         + (buyersArr.length > 8 ? ` 외 ${buyersArr.length-8}명` : '');
 
-      return `<div class="shop-item ${isExp?'exp':'goods'}${isSoldOut?' soldout':''}">
+      return `<div class="shop-item${isSoldOut?' soldout':''}">
         <div class="shop-item-head">
-          <span class="shop-item-cat ${isExp?'exp':'goods'}">${isExp ? '🎫 체험형' : '🛍 소비재'}</span>
-          ${hasSlot ? `<span class="shop-item-slot">⏰ ${escHtml(item.timeSlot)}</span>` : ''}
           ${isSoldOut ? '<span class="shop-item-badge soldout">매진</span>' : `<span class="shop-item-stock">남음 <strong>${left}</strong>/${stock}</span>`}
         </div>
         <div class="shop-item-title">${escHtml(item.title)} <span class="shop-item-price">${item.price}점</span></div>
@@ -1330,16 +1327,15 @@
     const myScore = me.score || 0;
     if (myScore < item.price) { alert('잔액이 부족합니다.'); return; }
 
-    // 시간슬롯 충돌 사전 검사
+    // 그룹 충돌 사전 검사
     const conflictTitle = getMyTimeSlotConflict(itemId);
     if (conflictTitle) {
-      alert(`⏰ 시간이 겹칩니다.\n\n이미 같은 시간(${item.timeSlot})에 【${conflictTitle}】을(를) 신청하셨어요.\n한 시간대에 하나의 프로그램만 참여할 수 있습니다.`);
+      alert(`✋ 이미 【${conflictTitle}】을(를) 신청하셨어요.\n같이 신청할 수 없는 프로그램입니다.`);
       return;
     }
 
     // 1단계 확인
-    const slotInfo = item.timeSlot ? `\n시간: ${item.timeSlot}` : '';
-    const ok1 = confirm(`【${item.title}】${slotInfo}\n\n가격: ${item.price}점\n현재 잔액: ${myScore}점\n구매 후 잔액: ${myScore - item.price}점\n\n구매하시겠습니까?`);
+    const ok1 = confirm(`【${item.title}】\n\n가격: ${item.price}점\n현재 잔액: ${myScore}점\n구매 후 잔액: ${myScore - item.price}점\n\n구매하시겠습니까?`);
     if (!ok1) return;
 
     // 2단계 확인 (취소 불가 강조)
@@ -1356,7 +1352,7 @@
       const myUid = currentUser.uid;
       const myDisp = dispName(me);
 
-      // 시간슬롯 충돌 fresh read 재검사 (캐시 race 방지)
+      // 그룹 충돌 fresh read 재검사 (캐시 race 방지)
       const target = allShopItems[itemId];
       if (target?.timeSlot) {
         const freshSnap = await get(ref(db, 'shop/items'));
@@ -1365,7 +1361,7 @@
           if (oid === itemId) continue;
           if (oitem.timeSlot !== target.timeSlot) continue;
           if (Object.values(oitem.buyers || {}).some(b => b.uid === myUid)) {
-            alert(`⏰ 시간이 겹칩니다.\n\n이미 같은 시간(${target.timeSlot})에 【${oitem.title}】을(를) 신청하셨어요.`);
+            alert(`✋ 이미 【${oitem.title}】을(를) 신청하셨어요.\n같이 신청할 수 없는 프로그램입니다.`);
             buyProcessing = false;
             return;
           }
@@ -1405,7 +1401,7 @@
         displayName: myDisp, price: item.price, timestamp: Date.now()
       });
 
-      alert(`✓ 구매 완료!\n${item.title}${item.timeSlot ? '\n⏰ ' + item.timeSlot : ''}${item.pickupTime ? '\n🕐 ' + item.pickupTime : ''}${item.pickupPlace ? '\n📍 ' + item.pickupPlace : ''}`);
+      alert(`✓ 구매 완료!\n${item.title}${item.pickupTime ? '\n🕐 ' + item.pickupTime : ''}${item.pickupPlace ? '\n📍 ' + item.pickupPlace : ''}`);
     } catch (e) {
       console.error('purchase error', e);
       alert('오류 발생: ' + e.message);
