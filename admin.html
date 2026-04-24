@@ -365,6 +365,28 @@
           </div>
         </div>
       </div>
+
+      <!-- 전체 참가자 점수 일괄 부여 -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">👥</span><span class="sh-title">전체 참가자 점수 일괄 부여</span></div>
+        <div class="section-body">
+          <p style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:#fff8e8;border:1px solid rgba(224,139,0,0.2);border-radius:10px;">⚠️ 모든 참가자(MC 포함 47명)의 <strong>개인 점수에만</strong> 동시에 부여됩니다. 팀 점수는 변경되지 않아요.</p>
+          <div class="score-btn-grid">
+            <button class="score-btn plus"  onclick="applyAllPersonal(+1)">+1</button>
+            <button class="score-btn plus"  onclick="applyAllPersonal(+5)">+5</button>
+            <button class="score-btn plus"  onclick="applyAllPersonal(+10)">+10</button>
+            <button class="score-btn plus"  onclick="applyAllPersonal(+50)">+50</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-1)">-1</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-5)">-5</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-10)">-10</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-50)">-50</button>
+          </div>
+          <div class="custom-row">
+            <input type="number" class="custom-input" id="allPersonalCustomVal" placeholder="직접 입력 (음수 가능)">
+            <button class="btn-apply" onclick="applyAllPersonalCustom()">전체 부여</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="tab-panel" id="tab-notice">
@@ -811,6 +833,27 @@
     const newScore = tx.snapshot?.val() ?? ((p?.score||0) + delta);
     await logScore(`${p?.team||''} ${p?.name||uid}`,delta);
     showToast(`${p?.name} ${delta>0?'+':''}${delta}점 → ${newScore}점`,'success');
+  }
+
+  // 전체 참가자 개인 점수 일괄 부여 (팀 점수는 변경 안 함)
+  window.applyAllPersonal       = async d => { await changeAllPersonal(d); };
+  window.applyAllPersonalCustom = async () => {
+    const v = parseInt(document.getElementById('allPersonalCustomVal').value);
+    if (isNaN(v)) { showToast('점수를 입력하세요','error'); return; }
+    await changeAllPersonal(v);
+    document.getElementById('allPersonalCustomVal').value = '';
+  };
+  async function changeAllPersonal(delta) {
+    const uids = Object.keys(allParticipants);
+    const n = uids.length;
+    if (!n) { showToast('참가자 데이터 없음','error'); return; }
+    if (!confirm(`전체 ${n}명의 개인 점수에 ${delta>0?'+':''}${delta}점을 부여할까요?\n\n팀 점수는 변경되지 않습니다.`)) return;
+    // 각 참가자 score를 transaction으로 atomic 갱신 (병렬)
+    await Promise.all(uids.map(uid =>
+      runTransaction(ref(db, `participants/${uid}/score`), (cur) => (cur || 0) + delta)
+    ));
+    await logScore(`전체 ${n}명 개인 점수 일괄`, delta);
+    showToast(`전체 ${n}명 ${delta>0?'+':''}${delta}점 부여 완료`,'success');
   }
 
   window.sendNotice = async function() {
