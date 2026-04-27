@@ -511,7 +511,7 @@
         <div class="sp-rank" id="personalRankDisplay">–위</div>
       </div>
       <div class="score-pill team">
-        <div class="sp-label">피지컬47 팀</div>
+        <div class="sp-label">피지컬50 팀</div>
         <div class="sp-value" id="teamScoreDisplay">0</div>
         <div class="sp-rank" id="teamRankDisplay">–위</div>
       </div>
@@ -554,9 +554,9 @@
         </div>
       </div>
 
-      <!-- 피지컬47 팀 순위 -->
+      <!-- 피지컬50 팀 순위 -->
       <div class="section-card">
-        <div class="section-header"><span class="sh-icon">💪</span><span class="sh-title">피지컬47 팀 순위</span></div>
+        <div class="section-header"><span class="sh-icon">💪</span><span class="sh-title">피지컬50 팀 순위</span></div>
         <div class="team-rank-list" id="teamRankList">
           <div class="loading-dots"><span></span><span></span><span></span></div>
         </div>
@@ -890,7 +890,7 @@
     const rankEl = document.getElementById('personalRankDisplay');
     if (rankEl) rankEl.textContent = myRank > 0 ? `${myRank}위` : '–위';
 
-    // 팀 뱃지 (피지컬47)
+    // 팀 뱃지 (피지컬50)
     const tc    = getTeamClass(me.team, allTeams);
     const badge = document.getElementById('headerTeamBadge');
     badge.textContent = me.team ? `💪 ${me.team}` : ''; badge.className = `team-badge tc-${tc}`;
@@ -1045,7 +1045,7 @@
     }).join('');
   }
 
-  // 팀 소속 참가자 이름 리스트 반환 (피지컬47 / 바베큐 공용). 팀장 앞에 👑 prefix.
+  // 팀 소속 참가자 이름 리스트 반환 (피지컬50 / 바베큐 공용). 팀장 앞에 👑 prefix.
   function getMemberNames(teamKey, field) {
     const teamDict  = field === 'team' ? allTeams : allBbqTeams;
     const captainId = teamDict[teamKey]?.captainId;
@@ -1065,7 +1065,7 @@
       .join(', ');
   }
 
-  // ── 팀 순위 (피지컬47, MC 제외) ───────────────────────
+  // ── 팀 순위 (피지컬50, MC 제외) ───────────────────────
   function renderTeamRanking() {
     const el = document.getElementById('teamRankList');
     const me = allParticipants[currentUser.uid];
