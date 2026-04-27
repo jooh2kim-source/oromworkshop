@@ -212,6 +212,29 @@
   .shop-buy-btn.blocked { background:#fff8e8; color:var(--gold); }
   .shop-buy-btn.low     { background:#fff5f7; color:var(--danger); }
 
+  /* ── 이름 검색 chip 리스트 ── */
+  .chip-wrap {
+    display:flex; flex-wrap:wrap; gap:6px;
+    padding:10px; border:1.5px solid var(--border);
+    border-radius:12px; background:var(--surface2);
+    max-height:200px; overflow-y:auto; margin-top:6px;
+  }
+  .chip {
+    padding:8px 13px; border-radius:20px;
+    background:var(--surface); border:1.5px solid var(--border);
+    font-size:13px; font-weight:600; color:var(--text);
+    cursor:pointer; user-select:none; transition:all 0.12s;
+    white-space:nowrap; font-family:inherit;
+  }
+  .chip:active { transform:scale(0.96); }
+  .chip.selected {
+    background:var(--accent); border-color:var(--accent);
+    color:#fff; font-weight:800;
+    box-shadow:0 2px 8px rgba(91,80,240,0.3);
+  }
+  .chip.selected::before { content:'✓ '; }
+  .chip-empty { padding:14px; color:var(--text2); font-size:13px; text-align:center; width:100%; }
+
   /* ── 점수 주기 ── */
   .transfer-body { padding:14px 18px 18px; display:flex; flex-direction:column; gap:12px; }
   .transfer-desc { font-size:13px; color:var(--text2); line-height:1.5; }
@@ -1436,7 +1459,7 @@
     if (!el) return;
     const me = allParticipants[currentUser?.uid]; if (!me) return;
 
-    // 검색어·선택 보존 (재렌더 시 사용자 입력 유지)
+    // 검색어·선택·금액 보존
     const prevQuery = document.getElementById('transferSearch')?.value || '';
     const prevTo    = document.getElementById('transferTo')?.value || '';
     const prevAmt   = document.getElementById('transferAmount')?.value || '';
@@ -1445,11 +1468,10 @@
       <div class="transfer-body">
         <p class="transfer-desc">친한 동료에게 내 점수를 선물할 수 있어요 💝</p>
         <div class="transfer-row">
-          <label class="transfer-label">받을 사람</label>
-          <input type="text" id="transferSearch" class="custom-input" placeholder="🔍 이름 검색 (예: 도연, 보람)" autocomplete="off" oninput="window.filterTransferOptions(this.value)">
-          <select class="admin-select" id="transferTo" style="margin-top:6px">
-            <option value="">선택...</option>
-          </select>
+          <label class="transfer-label">받을 사람 (이름 검색하거나 아래 목록에서 선택)</label>
+          <input type="text" id="transferSearch" class="custom-input" placeholder="🔍 이름 검색 (예: 도연)" autocomplete="off" oninput="window.filterTransferOptions(this.value)">
+          <div class="chip-wrap" id="transferChips"></div>
+          <select id="transferTo" style="display:none"><option value="">선택...</option></select>
           <div id="transferSearchInfo" style="font-size:11px;color:var(--text2);text-align:right;min-height:14px"></div>
         </div>
         <div class="transfer-row">
@@ -1466,16 +1488,16 @@
       </div>
     `;
 
-    // 검색어·선택 복원
     if (prevQuery) document.getElementById('transferSearch').value = prevQuery;
     window.filterTransferOptions(prevQuery, prevTo);
   }
 
-  // 받을 사람 select 옵션 필터링 (이름 부분 일치)
+  // 받을 사람 chip 필터 (검색어 + 자동 선택)
   window.filterTransferOptions = function(query, preserveSelection) {
     const sel = document.getElementById('transferTo');
+    const wrap = document.getElementById('transferChips');
     const info = document.getElementById('transferSearchInfo');
-    if (!sel) return;
+    if (!sel || !wrap) return;
     const cur = preserveSelection || sel.value;
     const q = (query || '').trim();
 
@@ -1485,11 +1507,36 @@
       .filter(o => !q || o.name.includes(q))
       .sort((a,b) => a.name.localeCompare(b.name, 'ko'));
 
+    // hidden select 동기화
     sel.innerHTML = '<option value="">선택...</option>' +
       others.map(o => `<option value="${o.uid}">${escHtml(o.name)}</option>`).join('');
-    if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
+    // 자동 선택: 검색어 2자+ & 결과 1명
+    if (q.length >= 2 && others.length === 1) {
+      sel.value = others[0].uid;
+    } else if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) {
+      sel.value = cur;
+    }
 
-    if (info) info.textContent = q ? `${others.length}명 검색됨` : '';
+    // chip 렌더
+    if (!others.length) {
+      wrap.innerHTML = '<div class="chip-empty">검색 결과 없음</div>';
+    } else {
+      wrap.innerHTML = others.map(o =>
+        `<div class="chip${o.uid === sel.value ? ' selected' : ''}" data-uid="${o.uid}" onclick="window.pickTransferChip('${o.uid}')">${escHtml(o.name)}</div>`
+      ).join('');
+    }
+
+    if (info) info.textContent = q
+      ? `${others.length}명 검색됨${others.length===1 && q.length>=2 ? ' (자동 선택)' : ''}`
+      : `전체 ${others.length}명`;
+  };
+
+  window.pickTransferChip = function(uid) {
+    const sel = document.getElementById('transferTo');
+    sel.value = uid;
+    document.querySelectorAll('#transferChips .chip').forEach(el => {
+      el.classList.toggle('selected', el.dataset.uid === uid);
+    });
   };
 
   window.setTransferAmount = function(n) {

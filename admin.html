@@ -211,6 +211,30 @@
   .scores-table tr:last-child td { border-bottom:none; }
   .score-num { font-family:'Space Mono',monospace; font-weight:700; color:var(--accent3); }
 
+  /* ── 이름 검색 chip 리스트 ── */
+  .chip-wrap {
+    display:flex; flex-wrap:wrap; gap:6px;
+    padding:10px; border:1.5px solid var(--border);
+    border-radius:12px; background:var(--surface2);
+    max-height:200px; overflow-y:auto; margin-bottom:12px;
+  }
+  .chip {
+    padding:8px 13px; border-radius:20px;
+    background:var(--surface); border:1.5px solid var(--border);
+    font-size:13px; font-weight:600; color:var(--text);
+    cursor:pointer; user-select:none; transition:all 0.12s;
+    white-space:nowrap;
+  }
+  .chip:active { transform:scale(0.96); }
+  .chip:hover { border-color:var(--accent); }
+  .chip.selected {
+    background:var(--accent); border-color:var(--accent);
+    color:#fff; font-weight:800;
+    box-shadow:0 2px 8px rgba(91,80,240,0.3);
+  }
+  .chip.selected::before { content:'✓ '; }
+  .chip-empty { padding:14px; color:var(--text2); font-size:13px; text-align:center; width:100%; }
+
   .participant-search-wrap { position:relative; margin-bottom:8px; }
   .participant-search-wrap .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; pointer-events:none; }
   .participant-search {
@@ -341,7 +365,8 @@
             <input type="text" class="participant-search" id="participantSearch" placeholder="이름 검색 (예: 도연, 보람)" autocomplete="off" oninput="filterParticipants(this.value)">
           </div>
           <div class="search-result-count" id="searchResultCount"></div>
-          <select class="admin-select" id="selectParticipant" onchange="onParticipantChange()"><option value="">참가자 선택...</option></select>
+          <div class="chip-wrap" id="participantChips"></div>
+          <select id="selectParticipant" style="display:none" onchange="onParticipantChange()"><option value="">참가자 선택...</option></select>
           <div class="bbq-assign-row" id="bbqAssignRow" style="display:none">
             <label class="bbq-assign-label">🍖 바베큐 팀 배정</label>
             <div class="bbq-assign-inner">
@@ -790,21 +815,52 @@
 
   window.filterParticipants = function(q) {
     const sel = document.getElementById('selectParticipant'), cur = sel.value;
+    q = (q || '').trim();
     const filtered = Object.entries(allParticipants)
-      .filter(([k,v]) => !q || v.name.includes(q))
+      .filter(([k,v]) => !q || v.name.includes(q) || (v.displayName||'').includes(q))
       .sort((a,b) => (a[1].team||'').localeCompare(b[1].team||''));
+    // hidden select (호환성 유지)
     sel.innerHTML = '<option value="">참가자 선택...</option>';
     filtered.forEach(([k,v]) => {
       const o = document.createElement('option');
       o.value = k; o.textContent = `${v.team||''} - ${v.name} (${v.score||0}점)`; sel.appendChild(o);
     });
-    if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
+    // 검색어 2자 이상 + 결과 1명이면 자동 선택
+    if (q.length >= 2 && filtered.length === 1) {
+      sel.value = filtered[0][0];
+    } else if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) {
+      sel.value = cur;
+    }
+    sel.dispatchEvent(new Event('change'));
+    // chip UI 렌더
+    const wrap = document.getElementById('participantChips');
+    if (wrap) {
+      if (!filtered.length) {
+        wrap.innerHTML = '<div class="chip-empty">검색 결과 없음</div>';
+      } else {
+        wrap.innerHTML = filtered.map(([k,v]) => {
+          const lbl = (v.displayName||v.name) + (v.team ? ` · ${v.team}` : '');
+          const isSel = k === sel.value;
+          return `<div class="chip${isSel?' selected':''}" data-uid="${k}" onclick="window.pickParticipantChip('${k}')">${escHtml(lbl)}</div>`;
+        }).join('');
+      }
+    }
     const countEl = document.getElementById('searchResultCount');
     if (q) {
-      countEl.textContent = filtered.length > 0 ? `${filtered.length}명 검색됨` : '검색 결과 없음';
+      countEl.textContent = filtered.length > 0 ? `${filtered.length}명 검색됨${filtered.length===1?' (자동 선택)':''}` : '검색 결과 없음';
     } else {
       countEl.textContent = '';
     }
+  };
+
+  // chip 클릭 → 선택 (hidden select.value 갱신 + change 이벤트)
+  window.pickParticipantChip = function(uid) {
+    const sel = document.getElementById('selectParticipant');
+    sel.value = uid;
+    sel.dispatchEvent(new Event('change'));
+    document.querySelectorAll('#participantChips .chip').forEach(el => {
+      el.classList.toggle('selected', el.dataset.uid === uid);
+    });
   };
 
   window.applyTeamScore   = async d => { const k=document.getElementById('selectTeam').value; if(!k){showToast('팀을 선택하세요','error');return;} await changeTeamScore(k,d); };
