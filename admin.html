@@ -431,17 +431,8 @@
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">💾</span><span class="sh-title">전체 점수 백업</span></div>
         <div class="section-body">
-          <p style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:12px">현재 시점의 개인·팀 점수를 <strong>CSV 파일로 즉시 다운로드</strong>합니다.<br>아래 스프레드시트 URL이 설정돼 있으면 <strong>자동으로 누적 기록</strong>도 됩니다.</p>
+          <p style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:12px">현재 시점의 개인·팀 점수를 <strong>CSV 파일로 즉시 다운로드</strong>합니다.<br>Excel·Google Sheets에서 바로 열 수 있어요.</p>
           <button class="btn-apply" onclick="backupAllScores()" style="width:100%;padding:14px;font-size:15px;background:linear-gradient(135deg,var(--accent3),#0e8a4a)">💾 전체 점수 백업</button>
-
-          <div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--border)">
-            <label style="font-size:11px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">스프레드시트 URL (Apps Script Web App, 선택)</label>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <input type="url" class="custom-input" id="backupUrlInput" placeholder="https://script.google.com/.../exec" style="font-size:12px;font-family:'Calibri',sans-serif">
-              <button class="btn-apply" onclick="saveBackupUrl()">저장</button>
-            </div>
-            <p style="font-size:11px;color:var(--text2);margin-top:6px;line-height:1.5">💡 Google Sheet → 확장 프로그램 → Apps Script에 가이드 코드를 붙여넣고 <strong>웹 앱으로 배포</strong>한 뒤 URL을 여기에 저장. (자세한 설정은 운영팀에 문의)</p>
-          </div>
         </div>
       </div>
 
@@ -590,11 +581,6 @@
       if (!btn) return;
       btn.classList.toggle('active', state === s.toLowerCase());
     });
-    // 백업 URL input 초기 채우기 (사용자가 입력 중이면 덮어쓰지 않음)
-    const urlEl = document.getElementById('backupUrlInput');
-    if (urlEl && !urlEl.dataset.dirty) {
-      urlEl.value = currentSettings.backupSheetUrl || '';
-    }
   }
 
   window.setShopState = async function(state) {
@@ -928,20 +914,6 @@
   }
 
   // ── 💾 전체 점수 백업 (최후의 보루) ─────────────────
-  window.saveBackupUrl = async function() {
-    const url = document.getElementById('backupUrlInput').value.trim();
-    try {
-      await update(ref(db,'settings'), { backupSheetUrl: url || null });
-      const el = document.getElementById('backupUrlInput'); if (el) delete el.dataset.dirty;
-      showToast(url ? '✓ 스프레드시트 URL 저장됨' : 'URL 제거됨', 'success');
-    } catch(e) { showToast('오류: ' + e.message, 'error'); }
-  };
-
-  // 입력 중 표시 (onValue로 덮어쓰기 방지)
-  document.addEventListener('input', e => {
-    if (e.target?.id === 'backupUrlInput') e.target.dataset.dirty = '1';
-  });
-
   function buildBackupSnapshot() {
     return {
       timestamp: new Date().toISOString(),
@@ -987,12 +959,9 @@
     return /[,"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
   }
 
-  window.backupAllScores = async function() {
-    if (!confirm('현재 시점의 전체 점수를 백업하시겠습니까?\n\n• CSV 파일이 즉시 다운로드됩니다\n• 스프레드시트 URL이 설정돼 있으면 자동 누적도 됩니다')) return;
-
+  window.backupAllScores = function() {
+    if (!confirm('현재 시점의 전체 점수를 CSV 파일로 백업하시겠습니까?')) return;
     const snap = buildBackupSnapshot();
-
-    // 1) CSV 다운로드 (항상)
     const csv = snapshotToCsv(snap);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -1001,24 +970,7 @@
     a.href = url; a.download = `점수백업_${tsName}.csv`;
     document.body.appendChild(a); a.click();
     setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-
-    // 2) Apps Script POST (URL 설정 시)
-    const sheetUrl = currentSettings.backupSheetUrl;
-    if (sheetUrl) {
-      try {
-        await fetch(sheetUrl, {
-          method: 'POST',
-          mode: 'no-cors',  // Apps Script는 CORS 헤더 없음, opaque로 fire-and-forget
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(snap),
-        });
-        showToast('✓ CSV 다운로드 + 스프레드시트 기록 완료', 'success');
-      } catch (e) {
-        showToast('CSV 다운로드 완료 · 스프레드시트 전송 실패: ' + e.message, 'error');
-      }
-    } else {
-      showToast('✓ CSV 다운로드 완료', 'success');
-    }
+    showToast('✓ CSV 다운로드 완료', 'success');
   };
 
   window.resetAllScores = async function() {
