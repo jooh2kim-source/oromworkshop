@@ -1436,20 +1436,21 @@
     if (!el) return;
     const me = allParticipants[currentUser?.uid]; if (!me) return;
 
-    const others = Object.entries(allParticipants)
-      .filter(([uid]) => uid !== currentUser.uid)
-      .map(([uid, p]) => ({ uid, name: dispName(p) }))
-      .sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+    // 검색어·선택 보존 (재렌더 시 사용자 입력 유지)
+    const prevQuery = document.getElementById('transferSearch')?.value || '';
+    const prevTo    = document.getElementById('transferTo')?.value || '';
+    const prevAmt   = document.getElementById('transferAmount')?.value || '';
 
     el.innerHTML = `
       <div class="transfer-body">
         <p class="transfer-desc">친한 동료에게 내 점수를 선물할 수 있어요 💝</p>
         <div class="transfer-row">
           <label class="transfer-label">받을 사람</label>
-          <select class="admin-select" id="transferTo">
+          <input type="text" id="transferSearch" class="custom-input" placeholder="🔍 이름 검색 (예: 도연, 보람)" autocomplete="off" oninput="window.filterTransferOptions(this.value)">
+          <select class="admin-select" id="transferTo" style="margin-top:6px">
             <option value="">선택...</option>
-            ${others.map(o => `<option value="${o.uid}">${escHtml(o.name)}</option>`).join('')}
           </select>
+          <div id="transferSearchInfo" style="font-size:11px;color:var(--text2);text-align:right;min-height:14px"></div>
         </div>
         <div class="transfer-row">
           <label class="transfer-label">금액 (내 잔액 ${me.score||0}점)</label>
@@ -1459,12 +1460,37 @@
             <button type="button" onclick="window.setTransferAmount(50)">50</button>
             <button type="button" onclick="window.setTransferAmount(100)">100</button>
           </div>
-          <input type="number" id="transferAmount" class="custom-input" placeholder="직접 입력" min="1">
+          <input type="number" id="transferAmount" class="custom-input" placeholder="직접 입력" min="1" value="${prevAmt}">
         </div>
         <button class="transfer-send-btn" onclick="window.sendTransfer()">💝 보내기</button>
       </div>
     `;
+
+    // 검색어·선택 복원
+    if (prevQuery) document.getElementById('transferSearch').value = prevQuery;
+    window.filterTransferOptions(prevQuery, prevTo);
   }
+
+  // 받을 사람 select 옵션 필터링 (이름 부분 일치)
+  window.filterTransferOptions = function(query, preserveSelection) {
+    const sel = document.getElementById('transferTo');
+    const info = document.getElementById('transferSearchInfo');
+    if (!sel) return;
+    const cur = preserveSelection || sel.value;
+    const q = (query || '').trim();
+
+    const others = Object.entries(allParticipants)
+      .filter(([uid]) => uid !== currentUser.uid)
+      .map(([uid, p]) => ({ uid, name: dispName(p) }))
+      .filter(o => !q || o.name.includes(q))
+      .sort((a,b) => a.name.localeCompare(b.name, 'ko'));
+
+    sel.innerHTML = '<option value="">선택...</option>' +
+      others.map(o => `<option value="${o.uid}">${escHtml(o.name)}</option>`).join('');
+    if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
+
+    if (info) info.textContent = q ? `${others.length}명 검색됨` : '';
+  };
 
   window.setTransferAmount = function(n) {
     const el = document.getElementById('transferAmount');
