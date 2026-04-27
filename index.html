@@ -234,6 +234,12 @@
   }
   .chip.selected::before { content:'✓ '; }
   .chip-empty { padding:14px; color:var(--text2); font-size:13px; text-align:center; width:100%; }
+  .chip-toggle-btn {
+    background:var(--surface2); border:1.5px solid var(--border);
+    color:var(--text2); border-radius:10px; padding:8px 14px;
+    font-size:13px; font-weight:700; font-family:inherit; cursor:pointer;
+  }
+  .chip-toggle-btn:active { transform:scale(0.96); }
 
   /* ── 점수 주기 ── */
   .transfer-body { padding:14px 18px 18px; display:flex; flex-direction:column; gap:12px; }
@@ -1468,11 +1474,14 @@
       <div class="transfer-body">
         <p class="transfer-desc">친한 동료에게 내 점수를 선물할 수 있어요 💝</p>
         <div class="transfer-row">
-          <label class="transfer-label">받을 사람 (이름 검색하거나 아래 목록에서 선택)</label>
+          <label class="transfer-label">받을 사람</label>
           <input type="text" id="transferSearch" class="custom-input" placeholder="🔍 이름 검색 (예: 도연)" autocomplete="off" oninput="window.filterTransferOptions(this.value)">
-          <div class="chip-wrap" id="transferChips"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px">
+            <button class="chip-toggle-btn" id="transferChipToggle" onclick="window.toggleTransferChips()">📋 전체 명단 보기</button>
+            <span id="transferSearchInfo" style="font-size:11px;color:var(--text2)"></span>
+          </div>
+          <div class="chip-wrap" id="transferChips" style="display:none"></div>
           <select id="transferTo" style="display:none"><option value="">선택...</option></select>
-          <div id="transferSearchInfo" style="font-size:11px;color:var(--text2);text-align:right;min-height:14px"></div>
         </div>
         <div class="transfer-row">
           <label class="transfer-label">금액 (내 잔액 ${me.score||0}점)</label>
@@ -1526,9 +1535,15 @@
       ).join('');
     }
 
-    if (info) info.textContent = q
-      ? `${others.length}명 검색됨${others.length===1 && q.length>=2 ? ' (자동 선택)' : ''}`
-      : `전체 ${others.length}명`;
+    if (info) {
+      if (q) {
+        info.textContent = `${others.length}명 검색됨${others.length===1 && q.length>=2 ? ' (자동 선택)' : ''}`;
+      } else {
+        const selName = sel.value && allParticipants[sel.value] ? dispName(allParticipants[sel.value]) : '';
+        info.textContent = selName ? `선택: ${selName}` : '';
+      }
+    }
+    updateTransferChipVisibility();
   };
 
   window.pickTransferChip = function(uid) {
@@ -1538,6 +1553,23 @@
       el.classList.toggle('selected', el.dataset.uid === uid);
     });
   };
+
+  // chip 영역 토글 (검색 안 하면 닫혀있음)
+  let transferChipsExpanded = false;
+  window.toggleTransferChips = function() {
+    transferChipsExpanded = !transferChipsExpanded;
+    const q = document.getElementById('transferSearch')?.value || '';
+    window.filterTransferOptions(q);
+  };
+  function updateTransferChipVisibility() {
+    const wrap = document.getElementById('transferChips');
+    const btn  = document.getElementById('transferChipToggle');
+    if (!wrap || !btn) return;
+    const q = (document.getElementById('transferSearch')?.value || '').trim();
+    const show = transferChipsExpanded || !!q;
+    wrap.style.display = show ? '' : 'none';
+    btn.textContent = show ? '▲ 명단 닫기' : '📋 전체 명단 보기';
+  }
 
   window.setTransferAmount = function(n) {
     const el = document.getElementById('transferAmount');
