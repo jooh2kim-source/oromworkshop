@@ -1519,9 +1519,15 @@
     // hidden select 동기화
     sel.innerHTML = '<option value="">선택...</option>' +
       others.map(o => `<option value="${o.uid}">${escHtml(o.name)}</option>`).join('');
-    // 자동 선택: 검색어 2자+ & 결과 1명
-    if (q.length >= 2 && others.length === 1) {
-      sel.value = others[0].uid;
+    // 자동 선택: (1) 정확히 같은 이름이 있으면 그 사람 (2) 1글자+ & 결과 1명
+    let autoPick = null;
+    if (q) {
+      const exact = others.find(o => o.name === q);
+      if (exact) autoPick = exact.uid;
+      else if (others.length === 1) autoPick = others[0].uid;
+    }
+    if (autoPick) {
+      sel.value = autoPick;
     } else if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) {
       sel.value = cur;
     }
@@ -1537,7 +1543,7 @@
 
     if (info) {
       if (q) {
-        info.textContent = `${others.length}명 검색됨${others.length===1 && q.length>=2 ? ' (자동 선택)' : ''}`;
+        info.textContent = `${others.length}명 검색됨${autoPick ? ' (자동 선택)' : ''}`;
       } else {
         const selName = sel.value && allParticipants[sel.value] ? dispName(allParticipants[sel.value]) : '';
         info.textContent = selName ? `선택: ${selName}` : '';

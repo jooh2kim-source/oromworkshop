@@ -836,9 +836,15 @@
       const o = document.createElement('option');
       o.value = k; o.textContent = `${v.team||''} - ${v.name} (${v.score||0}점)`; sel.appendChild(o);
     });
-    // 검색어 2자 이상 + 결과 1명이면 자동 선택
-    if (q.length >= 2 && filtered.length === 1) {
-      sel.value = filtered[0][0];
+    // 자동 선택: (1) 정확히 같은 이름이 있으면 그 사람 (2) 1글자+ & 결과 1명
+    let autoPick = null;
+    if (q) {
+      const exact = filtered.find(([k,v]) => v.name === q || (v.displayName||'') === q);
+      if (exact) autoPick = exact[0];
+      else if (filtered.length === 1) autoPick = filtered[0][0];
+    }
+    if (autoPick) {
+      sel.value = autoPick;
     } else if (cur && sel.querySelector(`option[value="${CSS.escape(cur)}"]`)) {
       sel.value = cur;
     }
@@ -858,7 +864,7 @@
     }
     const countEl = document.getElementById('searchResultCount');
     if (q) {
-      countEl.textContent = filtered.length > 0 ? `${filtered.length}명 검색됨${filtered.length===1?' (자동 선택)':''}` : '검색 결과 없음';
+      countEl.textContent = filtered.length > 0 ? `${filtered.length}명 검색됨${autoPick?' (자동 선택)':''}` : '검색 결과 없음';
     } else {
       countEl.textContent = sel.value ? `선택: ${allParticipants[sel.value]?.name || ''}` : '';
     }
