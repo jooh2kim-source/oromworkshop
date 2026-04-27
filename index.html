@@ -253,6 +253,7 @@
     color:var(--text); cursor:pointer;
   }
   .transfer-amount-grid button:active { background:var(--accent); color:#fff; }
+  .transfer-amount-grid button.selected { background:var(--accent); color:#fff; border-color:var(--accent); }
   .transfer-send-btn {
     width:100%; background:linear-gradient(135deg,#f05070,#c8395a);
     color:#fff; border:none; border-radius:14px; padding:14px;
@@ -1486,12 +1487,12 @@
         <div class="transfer-row">
           <label class="transfer-label">금액 (내 잔액 ${me.score||0}점)</label>
           <div class="transfer-amount-grid">
-            <button type="button" onclick="window.setTransferAmount(10)">10</button>
-            <button type="button" onclick="window.setTransferAmount(30)">30</button>
-            <button type="button" onclick="window.setTransferAmount(50)">50</button>
-            <button type="button" onclick="window.setTransferAmount(100)">100</button>
+            <button type="button" class="${String(prevAmt)==='10'?'selected':''}" onclick="window.setTransferAmount(10,this)">10</button>
+            <button type="button" class="${String(prevAmt)==='30'?'selected':''}" onclick="window.setTransferAmount(30,this)">30</button>
+            <button type="button" class="${String(prevAmt)==='50'?'selected':''}" onclick="window.setTransferAmount(50,this)">50</button>
+            <button type="button" class="${String(prevAmt)==='100'?'selected':''}" onclick="window.setTransferAmount(100,this)">100</button>
           </div>
-          <input type="number" id="transferAmount" class="custom-input" placeholder="직접 입력" min="1" value="${prevAmt}">
+          <input type="number" id="transferAmount" class="custom-input" placeholder="직접 입력" min="1" value="${prevAmt}" oninput="window.clearTransferPresets()">
         </div>
         <button class="transfer-send-btn" onclick="window.sendTransfer()">💝 보내기</button>
       </div>
@@ -1577,9 +1578,15 @@
     btn.textContent = show ? '▲ 명단 닫기' : '📋 전체 명단 보기';
   }
 
-  window.setTransferAmount = function(n) {
+  window.setTransferAmount = function(n, btn) {
     const el = document.getElementById('transferAmount');
     if (el) el.value = n;
+    if (btn && btn.parentElement) {
+      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('selected', b === btn));
+    }
+  };
+  window.clearTransferPresets = function() {
+    document.querySelectorAll('.transfer-amount-grid button').forEach(b => b.classList.remove('selected'));
   };
 
   window.sendTransfer = async function() {
@@ -1630,6 +1637,7 @@
       alert(`✓ ${dispName(recipient)}님께 ${amount}점 전달 완료!`);
       const aEl = document.getElementById('transferAmount'); if (aEl) aEl.value = '';
       const tEl = document.getElementById('transferTo');     if (tEl) tEl.value = '';
+      window.clearTransferPresets();
     } catch (e) {
       console.error('transfer error', e);
       alert('오류 발생: ' + e.message);
