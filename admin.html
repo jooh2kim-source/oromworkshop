@@ -347,14 +347,14 @@
           <p style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:#fff8e8;border:1px solid rgba(224,139,0,0.2);border-radius:10px;">💡 팀 점수 조정 시 해당 팀 소속 참가자 전원의 <strong>개인 점수에도 동일 값이 자동 반영</strong>됩니다.</p>
           <select class="admin-select" id="selectTeam"><option value="">팀 선택...</option></select>
           <div class="score-btn-grid">
-            <button class="score-btn plus"  onclick="applyTeamScore(+1)">+1</button>
-            <button class="score-btn plus"  onclick="applyTeamScore(+5)">+5</button>
-            <button class="score-btn plus"  onclick="applyTeamScore(+10)">+10</button>
+            <button class="score-btn plus"  onclick="applyTeamScore(+30)">+30</button>
             <button class="score-btn plus"  onclick="applyTeamScore(+50)">+50</button>
-            <button class="score-btn minus" onclick="applyTeamScore(-1)">-1</button>
-            <button class="score-btn minus" onclick="applyTeamScore(-5)">-5</button>
-            <button class="score-btn minus" onclick="applyTeamScore(-10)">-10</button>
+            <button class="score-btn plus"  onclick="applyTeamScore(+100)">+100</button>
+            <button class="score-btn plus"  onclick="applyTeamScore(+300)">+300</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-30)">-30</button>
             <button class="score-btn minus" onclick="applyTeamScore(-50)">-50</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-100)">-100</button>
+            <button class="score-btn minus" onclick="applyTeamScore(-300)">-300</button>
           </div>
           <div class="custom-row">
             <input type="number" class="custom-input" id="teamCustomVal" placeholder="직접 입력 (음수 가능)">
@@ -386,14 +386,14 @@
             </div>
           </div>
           <div class="score-btn-grid">
-            <button class="score-btn plus"  onclick="applyPersonalScore(+1)">+1</button>
-            <button class="score-btn plus"  onclick="applyPersonalScore(+5)">+5</button>
-            <button class="score-btn plus"  onclick="applyPersonalScore(+10)">+10</button>
+            <button class="score-btn plus"  onclick="applyPersonalScore(+30)">+30</button>
             <button class="score-btn plus"  onclick="applyPersonalScore(+50)">+50</button>
-            <button class="score-btn minus" onclick="applyPersonalScore(-1)">-1</button>
-            <button class="score-btn minus" onclick="applyPersonalScore(-5)">-5</button>
-            <button class="score-btn minus" onclick="applyPersonalScore(-10)">-10</button>
+            <button class="score-btn plus"  onclick="applyPersonalScore(+100)">+100</button>
+            <button class="score-btn plus"  onclick="applyPersonalScore(+300)">+300</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-30)">-30</button>
             <button class="score-btn minus" onclick="applyPersonalScore(-50)">-50</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-100)">-100</button>
+            <button class="score-btn minus" onclick="applyPersonalScore(-300)">-300</button>
           </div>
           <div class="custom-row">
             <input type="number" class="custom-input" id="personalCustomVal" placeholder="직접 입력 (음수 가능)">
@@ -408,14 +408,14 @@
         <div class="section-body">
           <p style="font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;padding:10px 12px;background:#fff8e8;border:1px solid rgba(224,139,0,0.2);border-radius:10px;">⚠️ 모든 참가자(MC 포함 47명)의 <strong>개인 점수에만</strong> 동시에 부여됩니다. 팀 점수는 변경되지 않아요.</p>
           <div class="score-btn-grid">
-            <button class="score-btn plus"  onclick="applyAllPersonal(+1)">+1</button>
-            <button class="score-btn plus"  onclick="applyAllPersonal(+5)">+5</button>
-            <button class="score-btn plus"  onclick="applyAllPersonal(+10)">+10</button>
+            <button class="score-btn plus"  onclick="applyAllPersonal(+30)">+30</button>
             <button class="score-btn plus"  onclick="applyAllPersonal(+50)">+50</button>
-            <button class="score-btn minus" onclick="applyAllPersonal(-1)">-1</button>
-            <button class="score-btn minus" onclick="applyAllPersonal(-5)">-5</button>
-            <button class="score-btn minus" onclick="applyAllPersonal(-10)">-10</button>
+            <button class="score-btn plus"  onclick="applyAllPersonal(+100)">+100</button>
+            <button class="score-btn plus"  onclick="applyAllPersonal(+300)">+300</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-30)">-30</button>
             <button class="score-btn minus" onclick="applyAllPersonal(-50)">-50</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-100)">-100</button>
+            <button class="score-btn minus" onclick="applyAllPersonal(-300)">-300</button>
           </div>
           <div class="custom-row">
             <input type="number" class="custom-input" id="allPersonalCustomVal" placeholder="직접 입력 (음수 가능)">
