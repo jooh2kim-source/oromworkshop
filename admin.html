@@ -431,8 +431,8 @@
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">💾</span><span class="sh-title">전체 점수 백업</span></div>
         <div class="section-body">
-          <p style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:12px">현재 시점의 개인·팀 점수를 <strong>CSV 파일로 즉시 다운로드</strong>합니다.<br>Excel·Google Sheets에서 바로 열 수 있어요.</p>
-          <button class="btn-apply" onclick="backupAllScores()" style="width:100%;padding:14px;font-size:15px;background:linear-gradient(135deg,var(--accent3),#0e8a4a)">💾 전체 점수 백업</button>
+          <p style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:12px">현재 시점의 개인·팀 점수 CSV 파일을 만들어요.<br><strong>📱 모바일</strong>: 카톡·메일 등으로 바로 공유 (시스템 공유 시트)<br><strong>💻 데스크톱</strong>: 파일로 다운로드 (Excel·Google Sheets에서 열기)</p>
+          <button class="btn-apply" onclick="backupAllScores()" style="width:100%;padding:14px;font-size:15px;background:linear-gradient(135deg,var(--accent3),#0e8a4a)">💾 전체 점수 백업 · 공유</button>
         </div>
       </div>
 
@@ -959,15 +959,36 @@
     return /[,"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
   }
 
-  window.backupAllScores = function() {
-    if (!confirm('현재 시점의 전체 점수를 CSV 파일로 백업하시겠습니까?')) return;
+  window.backupAllScores = async function() {
+    if (!confirm('현재 시점의 전체 점수를 백업하시겠습니까?\n\n📱 모바일: 카톡·메일 등으로 공유 가능\n💻 데스크톱: CSV 파일 다운로드')) return;
     const snap = buildBackupSnapshot();
     const csv = snapshotToCsv(snap);
+    const tsName = snap.timestamp.replace(/[:.]/g,'-').slice(0,19);
+    const filename = `점수백업_${tsName}.csv`;
+    const niceTs = snap.timestamp.slice(0,16).replace('T',' ');
+
+    // ① Web Share API (모바일 우선): 카톡·메일·메모 등 시스템 공유 시트
+    try {
+      const file = new File([csv], filename, { type: 'text/csv;charset=utf-8' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: '워크샵 점수 백업',
+          text: `${niceTs} 시점의 전체 점수 백업`
+        });
+        showToast('✓ 공유 완료', 'success');
+        return;
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') return; // 사용자가 공유 취소 → 조용히 종료
+      console.warn('share failed, fallback to download', e);
+    }
+
+    // ② Fallback: 파일 다운로드 (데스크톱 / 미지원 브라우저)
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const tsName = snap.timestamp.replace(/[:.]/g,'-').slice(0,19);
     const a = document.createElement('a');
-    a.href = url; a.download = `점수백업_${tsName}.csv`;
+    a.href = url; a.download = filename;
     document.body.appendChild(a); a.click();
     setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
     showToast('✓ CSV 다운로드 완료', 'success');
