@@ -801,9 +801,7 @@
   let curBetRoundId   = null;
   let curBetRound     = null;
   let betSectionUserToggle = null; // null=auto, true/false=수동 override
-  let lastSettledRoundId   = null; // 정산 1회 alert 감지
   let betProcessing   = false;
-  let betFirstLoad    = true;
 
   // 뽑기 게임 상태
   let gamePhase      = 'idle'; // 'idle' | 'picking' | 'result'
@@ -1768,18 +1766,10 @@
   };
 
   function onBetUpdate() {
-    // 정산 1회 alert 감지 (첫 로딩 때는 alert 안 띄움)
-    if (curBetRound && curBetRound.status === 'settled' && curBetRoundId !== lastSettledRoundId) {
-      if (!betFirstLoad) {
-        showSettlementAlert(curBetRound);
-      }
-      lastSettledRoundId = curBetRoundId;
-    }
     // 새 회차 생성됐을 때 — 사용자 toggle override 리셋 (자동 펼침 동작 회복)
     if (curBetRound && curBetRound.status === 'open' && betSectionUserToggle === false) {
       betSectionUserToggle = null;
     }
-    betFirstLoad = false;
     renderBetSection();
   }
 
@@ -1975,22 +1965,6 @@
     }
     betProcessing = false;
   };
-
-  function showSettlementAlert(r) {
-    const myWager = (r.wagers || {})[currentUser?.uid];
-    if (!myWager) return; // 참여 안 했으면 alert 안 함
-    const won = myWager.choice === r.winner;
-    const payout = myWager.payout || 0;
-    const profit = payout - myWager.amount;
-    const winLbl = r.winner === 'A' ? r.optionA : r.optionB;
-    if (won) {
-      alert(`🎉 베팅 적중!\n\n${r.title}\n${winLbl} 승!\n\n+${payout}점 받았어요\n(순이익 ${profit >= 0 ? '+' : ''}${profit}점)`);
-    } else if (payout > 0) {
-      alert(`💰 환불!\n\n${r.title}\n${winLbl} 승\n\n반대편이 비어있어 ${payout}점 환불됐어요.`);
-    } else {
-      alert(`😢 아쉬워요\n\n${r.title}\n${winLbl} 승\n\n다음 회차에 도전해요!`);
-    }
-  }
 
   // ── 유틸 ─────────────────────────────────────────────
   function escHtml(s) {
