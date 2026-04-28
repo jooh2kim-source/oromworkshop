@@ -288,6 +288,85 @@
   .section-header .sh-badge { margin-left:auto; font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; padding:3px 9px; border-radius:20px; }
   .section-header .sh-badge-gold { margin-left:auto; font-size:10px; font-weight:800; background:linear-gradient(135deg,var(--gold),#b86a00); color:#fff; padding:3px 9px; border-radius:20px; }
 
+  /* ── 베팅 섹션 ── */
+  .bet-section-card { padding:0; overflow:hidden; }
+  .bet-header {
+    padding:14px 18px; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface2);
+    transition:background 0.15s;
+  }
+  .bet-header.live {
+    background:linear-gradient(135deg, #5B50F0 0%, #4338ca 100%);
+    color:#fff;
+  }
+  .bet-header .bh-icon { font-size:22px; line-height:1; }
+  .bet-header .bh-title { font-size:15px; font-weight:800; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bet-header .bh-status {
+    font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px;
+    background:rgba(255,255,255,0.25);
+  }
+  .bet-header.live .bh-status.live-badge {
+    background:#fff; color:var(--accent);
+    animation:pulse 1.5s infinite;
+  }
+  .bet-header .bh-toggle { font-size:12px; opacity:0.7; }
+  .bet-body { padding:16px 18px; display:flex; flex-direction:column; gap:12px; }
+  .bet-vs-row { display:flex; gap:10px; align-items:stretch; }
+  .bet-side {
+    flex:1; padding:14px 6px; border:2px solid var(--border); border-radius:14px;
+    text-align:center; background:var(--surface2);
+    cursor:pointer; transition:all 0.15s;
+    display:flex; flex-direction:column; gap:2px;
+    position:relative;
+  }
+  .bet-side:active:not(.disabled) { transform:scale(0.97); }
+  .bet-side.disabled { cursor:not-allowed; }
+  .bet-side.mine    { border-color:var(--accent3); background:#e8fbef; }
+  .bet-side.winner  { border-color:var(--accent3); background:#d4f5dd; }
+  .bet-side.loser   { opacity:0.45; }
+  .bet-side .bs-label { font-size:22px; font-weight:900; color:var(--text); line-height:1.2; }
+  .bet-side .bs-count { font-size:12px; color:var(--text2); margin-top:6px; }
+  .bet-side .bs-pool  { font-size:13px; color:var(--text2); }
+  .bet-side .bs-odds  { font-size:24px; font-weight:900; color:var(--accent); font-family:'Space Mono',monospace; margin-top:4px; }
+  .bet-side.long-shot .bs-odds { color:var(--gold); }
+  .bet-side.long-shot::after {
+    content:'✨'; position:absolute; top:6px; right:8px; font-size:14px;
+  }
+  .bet-vs {
+    display:flex; align-items:center; font-size:18px; font-weight:900; color:var(--text2);
+  }
+  .bet-cta {
+    font-size:13px; color:var(--gold); text-align:center; padding:10px;
+    background:#fff8e8; border:1px solid rgba(224,139,0,0.2); border-radius:10px;
+    font-weight:600;
+  }
+  .bet-mine-card {
+    padding:14px; border-radius:12px; background:linear-gradient(135deg, #e8fbef 0%, #c5f0d3 100%);
+    text-align:center; border:1.5px solid var(--accent3);
+  }
+  .bet-mine-card .bm-line1 { font-size:14px; font-weight:700; color:var(--text); }
+  .bet-mine-card .bm-line2 { font-size:16px; font-weight:900; color:var(--accent3); margin-top:4px; }
+  .bet-result-card {
+    padding:18px; border-radius:14px; text-align:center;
+    border:2px solid var(--accent3); background:linear-gradient(135deg, #fff7e8 0%, #fde8c0 100%);
+  }
+  .bet-result-card.lost {
+    border-color:var(--text2); background:var(--surface2);
+  }
+  .bet-result-card .br-headline { font-size:16px; font-weight:800; }
+  .bet-result-card .br-amount { font-size:28px; font-weight:900; margin-top:8px; font-family:'Space Mono',monospace; }
+  .bet-result-card .br-amount.win  { color:var(--accent3); }
+  .bet-result-card .br-amount.lost { color:var(--text2); }
+  .bet-wagers-list {
+    font-size:12px; line-height:1.7; padding:10px 12px;
+    background:var(--surface2); border-radius:8px;
+    max-height:200px; overflow-y:auto;
+  }
+  .bet-wagers-list .bw-section { margin-bottom:6px; }
+  .bet-wagers-list .bw-section:last-child { margin-bottom:0; }
+  .bet-wagers-list .bw-label { font-weight:800; color:var(--accent); margin-right:4px; }
+
   /* ── 공지 ── */
   .notice-body  { padding:16px 18px; }
   .notice-empty { color:var(--text2); font-size:14px; text-align:center; padding:8px 0; }
@@ -546,6 +625,17 @@
         </div>
       </div>
 
+      <!-- 🎰 베팅 -->
+      <div class="section-card bet-section-card" id="betCard" style="display:none">
+        <div class="bet-header" id="betHeader" onclick="window.toggleBetSection()">
+          <span class="bh-icon">🎰</span>
+          <span class="bh-title" id="betHeaderTitle">베팅</span>
+          <span class="bh-status" id="betHeaderStatus"></span>
+          <span class="bh-toggle" id="betHeaderToggle">▼</span>
+        </div>
+        <div class="bet-body" id="betBody" style="display:none"></div>
+      </div>
+
       <!-- 개인 TOP 5 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">개인 TOP 5</span></div>
@@ -658,7 +748,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline, runTransaction, get }
+  import { getDatabase, ref, onValue, update, push, remove, goOffline, goOnline, runTransaction, get, increment }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   // ── Firebase 설정 ──────────────────────────────────────
@@ -708,6 +798,12 @@
   let allTeams        = {};
   let allBbqTeams     = {};
   let lastMyScore     = null; // 내 잔액 변화 감지용 (매점/선물 영역 동기화)
+  let curBetRoundId   = null;
+  let curBetRound     = null;
+  let betSectionUserToggle = null; // null=auto, true/false=수동 override
+  let lastSettledRoundId   = null; // 정산 1회 alert 감지
+  let betProcessing   = false;
+  let betFirstLoad    = true;
 
   // 뽑기 게임 상태
   let gamePhase      = 'idle'; // 'idle' | 'picking' | 'result'
@@ -812,6 +908,15 @@
     onValue(ref(db,'shop/items'), snap => {
       allShopItems = snap.val() || {};
       renderShopItems();
+    });
+    onValue(ref(db,'bets/currentRound'), snap => {
+      curBetRoundId = snap.val() || null;
+      onBetUpdate();
+    });
+    onValue(ref(db,'bets/rounds'), snap => {
+      const rounds = snap.val() || {};
+      curBetRound = curBetRoundId ? rounds[curBetRoundId] : null;
+      onBetUpdate();
     });
   }
 
@@ -1653,6 +1758,239 @@
     }
     transferProcessing = false;
   };
+
+  // ── 🎰 베팅 ───────────────────────────────────────────
+  window.toggleBetSection = function() {
+    const body = document.getElementById('betBody');
+    const wasVisible = body.style.display !== 'none';
+    betSectionUserToggle = !wasVisible;
+    renderBetSection();
+  };
+
+  function onBetUpdate() {
+    // 정산 1회 alert 감지 (첫 로딩 때는 alert 안 띄움)
+    if (curBetRound && curBetRound.status === 'settled' && curBetRoundId !== lastSettledRoundId) {
+      if (!betFirstLoad) {
+        showSettlementAlert(curBetRound);
+      }
+      lastSettledRoundId = curBetRoundId;
+    }
+    // 새 회차 생성됐을 때 — 사용자 toggle override 리셋 (자동 펼침 동작 회복)
+    if (curBetRound && curBetRound.status === 'open' && betSectionUserToggle === false) {
+      betSectionUserToggle = null;
+    }
+    betFirstLoad = false;
+    renderBetSection();
+  }
+
+  function renderBetSection() {
+    const card = document.getElementById('betCard');
+    const header = document.getElementById('betHeader');
+    const headerTitle = document.getElementById('betHeaderTitle');
+    const headerStatus = document.getElementById('betHeaderStatus');
+    const headerToggle = document.getElementById('betHeaderToggle');
+    const body = document.getElementById('betBody');
+    if (!card) return;
+
+    // 진행 중 회차 없음 → 카드 자체 숨김
+    if (!curBetRound) { card.style.display = 'none'; return; }
+    card.style.display = '';
+
+    const r = curBetRound;
+    const myWager = (r.wagers || {})[currentUser?.uid] || null;
+
+    // 헤더 상태
+    let statusLabel, autoExpand = false, headerClass = '';
+    if (r.status === 'open') {
+      statusLabel = 'LIVE'; autoExpand = true; headerClass = 'live';
+      headerStatus.className = 'bh-status live-badge';
+    } else if (r.status === 'closed') {
+      statusLabel = '마감'; autoExpand = true;
+      headerStatus.className = 'bh-status';
+    } else if (r.status === 'settled') {
+      statusLabel = '정산완료'; autoExpand = true;
+      headerStatus.className = 'bh-status';
+    }
+    header.className = 'bet-header ' + headerClass;
+    headerTitle.textContent = `🎰 ${r.title}`;
+    headerStatus.textContent = statusLabel;
+
+    const expanded = betSectionUserToggle !== null ? betSectionUserToggle : autoExpand;
+    body.style.display = expanded ? '' : 'none';
+    headerToggle.textContent = expanded ? '▲' : '▼';
+    if (!expanded) return;
+
+    const totalA = r.totalA || 0, totalB = r.totalB || 0;
+    const countA = r.countA || 0, countB = r.countB || 0;
+    const total = totalA + totalB;
+    const oddsA = totalA > 0 ? (total / totalA) : null;
+    const oddsB = totalB > 0 ? (total / totalB) : null;
+    const oddsAStr = oddsA !== null ? oddsA.toFixed(2) + '배' : '—';
+    const oddsBStr = oddsB !== null ? oddsB.toFixed(2) + '배' : '—';
+    const longShotA = oddsA !== null && oddsB !== null && oddsA > oddsB * 1.3;
+    const longShotB = oddsA !== null && oddsB !== null && oddsB > oddsA * 1.3;
+
+    let html = '';
+
+    // 정산 결과 카드
+    if (r.status === 'settled') {
+      if (myWager) {
+        const won = myWager.choice === r.winner;
+        const payout = myWager.payout || 0;
+        const profit = payout - myWager.amount;
+        const winLbl = r.winner === 'A' ? r.optionA : r.optionB;
+        const headline = won
+          ? `🎉 적중! ${escHtml(winLbl)} 승!`
+          : (payout > 0 ? `💰 환불 — ${escHtml(winLbl)} 승` : `😢 ${escHtml(winLbl)} 승`);
+        const amountClass = profit > 0 ? 'win' : 'lost';
+        const amountText = profit > 0
+          ? `+${payout}점 (순이익 +${profit})`
+          : (payout > 0 ? `${payout}점 환불` : `-${myWager.amount}점`);
+        html += `
+          <div class="bet-result-card ${won?'':'lost'}">
+            <div class="br-headline">${headline}</div>
+            <div class="br-amount ${amountClass}">${amountText}</div>
+          </div>`;
+      } else {
+        const winLbl = r.winner === 'A' ? r.optionA : r.optionB;
+        html += `
+          <div class="bet-result-card lost">
+            <div class="br-headline">🏆 ${escHtml(winLbl)} 승!</div>
+            <div class="br-amount lost">참여 안 함</div>
+          </div>`;
+      }
+    }
+
+    // 옵션 카드 (open / closed / settled 공통, 강조만 다름)
+    const aClass = ['bet-side'];
+    const bClass = ['bet-side'];
+    if (myWager?.choice === 'A') aClass.push('mine');
+    if (myWager?.choice === 'B') bClass.push('mine');
+    if (r.status !== 'open') { aClass.push('disabled'); bClass.push('disabled'); }
+    if (r.status === 'settled') {
+      if (r.winner === 'A') { aClass.push('winner'); bClass.push('loser'); }
+      if (r.winner === 'B') { bClass.push('winner'); aClass.push('loser'); }
+    }
+    if (longShotA) aClass.push('long-shot');
+    if (longShotB) bClass.push('long-shot');
+
+    const canBet = r.status === 'open' && !myWager;
+    const aClick = canBet ? `onclick="window.placeBet('A')"` : '';
+    const bClick = canBet ? `onclick="window.placeBet('B')"` : '';
+
+    html += `
+      <div class="bet-vs-row">
+        <div class="${aClass.join(' ')}" ${aClick}>
+          <div class="bs-label">${escHtml(r.optionA)}</div>
+          <div class="bs-count">${countA}명</div>
+          <div class="bs-pool">${totalA}점</div>
+          <div class="bs-odds">${oddsAStr}</div>
+        </div>
+        <div class="bet-vs">VS</div>
+        <div class="${bClass.join(' ')}" ${bClick}>
+          <div class="bs-label">${escHtml(r.optionB)}</div>
+          <div class="bs-count">${countB}명</div>
+          <div class="bs-pool">${totalB}점</div>
+          <div class="bs-odds">${oddsBStr}</div>
+        </div>
+      </div>`;
+
+    // 내 베팅 카드 / CTA
+    if (myWager && r.status !== 'settled') {
+      const myOdds = myWager.choice === 'A' ? oddsA : oddsB;
+      const expectedPayout = myOdds ? Math.floor(myWager.amount * myOdds) : myWager.amount;
+      const sideLbl = myWager.choice === 'A' ? r.optionA : r.optionB;
+      html += `
+        <div class="bet-mine-card">
+          <div class="bm-line1">✓ ${escHtml(sideLbl)}에 ${myWager.amount}점</div>
+          <div class="bm-line2">예상 수익 ${expectedPayout}점 (배당 ${myOdds?myOdds.toFixed(2):'—'}배)</div>
+        </div>`;
+    } else if (!myWager && r.status === 'open') {
+      html += `<div class="bet-cta">💰 인당 ${r.betAmount}점 · 한 쪽만 선택 가능 · 변경 불가</div>`;
+    } else if (!myWager && r.status === 'closed') {
+      html += `<div class="bet-cta">⏳ 베팅 마감 — 결과 발표 대기 중</div>`;
+    }
+
+    // 베팅 현황
+    const wagers = r.wagers || {};
+    if (Object.keys(wagers).length > 0) {
+      const aList = Object.values(wagers).filter(w => w.choice === 'A').map(w => escHtml(w.name)).join(', ') || '—';
+      const bList = Object.values(wagers).filter(w => w.choice === 'B').map(w => escHtml(w.name)).join(', ') || '—';
+      html += `
+        <div class="bet-wagers-list">
+          <div class="bw-section"><span class="bw-label">${escHtml(r.optionA)}:</span> ${aList}</div>
+          <div class="bw-section"><span class="bw-label">${escHtml(r.optionB)}:</span> ${bList}</div>
+        </div>`;
+    }
+
+    body.innerHTML = html;
+  }
+
+  window.placeBet = async function(choice) {
+    if (betProcessing) return;
+    if (!curBetRound || !curBetRoundId) return;
+    if (curBetRound.status !== 'open') { alert('베팅이 마감되었습니다.'); return; }
+    if ((curBetRound.wagers || {})[currentUser.uid]) { alert('이미 베팅하셨습니다.'); return; }
+
+    const me = allParticipants[currentUser.uid];
+    const bet = curBetRound.betAmount || 0;
+    if (bet < 1) { alert('잘못된 베팅 금액입니다.'); return; }
+    if ((me.score || 0) < bet) { alert('잔액이 부족합니다.'); return; }
+
+    const sideLabel = choice === 'A' ? curBetRound.optionA : curBetRound.optionB;
+    if (!confirm(`【${sideLabel}】에 ${bet}점 베팅하시겠습니까?\n\n선택은 변경할 수 없습니다.`)) return;
+
+    betProcessing = true;
+    try {
+      // 1. status 재확인
+      const statusSnap = await get(ref(db, `bets/rounds/${curBetRoundId}/status`));
+      if (statusSnap.val() !== 'open') { alert('베팅이 마감되었습니다.'); betProcessing = false; return; }
+      // 2. 이미 베팅 재확인
+      const wagerSnap = await get(ref(db, `bets/rounds/${curBetRoundId}/wagers/${currentUser.uid}`));
+      if (wagerSnap.exists()) { alert('이미 베팅하셨습니다.'); betProcessing = false; return; }
+      // 3. 점수 차감 transaction
+      const scoreTx = await runTransaction(ref(db, `participants/${currentUser.uid}/score`), cur => {
+        if ((cur || 0) < bet) return; // abort
+        return cur - bet;
+      });
+      if (!scoreTx.committed) { alert('잔액이 부족합니다.'); betProcessing = false; return; }
+      // 4. wager 등록 + 카운터 increment (server-side atomic)
+      try {
+        await update(ref(db), {
+          [`bets/rounds/${curBetRoundId}/wagers/${currentUser.uid}`]: {
+            choice, amount: bet, name: dispName(me), ts: Date.now()
+          },
+          [`bets/rounds/${curBetRoundId}/total${choice}`]: increment(bet),
+          [`bets/rounds/${curBetRoundId}/count${choice}`]: increment(1),
+        });
+      } catch (e) {
+        // 환불
+        await runTransaction(ref(db, `participants/${currentUser.uid}/score`), cur => (cur||0) + bet);
+        throw e;
+      }
+      alert(`✓ ${sideLabel}에 ${bet}점 베팅 완료!`);
+    } catch (e) {
+      console.error('bet error', e);
+      alert('오류 발생: ' + e.message);
+    }
+    betProcessing = false;
+  };
+
+  function showSettlementAlert(r) {
+    const myWager = (r.wagers || {})[currentUser?.uid];
+    if (!myWager) return; // 참여 안 했으면 alert 안 함
+    const won = myWager.choice === r.winner;
+    const payout = myWager.payout || 0;
+    const profit = payout - myWager.amount;
+    const winLbl = r.winner === 'A' ? r.optionA : r.optionB;
+    if (won) {
+      alert(`🎉 베팅 적중!\n\n${r.title}\n${winLbl} 승!\n\n+${payout}점 받았어요\n(순이익 ${profit >= 0 ? '+' : ''}${profit}점)`);
+    } else if (payout > 0) {
+      alert(`💰 환불!\n\n${r.title}\n${winLbl} 승\n\n반대편이 비어있어 ${payout}점 환불됐어요.`);
+    } else {
+      alert(`😢 아쉬워요\n\n${r.title}\n${winLbl} 승\n\n다음 회차에 도전해요!`);
+    }
+  }
 
   // ── 유틸 ─────────────────────────────────────────────
   function escHtml(s) {
