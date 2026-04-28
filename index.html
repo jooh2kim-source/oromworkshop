@@ -802,6 +802,7 @@
   let curBetRound     = null;
   let betSectionUserToggle = null; // null=auto, true/false=수동 override
   let betProcessing   = false;
+  let betAreaState    = 'off'; // 관리자가 켤 때만 카드 표시
 
   // 뽑기 게임 상태
   let gamePhase      = 'idle'; // 'idle' | 'picking' | 'result'
@@ -914,6 +915,10 @@
     onValue(ref(db,'bets/rounds'), snap => {
       const rounds = snap.val() || {};
       curBetRound = curBetRoundId ? rounds[curBetRoundId] : null;
+      onBetUpdate();
+    });
+    onValue(ref(db,'bets/areaState'), snap => {
+      betAreaState = snap.val() || 'off';
       onBetUpdate();
     });
   }
@@ -1782,7 +1787,9 @@
     const body = document.getElementById('betBody');
     if (!card) return;
 
-    // 진행 중 회차 없음 → 카드 자체 숨김
+    // 관리자가 베팅 영역을 닫아둔 경우 → 무조건 숨김
+    if (betAreaState !== 'on') { card.style.display = 'none'; return; }
+    // 영역은 열려있지만 진행/정산된 회차가 없음 → 숨김
     if (!curBetRound) { card.style.display = 'none'; return; }
     card.style.display = '';
 

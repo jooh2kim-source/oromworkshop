@@ -515,6 +515,20 @@
     </div>
 
     <div class="tab-panel" id="tab-betting">
+      <!-- 베팅 영역 표시 토글 (참가자 페이지 전체 카드 on/off) -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">👁️</span><span class="sh-title">베팅 영역 표시</span></div>
+        <div class="section-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.55">
+            참가자 페이지에 베팅 카드를 표시할지 여부.<br>닫으면 회차가 정산 후 결과 카드도 사라집니다. (회차 데이터는 보존)
+          </p>
+          <div class="shop-state-row">
+            <button class="shop-state-btn" id="bsOff" onclick="setBetAreaState('off')">📭 준비중 (숨김)</button>
+            <button class="shop-state-btn" id="bsOn" onclick="setBetAreaState('on')">🎰 오픈 (표시)</button>
+          </div>
+        </div>
+      </div>
+
       <!-- 회차 생성 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">🎲</span><span class="sh-title">새 회차 만들기</span></div>
@@ -646,6 +660,7 @@
   let allShopItems    = {};
   let allBetRounds    = {};
   let currentBetRoundId = null;
+  let betAreaState    = 'off'; // 'off' | 'on'
 
   window.switchTab = function(name, btn) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -680,6 +695,7 @@
     onValue(ref(db,'shop/items'),   snap => { allShopItems = snap.val()||{}; renderShopAdminList(); });
     onValue(ref(db,'bets/rounds'),  snap => { allBetRounds = snap.val()||{}; renderBetTab(); });
     onValue(ref(db,'bets/currentRound'), snap => { currentBetRoundId = snap.val()||null; renderBetTab(); });
+    onValue(ref(db,'bets/areaState'),    snap => { betAreaState = snap.val() || 'off'; renderBetAreaButtons(); });
   }
 
   function renderSettingsPanel() {
@@ -1185,6 +1201,18 @@
   function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   // ── 🎰 베팅 ─────────────────────────────────────────────
+  window.setBetAreaState = async function(state) {
+    await update(ref(db, 'bets'), { areaState: state });
+    showToast(`베팅 영역: ${state === 'on' ? '오픈' : '준비중'}`, 'success');
+  };
+  function renderBetAreaButtons() {
+    const off = document.getElementById('bsOff');
+    const on  = document.getElementById('bsOn');
+    if (!off || !on) return;
+    off.classList.toggle('active', betAreaState !== 'on');
+    on.classList.toggle('active',  betAreaState === 'on');
+  }
+
   window.createBetRound = async function() {
     const title    = document.getElementById('betTitle').value.trim();
     const optionA  = document.getElementById('betOptionA').value.trim();
