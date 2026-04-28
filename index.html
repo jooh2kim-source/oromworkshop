@@ -300,6 +300,15 @@
     background:linear-gradient(135deg, #5B50F0 0%, #4338ca 100%);
     color:#fff;
   }
+  .bet-header.preparing {
+    cursor:default;
+    pointer-events:none;
+    background:var(--surface2);
+    color:var(--text2);
+  }
+  .bet-header.preparing .bh-status {
+    background:transparent; color:var(--text2); font-weight:700;
+  }
   .bet-header .bh-icon { font-size:22px; line-height:1; }
   .bet-header .bh-title { font-size:15px; font-weight:800; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .bet-header .bh-status {
@@ -1787,10 +1796,28 @@
     const body = document.getElementById('betBody');
     if (!card) return;
 
-    // 관리자가 베팅 영역을 닫아둔 경우 → 무조건 숨김
-    if (betAreaState !== 'on') { card.style.display = 'none'; return; }
-    // 영역은 열려있지만 진행/정산된 회차가 없음 → 숨김
-    if (!curBetRound) { card.style.display = 'none'; return; }
+    // 관리자가 베팅 영역을 닫아둔 경우 → 준비중 placeholder 만 표시
+    if (betAreaState !== 'on') {
+      card.style.display = '';
+      header.className = 'bet-header preparing';
+      headerTitle.textContent = '🎰 베팅';
+      headerStatus.className = 'bh-status';
+      headerStatus.textContent = '준비중 ⏳';
+      headerToggle.textContent = '';
+      body.style.display = 'none';
+      return;
+    }
+    // 영역은 열려있지만 진행/정산된 회차가 없음 → 곧 시작 placeholder
+    if (!curBetRound) {
+      card.style.display = '';
+      header.className = 'bet-header preparing';
+      headerTitle.textContent = '🎰 베팅';
+      headerStatus.className = 'bh-status';
+      headerStatus.textContent = '곧 시작됩니다';
+      headerToggle.textContent = '';
+      body.style.display = 'none';
+      return;
+    }
     card.style.display = '';
 
     const r = curBetRound;

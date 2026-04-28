@@ -313,6 +313,8 @@
   .shop-state-btn.active#ssPreparing { background:var(--accent4); border-color:var(--accent4); color:#fff; }
   .shop-state-btn.active#ssOpen      { background:var(--accent3); border-color:var(--accent3); color:#fff; box-shadow:0 4px 12px rgba(22,184,100,0.25); }
   .shop-state-btn.active#ssClosed    { background:#7a7a9a; border-color:#7a7a9a; color:#fff; }
+  .shop-state-btn.active#bsOff       { background:#7a7a9a; border-color:#7a7a9a; color:#fff; }
+  .shop-state-btn.active#bsOn        { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.25); }
 
   /* ── 매점 아이템 폼·리스트 ── */
   .shop-form { display:flex; flex-direction:column; gap:8px; padding:12px; background:var(--surface2); border-radius:12px; border:1px solid var(--border); }
@@ -522,7 +524,7 @@
           <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.55">
             참가자 페이지에 베팅 카드를 표시할지 여부.<br>닫으면 회차가 정산 후 결과 카드도 사라집니다. (회차 데이터는 보존)
           </p>
-          <div class="shop-state-row">
+          <div class="shop-state-row" style="grid-template-columns:repeat(2,1fr)">
             <button class="shop-state-btn" id="bsOff" onclick="setBetAreaState('off')">📭 준비중 (숨김)</button>
             <button class="shop-state-btn" id="bsOn" onclick="setBetAreaState('on')">🎰 오픈 (표시)</button>
           </div>
