@@ -439,6 +439,13 @@
   .treasure-card-p .tcp-title { font-size:13px; font-weight:800; }
   .treasure-card-p .tcp-hint  { font-size:11px; color:var(--text2); line-height:1.4; min-height:14px; }
   .treasure-card-p .tcp-finder { font-size:11px; color:var(--accent3); font-weight:700; margin-top:2px; }
+  .tcp-claim-btn {
+    margin:6px 8px 8px; padding:7px;
+    background:var(--gold); color:#fff; border:none; border-radius:8px;
+    font-size:12px; font-weight:800; font-family:'Noto Sans KR',sans-serif;
+    cursor:pointer; transition:all 0.12s;
+  }
+  .tcp-claim-btn:active { transform:scale(0.96); opacity:0.85; }
 
   /* 사진 확대 모달 */
   .treasure-modal {
@@ -2182,14 +2189,18 @@
       totalCount++;
       const isFound = !!t.found;
       if (isFound) foundCount++;
+      const claimBtn = !isFound
+        ? `<button class="tcp-claim-btn" onclick="event.stopPropagation(); window.claimTreasure(${i})">🎯 찾았어요! 코드 입력</button>`
+        : '';
       cards += `
-        <div class="treasure-card-p ${isFound?'found':''}" onclick="window.openTreasureModal(${i})">
-          <div class="tcp-photo"><img src="${t.photo}" alt="${i}번 보물"></div>
-          <div class="tcp-info">
+        <div class="treasure-card-p ${isFound?'found':''}">
+          <div class="tcp-photo" onclick="window.openTreasureModal(${i})"><img src="${t.photo}" alt="${i}번 보물"></div>
+          <div class="tcp-info" onclick="window.openTreasureModal(${i})">
             <div class="tcp-title">${escHtml(t.title || `${i}번 보물`)}</div>
             <div class="tcp-hint">${escHtml(t.description || '')}</div>
             ${isFound ? `<div class="tcp-finder">✓ ${escHtml(t.foundBy || '')}</div>` : ''}
           </div>
+          ${claimBtn}
         </div>`;
     }
     if (totalCount === 0) {
@@ -2205,6 +2216,49 @@
     }
     body.innerHTML = html;
   }
+
+  let claimProcessing = false;
+  window.claimTreasure = async function(slotNum) {
+    if (claimProcessing) return;
+    const t = allTreasures[slotNum];
+    if (!t || !t.photo) return;
+    if (t.found) { alert(`이미 ${t.foundBy || '다른 분'}이 찾으셨어요!`); return; }
+    if (!t.code || String(t.code).length !== 4) { alert('아직 인증코드가 등록되지 않았어요. 관리자에게 문의해주세요.'); return; }
+
+    const input = prompt(`【${t.title || slotNum + '번 보물'}】\n\n4자리 인증코드를 입력해주세요:`);
+    if (input == null) return; // cancel
+    const code = String(input).trim();
+    if (code.length !== 4 || !/^\d{4}$/.test(code)) {
+      alert('⚠️ 4자리 숫자를 입력해주세요.');
+      return;
+    }
+    if (code !== String(t.code)) {
+      alert('❌ 코드가 다릅니다. 다시 확인해주세요.');
+      return;
+    }
+
+    claimProcessing = true;
+    try {
+      const me = allParticipants[currentUser.uid];
+      const myName = dispName(me);
+      const tx = await runTransaction(ref(db, `treasures/items/${slotNum}`), (cur) => {
+        if (!cur || cur.found) return; // 이미 다른 사람이 먼저 → abort
+        cur.found = true;
+        cur.foundBy = myName;
+        cur.foundAt = Date.now();
+        return cur;
+      });
+      if (!tx.committed) {
+        alert('아쉬워요! 다른 분이 먼저 찾으셨어요.');
+      } else {
+        alert(`🎉 ${slotNum}번 보물 발견!\n\n축하합니다 ${myName}님!`);
+      }
+    } catch (e) {
+      console.error('claim error', e);
+      alert('오류 발생: ' + e.message);
+    }
+    claimProcessing = false;
+  };
 
   let treasureModalZoomed = false;
   window.openTreasureModal = function(slotNum) {

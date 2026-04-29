@@ -344,6 +344,8 @@
   .shop-state-btn.active#ssClosed    { background:#7a7a9a; border-color:#7a7a9a; color:#fff; }
   .shop-state-btn.active#bsOff       { background:#7a7a9a; border-color:#7a7a9a; color:#fff; }
   .shop-state-btn.active#bsOn        { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 4px 12px rgba(91,80,240,0.25); }
+  .shop-state-btn.active#tsOff       { background:#7a7a9a; border-color:#7a7a9a; color:#fff; }
+  .shop-state-btn.active#tsOn        { background:var(--gold); border-color:var(--gold); color:#fff; box-shadow:0 4px 12px rgba(224,139,0,0.3); }
 
   /* ── 매점 아이템 폼·리스트 ── */
   .shop-form { display:flex; flex-direction:column; gap:8px; padding:12px; background:var(--surface2); border-radius:12px; border:1px solid var(--border); }
@@ -1516,6 +1518,12 @@
     await update(ref(db, `treasures/items/${slotNum}`), { [field]: value });
   };
 
+  window.saveTreasureCode = async function(slotNum, value) {
+    const v = String(value || '').replace(/[^0-9]/g, '').slice(0, 4);
+    await update(ref(db, `treasures/items/${slotNum}`), { code: v });
+    if (v.length === 4) showToast(`${slotNum}번 코드 저장: ${v}`, 'success');
+  };
+
   window.markTreasureFound = async function(slotNum) {
     const finder = document.getElementById(`tFinder-${slotNum}`).value.trim();
     if (!finder) { showToast('발견자 이름을 입력하세요','error'); return; }
@@ -1569,6 +1577,7 @@
           </label>
           <input type="text" class="treasure-input" placeholder="제목 (예: 1번 보물)" value="${escHtml(t.title||'')}" onchange="saveTreasureField(${i},'title',this.value)" maxlength="20">
           <input type="text" class="treasure-input" placeholder="힌트 (선택)" value="${escHtml(t.description||'')}" onchange="saveTreasureField(${i},'description',this.value)" maxlength="40">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" class="treasure-input" placeholder="🔢 인증코드 (4자리 숫자)" value="${escHtml(t.code||'')}" onchange="saveTreasureCode(${i},this.value)" maxlength="4" style="font-family:'Space Mono',monospace;letter-spacing:4px;text-align:center">
           ${finderRow}
         </div>`;
     }
