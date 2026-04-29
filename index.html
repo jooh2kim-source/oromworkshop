@@ -1067,6 +1067,28 @@
       allRooms = snap.val() || {};
       updateMyRoom();
     });
+
+    // 화면 잠들었다 깨어났을 때: 베팅·보물·매점 상태 강제 재조회 (websocket 끊김 대비)
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState !== 'visible' || !currentUser) return;
+      try {
+        const [bRid, bRounds, bArea, tItems, tArea] = await Promise.all([
+          get(ref(db,'bets/currentRound')),
+          get(ref(db,'bets/rounds')),
+          get(ref(db,'bets/areaState')),
+          get(ref(db,'treasures/items')),
+          get(ref(db,'treasures/areaState')),
+        ]);
+        curBetRoundId = bRid.val() || null;
+        const rounds = bRounds.val() || {};
+        curBetRound = curBetRoundId ? rounds[curBetRoundId] : null;
+        betAreaState = bArea.val() || 'off';
+        allTreasures = tItems.val() || {};
+        treasureAreaState = tArea.val() || 'off';
+        renderBetSection();
+        renderTreasureSection();
+      } catch (e) { console.warn('[visibility refresh] fail', e); }
+    });
   }
 
   // ── 매점 상태 배너 ────────────────────────────────────
@@ -1987,7 +2009,7 @@
     const expanded = betSectionUserToggle !== null ? betSectionUserToggle : autoExpand;
     body.style.display = expanded ? '' : 'none';
     headerToggle.textContent = expanded ? '▲' : '▼';
-    if (!expanded) return;
+    // 본문은 펼침 여부 관계없이 항상 갱신 (접혀있어도 다음에 펼쳤을 때 fresh)
 
     const totalA = r.totalA || 0, totalB = r.totalB || 0;
     const countA = r.countA || 0, countB = r.countB || 0;
@@ -2190,7 +2212,7 @@
     const expanded = treasureSectionUserToggle !== null ? treasureSectionUserToggle : true;
     body.style.display = expanded ? '' : 'none';
     toggle.textContent = expanded ? '▲' : '▼';
-    if (!expanded) return;
+    // 본문은 펼침 여부 관계없이 항상 갱신
 
     // Body content
     let foundCount = 0, totalCount = 0;
