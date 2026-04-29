@@ -928,6 +928,7 @@
   let allTeams        = {};
   let allBbqTeams     = {};
   let lastMyScore     = null; // 내 잔액 변화 감지용 (매점/선물 영역 동기화)
+  let allRooms        = {}; // rooms/{roomKey}/captainId
   let curBetRoundId   = null;
   let curBetRound     = null;
   let betSectionUserToggle = null; // null=auto, true/false=수동 override
@@ -1061,6 +1062,10 @@
     onValue(ref(db,'treasures/areaState'), snap => {
       treasureAreaState = snap.val() || 'off';
       renderTreasureSection();
+    });
+    onValue(ref(db,'rooms'), snap => {
+      allRooms = snap.val() || {};
+      updateMyRoom();
     });
   }
 
@@ -1210,13 +1215,21 @@
     const me = allParticipants[currentUser.uid];
     if (!me || !me.room) { card.style.display = 'none'; return; }
     card.style.display = 'flex';
-    // 같은 방 모든 멤버 (본인 포함, 가나다순 대신 uid 순으로 안정 정렬)
+    const captainId = allRooms[me.room]?.captainId;
+    // 방장 먼저, 그 다음 uid 순
     const members = Object.entries(allParticipants)
       .filter(([uid,p]) => p.room === me.room)
-      .sort(([a],[b]) => a.localeCompare(b))
-      .map(([uid,p]) => roomDispName(p));
+      .sort(([a],[b]) => {
+        if (a === captainId) return -1;
+        if (b === captainId) return  1;
+        return a.localeCompare(b);
+      })
+      .map(([uid,p]) => {
+        const display = escHtml(roomDispName(p));
+        return uid === captainId ? `👑 ${display}` : display;
+      });
     document.getElementById('roomText').innerHTML =
-      `<strong>${escHtml(me.room)}</strong>: ${escHtml(members.join(', '))}`;
+      `<strong>${escHtml(me.room)}</strong>: ${members.join(', ')}`;
   }
 
   // ── 공지 ─────────────────────────────────────────────
