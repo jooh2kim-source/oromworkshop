@@ -153,6 +153,24 @@
   .treasure-actions .btn-clear { background:#fff; color:var(--danger); border-color:var(--danger); }
   .treasure-finder { font-size:11px; color:var(--accent3); font-weight:700; text-align:center; padding:2px; }
 
+  /* ── 접힘 섹션 (details) ── */
+  details.collapse-card {
+    border:1.5px solid var(--border); border-radius:14px; background:var(--surface);
+    overflow:hidden;
+  }
+  details.collapse-card > summary {
+    list-style:none; cursor:pointer; padding:14px 18px;
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface2); transition:background 0.12s;
+  }
+  details.collapse-card > summary::-webkit-details-marker { display:none; }
+  details.collapse-card > summary:hover { background:#e8ebf5; }
+  details.collapse-card > summary .cs-icon { font-size:18px; }
+  details.collapse-card > summary .cs-title { font-size:14px; font-weight:800; flex:1; }
+  details.collapse-card > summary .cs-arrow { font-size:11px; color:var(--text2); transition:transform 0.2s; }
+  details.collapse-card[open] > summary .cs-arrow { transform:rotate(180deg); }
+  details.collapse-card > .collapse-body { padding:8px 16px 16px; }
+
   .team-type-row { display:flex; gap:6px; margin-bottom:12px; }
   .team-type-btn {
     flex:1; background:var(--surface2); border:1.5px solid var(--border);
@@ -396,12 +414,10 @@
     <div class="tab-row">
       <button class="tab-btn active" onclick="switchTab('team',this)">🏅 팀 점수</button>
       <button class="tab-btn" onclick="switchTab('personal',this)">👤 개인 점수</button>
+      <button class="tab-btn" onclick="switchTab('settings',this)">⚙️ 설정</button>
       <button class="tab-btn" onclick="switchTab('betting',this)">🎰 베팅</button>
       <button class="tab-btn" onclick="switchTab('treasure',this)">🔍 보물찾기</button>
-      <button class="tab-btn" onclick="switchTab('notice',this)">📢 공지</button>
-      <button class="tab-btn" onclick="switchTab('log',this)">📋 로그</button>
-      <button class="tab-btn" onclick="switchTab('scores',this)">📊 현황</button>
-      <button class="tab-btn" onclick="switchTab('settings',this)">⚙️ 설정</button>
+      <button class="tab-btn" onclick="switchTab('shop',this)">🛒 매점</button>
     </div>
 
     <div class="tab-panel active" id="tab-team">
@@ -430,6 +446,49 @@
           </div>
         </div>
       </div>
+
+      <!-- 팀 관리 (팀명 · 팀장) -->
+      <div class="section-card">
+        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 관리 (이름 · 팀장)</span></div>
+        <div class="section-body">
+          <div class="team-type-row">
+            <button class="team-type-btn active pt" id="stgTtPt"  onclick="stgSwitchTeamType('pt')">💪 피지컬50</button>
+            <button class="team-type-btn bbq"      id="stgTtBbq" onclick="stgSwitchTeamType('bbq')">🍖 바베큐</button>
+          </div>
+          <select class="admin-select" id="stgSelectTeam" onchange="stgOnTeamSelectChange()"><option value="">팀 선택...</option></select>
+          <div class="team-manage-box" id="stgTeamManageBox" style="display:none">
+            <div>
+              <div class="team-manage-label">팀명 수정</div>
+              <div class="team-manage-row">
+                <input type="text" class="custom-input" id="stgTeamNameInput" placeholder="새 팀 이름" maxlength="20">
+                <button class="btn-apply" onclick="stgApplyTeamName()">저장</button>
+              </div>
+            </div>
+            <div>
+              <div class="team-manage-label">👑 팀장 지정</div>
+              <div class="team-manage-row">
+                <select class="admin-select" id="stgTeamCaptainSelect"><option value="">미지정</option></select>
+                <button class="btn-apply" onclick="stgApplyCaptain()">저장</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 팀 현황 (접힘) -->
+      <details class="collapse-card">
+        <summary><span class="cs-icon">📊</span><span class="cs-title">팀 현황 표 보기</span><span class="cs-arrow">▼</span></summary>
+        <div class="collapse-body">
+          <div style="margin-bottom:14px">
+            <div style="font-size:13px;font-weight:800;margin:6px 0 6px;color:var(--accent)">💪 피지컬50</div>
+            <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="teamScoresTbody"></tbody></table>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:800;margin:6px 0 6px;color:var(--gold)">🍖 바베큐</div>
+            <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="bbqScoresTbody"></tbody></table>
+          </div>
+        </div>
+      </details>
     </div>
 
     <div class="tab-panel" id="tab-personal">
@@ -491,9 +550,18 @@
           </div>
         </div>
       </div>
+
+      <!-- 개인 현황 (접힘) -->
+      <details class="collapse-card">
+        <summary><span class="cs-icon">📊</span><span class="cs-title">개인 점수 현황 표 보기</span><span class="cs-arrow">▼</span></summary>
+        <div class="collapse-body">
+          <table class="scores-table"><thead><tr><th>이름</th><th>피지컬50</th><th>바베큐</th><th>점수</th></tr></thead><tbody id="personalScoresTbody"></tbody></table>
+        </div>
+      </details>
     </div>
 
-    <div class="tab-panel" id="tab-notice">
+    <div class="tab-panel" id="tab-settings">
+      <!-- 공지 작성 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">📢</span><span class="sh-title">공지 작성</span></div>
         <div class="section-body">
@@ -501,37 +569,8 @@
           <button class="btn-notice" onclick="sendNotice()">📤 공지 전송</button>
         </div>
       </div>
-    </div>
 
-    <div class="tab-panel" id="tab-log">
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">📋</span><span class="sh-title">점수 로그</span></div>
-        <div style="padding:8px 16px 16px" id="logList">
-          <div class="loading-dots"><span></span><span></span><span></span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tab-panel" id="tab-scores">
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">💪</span><span class="sh-title">피지컬50 팀 현황</span></div>
-        <div style="padding:8px 16px">
-          <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="teamScoresTbody"></tbody></table>
-        </div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">🍖</span><span class="sh-title">바베큐 팀 현황</span></div>
-        <div style="padding:8px 16px">
-          <table class="scores-table"><thead><tr><th>팀</th><th>점수</th></tr></thead><tbody id="bbqScoresTbody"></tbody></table>
-        </div>
-      </div>
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">👤</span><span class="sh-title">개인 현황</span></div>
-        <div style="padding:8px 16px">
-          <table class="scores-table"><thead><tr><th>이름</th><th>피지컬50</th><th>바베큐</th><th>점수</th></tr></thead><tbody id="personalScoresTbody"></tbody></table>
-        </div>
-      </div>
-      <!-- 💾 전체 점수 백업 (최후의 보루) -->
+      <!-- 💾 전체 점수 백업 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">💾</span><span class="sh-title">전체 점수 백업</span></div>
         <div class="section-body">
@@ -540,6 +579,7 @@
         </div>
       </div>
 
+      <!-- 점수 초기화 -->
       <div class="section-card" style="border-color:rgba(224,32,64,0.3)">
         <div class="section-header"><span class="sh-icon">⚠️</span><span class="sh-title" style="color:var(--danger)">점수 초기화</span></div>
         <div class="section-body">
@@ -547,6 +587,14 @@
           <button class="btn-danger" onclick="resetAllScores()">🔄 전체 점수 및 기록 초기화</button>
         </div>
       </div>
+
+      <!-- 점수 로그 (접힘) -->
+      <details class="collapse-card">
+        <summary><span class="cs-icon">📋</span><span class="cs-title">점수 변경 로그 보기</span><span class="cs-arrow">▼</span></summary>
+        <div class="collapse-body" id="logList">
+          <div class="loading-dots"><span></span><span></span><span></span></div>
+        </div>
+      </details>
     </div>
 
     <div class="tab-panel" id="tab-betting">
@@ -626,34 +674,7 @@
       </div>
     </div>
 
-    <div class="tab-panel" id="tab-settings">
-      <!-- 팀 관리 (팀명 · 팀장) -->
-      <div class="section-card">
-        <div class="section-header"><span class="sh-icon">🏅</span><span class="sh-title">팀 관리</span></div>
-        <div class="section-body">
-          <div class="team-type-row">
-            <button class="team-type-btn active pt" id="stgTtPt"  onclick="stgSwitchTeamType('pt')">💪 피지컬50</button>
-            <button class="team-type-btn bbq"      id="stgTtBbq" onclick="stgSwitchTeamType('bbq')">🍖 바베큐</button>
-          </div>
-          <select class="admin-select" id="stgSelectTeam" onchange="stgOnTeamSelectChange()"><option value="">팀 선택...</option></select>
-          <div class="team-manage-box" id="stgTeamManageBox" style="display:none">
-            <div>
-              <div class="team-manage-label">팀명 수정</div>
-              <div class="team-manage-row">
-                <input type="text" class="custom-input" id="stgTeamNameInput" placeholder="새 팀 이름" maxlength="20">
-                <button class="btn-apply" onclick="stgApplyTeamName()">저장</button>
-              </div>
-            </div>
-            <div>
-              <div class="team-manage-label">👑 팀장 지정</div>
-              <div class="team-manage-row">
-                <select class="admin-select" id="stgTeamCaptainSelect"><option value="">미지정</option></select>
-                <button class="btn-apply" onclick="stgApplyCaptain()">저장</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="tab-panel" id="tab-shop">
       <!-- 매점 상태 (3단계: 준비중 / 운영중 / 마감) -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">🛒</span><span class="sh-title">매점 상태</span></div>
