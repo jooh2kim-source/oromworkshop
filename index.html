@@ -377,6 +377,108 @@
   .bet-wagers-list .bw-section:last-child { margin-bottom:0; }
   .bet-wagers-list .bw-label { font-weight:800; color:var(--accent); margin-right:4px; }
 
+  /* ── 🔍 보물찾기 ── */
+  .treasure-section-card { padding:0; overflow:hidden; }
+  .treasure-header {
+    padding:14px 18px; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface2);
+    transition:background 0.15s;
+  }
+  .treasure-header.live {
+    background:linear-gradient(135deg, #E08B00 0%, #B45309 100%);
+    color:#fff;
+  }
+  .treasure-header.preparing {
+    cursor:default; pointer-events:none;
+    background:var(--surface2); color:var(--text2);
+  }
+  .treasure-header .th-icon { font-size:22px; line-height:1; }
+  .treasure-header .th-title { font-size:15px; font-weight:800; flex:1; }
+  .treasure-header .th-status {
+    font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px;
+    background:rgba(255,255,255,0.25);
+  }
+  .treasure-header.live .th-status { background:#fff; color:var(--gold); }
+  .treasure-header.preparing .th-status { background:transparent; color:var(--text2); }
+  .treasure-header .th-toggle { font-size:12px; opacity:0.7; }
+
+  .treasure-body { padding:14px 18px; display:flex; flex-direction:column; gap:10px; }
+  .treasure-progress {
+    font-size:13px; font-weight:700; color:var(--gold); text-align:center;
+    padding:8px; background:#fff8e8; border:1px solid rgba(224,139,0,0.2); border-radius:10px;
+  }
+  .treasure-progress.complete {
+    color:var(--accent3); background:#e8fbef; border-color:rgba(22,184,100,0.3);
+  }
+  .treasure-grid-p {
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;
+  }
+  .treasure-card-p {
+    border:1.5px solid var(--border); border-radius:10px; overflow:hidden;
+    background:var(--surface); display:flex; flex-direction:column;
+    cursor:pointer; transition:transform 0.12s;
+  }
+  .treasure-card-p:active { transform:scale(0.98); }
+  .treasure-card-p.found { opacity:0.55; border-color:var(--accent3); }
+  .treasure-card-p .tcp-photo {
+    width:100%; aspect-ratio:1/1; background:var(--surface2);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text2); font-size:11px; position:relative; overflow:hidden;
+  }
+  .treasure-card-p .tcp-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+  .treasure-card-p.found .tcp-photo::after {
+    content:'✓ 발견!'; position:absolute; inset:0;
+    background:rgba(22,184,100,0.55); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:900; letter-spacing:1px;
+  }
+  .treasure-card-p .tcp-info {
+    padding:8px 10px; display:flex; flex-direction:column; gap:2px;
+  }
+  .treasure-card-p .tcp-title { font-size:13px; font-weight:800; }
+  .treasure-card-p .tcp-hint  { font-size:11px; color:var(--text2); line-height:1.4; min-height:14px; }
+  .treasure-card-p .tcp-finder { font-size:11px; color:var(--accent3); font-weight:700; margin-top:2px; }
+
+  /* 사진 확대 모달 */
+  .treasure-modal {
+    position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.92);
+    display:none; flex-direction:column;
+  }
+  .treasure-modal.open { display:flex; }
+  .treasure-modal-close {
+    position:absolute; top:12px; right:12px; z-index:10000;
+    width:42px; height:42px; border-radius:50%;
+    background:rgba(255,255,255,0.15); color:#fff;
+    border:none; font-size:22px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .treasure-modal-zoom-hint {
+    position:absolute; top:18px; left:50%; transform:translateX(-50%);
+    color:rgba(255,255,255,0.7); font-size:12px; pointer-events:none;
+  }
+  .treasure-modal-content {
+    flex:1; overflow:auto; -webkit-overflow-scrolling:touch;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:pinch-zoom;
+  }
+  .treasure-modal-content img {
+    max-width:100%; max-height:100%; display:block;
+    transition:transform 0.2s; transform-origin:center center;
+    cursor:zoom-in;
+  }
+  .treasure-modal-content img.zoomed {
+    max-width:none; max-height:none;
+    cursor:zoom-out;
+  }
+  .treasure-modal-caption {
+    background:rgba(0,0,0,0.6); color:#fff;
+    padding:10px 16px; text-align:center;
+  }
+  .treasure-modal-caption .tmc-title { font-size:14px; font-weight:800; }
+  .treasure-modal-caption .tmc-hint  { font-size:12px; color:rgba(255,255,255,0.8); margin-top:2px; }
+
   /* ── 공지 ── */
   .notice-body  { padding:16px 18px; }
   .notice-empty { color:var(--text2); font-size:14px; text-align:center; padding:8px 0; }
@@ -646,6 +748,17 @@
         <div class="bet-body" id="betBody" style="display:none"></div>
       </div>
 
+      <!-- 🔍 보물찾기 -->
+      <div class="section-card treasure-section-card" id="treasureCard" style="display:none">
+        <div class="treasure-header" id="treasureHeader" onclick="window.toggleTreasureSection()">
+          <span class="th-icon">🔍</span>
+          <span class="th-title" id="treasureHeaderTitle">보물찾기</span>
+          <span class="th-status" id="treasureHeaderStatus"></span>
+          <span class="th-toggle" id="treasureHeaderToggle">▼</span>
+        </div>
+        <div class="treasure-body" id="treasureBody" style="display:none"></div>
+      </div>
+
       <!-- 개인 TOP 5 -->
       <div class="section-card">
         <div class="section-header"><span class="sh-icon">⭐</span><span class="sh-title">개인 TOP 5</span></div>
@@ -813,6 +926,9 @@
   let betSectionUserToggle = null; // null=auto, true/false=수동 override
   let betProcessing   = false;
   let betAreaState    = 'off'; // 관리자가 켤 때만 카드 표시
+  let allTreasures    = {};
+  let treasureAreaState = 'off';
+  let treasureSectionUserToggle = null;
 
   // 뽑기 게임 상태
   let gamePhase      = 'idle'; // 'idle' | 'picking' | 'result'
@@ -930,6 +1046,14 @@
     onValue(ref(db,'bets/areaState'), snap => {
       betAreaState = snap.val() || 'off';
       onBetUpdate();
+    });
+    onValue(ref(db,'treasures/items'), snap => {
+      allTreasures = snap.val() || {};
+      renderTreasureSection();
+    });
+    onValue(ref(db,'treasures/areaState'), snap => {
+      treasureAreaState = snap.val() || 'off';
+      renderTreasureSection();
     });
   }
 
@@ -2010,10 +2134,131 @@
     betProcessing = false;
   };
 
+  // ── 🔍 보물찾기 ───────────────────────────────────────
+  window.toggleTreasureSection = function() {
+    const body = document.getElementById('treasureBody');
+    const wasVisible = body.style.display !== 'none';
+    treasureSectionUserToggle = !wasVisible;
+    renderTreasureSection();
+  };
+
+  function renderTreasureSection() {
+    const card = document.getElementById('treasureCard');
+    const header = document.getElementById('treasureHeader');
+    const title = document.getElementById('treasureHeaderTitle');
+    const status = document.getElementById('treasureHeaderStatus');
+    const toggle = document.getElementById('treasureHeaderToggle');
+    const body = document.getElementById('treasureBody');
+    if (!card) return;
+
+    // areaState off → preparing placeholder
+    if (treasureAreaState !== 'on') {
+      card.style.display = '';
+      header.className = 'treasure-header preparing';
+      title.textContent = '보물찾기';
+      status.textContent = '준비중 ⏳';
+      toggle.textContent = '';
+      body.style.display = 'none';
+      return;
+    }
+
+    // on
+    card.style.display = '';
+    header.className = 'treasure-header live';
+    title.textContent = '보물찾기';
+    status.textContent = 'LIVE';
+    const expanded = treasureSectionUserToggle !== null ? treasureSectionUserToggle : true;
+    body.style.display = expanded ? '' : 'none';
+    toggle.textContent = expanded ? '▲' : '▼';
+    if (!expanded) return;
+
+    // Body content
+    let foundCount = 0, totalCount = 0;
+    let html = '';
+    let cards = '';
+    for (let i = 1; i <= 7; i++) {
+      const t = allTreasures[i];
+      if (!t || !t.photo) continue;
+      totalCount++;
+      const isFound = !!t.found;
+      if (isFound) foundCount++;
+      cards += `
+        <div class="treasure-card-p ${isFound?'found':''}" onclick="window.openTreasureModal(${i})">
+          <div class="tcp-photo"><img src="${t.photo}" alt="${i}번 보물"></div>
+          <div class="tcp-info">
+            <div class="tcp-title">${escHtml(t.title || `${i}번 보물`)}</div>
+            <div class="tcp-hint">${escHtml(t.description || '')}</div>
+            ${isFound ? `<div class="tcp-finder">✓ ${escHtml(t.foundBy || '')}</div>` : ''}
+          </div>
+        </div>`;
+    }
+    if (totalCount === 0) {
+      html += `<div class="treasure-progress">📭 곧 보물이 등록됩니다</div>`;
+    } else {
+      const allFound = foundCount === totalCount;
+      const progressClass = allFound ? 'treasure-progress complete' : 'treasure-progress';
+      const progressText = allFound
+        ? `🎉 모든 보물을 찾았습니다! (${foundCount}/${totalCount})`
+        : `🗺️ 진행 ${foundCount}/${totalCount} — 사진을 탭하면 크게 볼 수 있어요`;
+      html += `<div class="${progressClass}">${progressText}</div>`;
+      html += `<div class="treasure-grid-p">${cards}</div>`;
+    }
+    body.innerHTML = html;
+  }
+
+  let treasureModalZoomed = false;
+  window.openTreasureModal = function(slotNum) {
+    const t = allTreasures[slotNum];
+    if (!t || !t.photo) return;
+    document.getElementById('treasureModalImg').src = t.photo;
+    document.getElementById('treasureModalImg').classList.remove('zoomed');
+    document.getElementById('treasureModalImg').style.transform = '';
+    document.getElementById('treasureModalTitle').textContent = t.title || `${slotNum}번 보물`;
+    document.getElementById('treasureModalHint').textContent = t.description || '';
+    document.getElementById('treasureModal').classList.add('open');
+    treasureModalZoomed = false;
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeTreasureModal = function(event, force) {
+    // 이미지 자체 클릭은 닫지 않음 (확대 토글)
+    if (event && !force && event.target.tagName === 'IMG') return;
+    document.getElementById('treasureModal').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  window.toggleTreasureZoom = function(event) {
+    event.stopPropagation();
+    const img = document.getElementById('treasureModalImg');
+    treasureModalZoomed = !treasureModalZoomed;
+    if (treasureModalZoomed) {
+      img.classList.add('zoomed');
+      img.style.transform = 'scale(2)';
+    } else {
+      img.classList.remove('zoomed');
+      img.style.transform = '';
+      // 스크롤 위치 초기화
+      const content = img.parentElement;
+      content.scrollTop = 0; content.scrollLeft = 0;
+    }
+  };
+
   // ── 유틸 ─────────────────────────────────────────────
   function escHtml(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 </script>
+
+<!-- 🔍 보물 사진 확대 모달 -->
+<div class="treasure-modal" id="treasureModal" onclick="window.closeTreasureModal(event)">
+  <button class="treasure-modal-close" onclick="window.closeTreasureModal(event, true)">✕</button>
+  <div class="treasure-modal-zoom-hint">탭하면 확대 · 핀치로 줌</div>
+  <div class="treasure-modal-content">
+    <img id="treasureModalImg" src="" alt="보물 사진" onclick="window.toggleTreasureZoom(event)">
+  </div>
+  <div class="treasure-modal-caption">
+    <div class="tmc-title" id="treasureModalTitle"></div>
+    <div class="tmc-hint" id="treasureModalHint"></div>
+  </div>
+</div>
+
 </body>
 </html>
